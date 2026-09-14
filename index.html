@@ -1,0 +1,2761 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>EVI Sociedade de Advogados | Advocacia</title>
+    <meta name="description"
+        content="Consultoria e atuação contenciosa em Direito Médico, Cível, Família, Trabalhista e Empresarial, atendendo clientes em todo o território nacional.">
+    <meta name="theme-color" content="#18283a">
+    <style>
+        :root {
+            --deep: #18283a;
+            --accent: #728699;
+            --silver: #b8c7d6;
+            --silver-bright: #e2e8f0;
+            --soft: #f1f4f6;
+            --ink: #192229;
+            --muted: #66727c;
+            --line: #e1e7e9;
+            --white: #fff;
+            --green: #25d366;
+            --shadow: 0 20px 55px rgba(18, 34, 42, .11);
+            --soft-shadow: 0 12px 32px rgba(0, 0, 0, .06);
+            --serif: Georgia, 'Times New Roman', serif;
+            --sans: Inter, 'Segoe UI', Arial, sans-serif
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            overflow-x: clip;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: #fff;
+            font-family: var(--sans);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: clip;
+        }
+
+        img {
+            display: block;
+            max-width: 100%
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        button {
+            font: inherit
+        }
+
+        .container {
+            width: min(1180px, calc(100% - 40px));
+            margin: auto
+        }
+
+        .topbar {
+            background: var(--deep);
+            color: #cbd5e1;
+            font-size: .80rem;
+            border-bottom: 1px solid rgba(180, 195, 210, .14);
+        }
+
+        .topbar .container {
+            min-height: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-tagline {
+            color: #94a3b8;
+            font-size: .75rem;
+            letter-spacing: .02em;
+        }
+
+        .topbar-contacts {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .topbar-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color .2s ease;
+            white-space: nowrap;
+        }
+
+        .topbar-item:hover {
+            color: #fff;
+        }
+
+        .topbar-icon {
+            display: inline-block;
+            flex-shrink: 0;
+            color: var(--silver);
+            transition: transform .2s ease, color .2s ease;
+        }
+
+        .topbar-item:hover .topbar-icon {
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .topbar-social {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-social-label {
+            font-size: .72rem;
+            color: #94a3b8;
+            margin-right: 2px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .topbar-social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(180, 195, 210, .22);
+            color: #cbd5e1;
+            transition: all .25s ease;
+        }
+
+        .topbar-social a:hover {
+            background: rgba(180, 195, 210, .22);
+            border-color: rgba(226, 232, 240, .65);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+        }
+
+        .topbar-social svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, .95);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(225, 231, 233, .85);
+            transition: min-height .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s cubic-bezier(.16, 1, .3, 1), background .35s;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, .98);
+            box-shadow: 0 10px 30px rgba(18, 34, 42, .07);
+            border-bottom-color: rgba(210, 220, 225, .95);
+        }
+
+        .nav-split {
+            min-height: 86px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 52px;
+            width: 100%;
+            transition: min-height .35s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .header.scrolled .nav-split {
+            min-height: 66px;
+        }
+
+        .nav-side {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .nav-left {
+            justify-content: flex-end;
+        }
+
+        .nav-right {
+            justify-content: flex-start;
+        }
+
+        .nav-item {
+            font-family: var(--serif);
+            color: var(--deep);
+            font-size: 1.08rem;
+            font-weight: 600;
+            letter-spacing: .01em;
+            position: relative;
+            padding: 8px 4px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color .25s ease, opacity .25s ease;
+        }
+
+        .nav-item:after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 99px;
+            transition: width .25s ease, left .25s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--deep);
+            opacity: .85;
+        }
+
+        .nav-item:hover:after {
+            width: 100%;
+            left: 0;
+        }
+
+        .brand-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 16px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .brand-center img {
+            width: auto;
+            max-width: 180px;
+            height: 54px;
+            object-fit: contain;
+            display: block;
+            transition: height .35s cubic-bezier(.16, 1, .3, 1), max-width .35s cubic-bezier(.16, 1, .3, 1), transform .35s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .header.scrolled .brand-center img {
+            height: 42px;
+            max-width: 145px;
+        }
+
+        /* Gaveta mobile oculta por padrão no desktop */
+        .nav-mobile-drawer {
+            display: none;
+        }
+
+        /* Animações de entrada da menubar */
+        .nav-left .nav-item {
+            animation: navInLeft .8s cubic-bezier(.16, 1, .3, 1) both;
+        }
+        .nav-left .nav-item:nth-child(1) { animation-delay: .06s; }
+        .nav-left .nav-item:nth-child(2) { animation-delay: .16s; }
+
+        .brand-center {
+            animation: brandInCenter .9s cubic-bezier(.16, 1, .3, 1) .12s both;
+        }
+
+        .nav-right .nav-item {
+            animation: navInRight .8s cubic-bezier(.16, 1, .3, 1) both;
+        }
+        .nav-right .nav-item:nth-child(1) { animation-delay: .16s; }
+        .nav-right .nav-item:nth-child(2) { animation-delay: .26s; }
+
+        @keyframes navInLeft {
+            0% {
+                opacity: 0;
+                transform: translate3d(-35px, 0, 0);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        @keyframes brandInCenter {
+            0% {
+                opacity: 0;
+                transform: scale(0.88);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes navInRight {
+            0% {
+                opacity: 0;
+                transform: translate3d(35px, 0, 0);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .brand.dark {
+            padding: 8px 13px;
+            background: var(--deep);
+            border-radius: 12px
+        }
+
+        .menu {
+            display: none;
+            border: 0;
+            background: none;
+            font-size: 1.5rem;
+            color: var(--deep);
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+            padding: 0 24px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-weight: 800;
+            font-size: .88rem;
+            transition: .25s
+        }
+
+        .btn:hover {
+            transform: translateY(-2px)
+        }
+
+        .btn-wa {
+            gap: 10px;
+            background: var(--green);
+            color: #073817;
+            box-shadow: 0 13px 28px rgba(37, 211, 102, .24)
+        }
+
+        .wa-icon {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto
+        }
+
+        .btn-outline {
+            border-color: var(--line);
+            background: #fff;
+            color: var(--deep)
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: #0d1219 url('assets/banner_pb.webp') center/cover no-repeat;
+            color: #fff
+        }
+
+        .glass-reveal-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden
+        }
+
+        .glass-reveal-bg canvas {
+            width: 100%;
+            height: 100%;
+            display: block
+        }
+
+        .hero:after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(10, 16, 24, .88) 0%, rgba(10, 16, 24, .45) 50%, transparent 85%), linear-gradient(180deg, rgba(10, 16, 24, .35) 0%, transparent 20%, transparent 80%, rgba(10, 16, 24, .6) 100%);
+            z-index: 1;
+            pointer-events: none
+        }
+
+        .hero-grid {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            min-height: 490px;
+            padding: 42px 0 48px
+        }
+
+        .hero-slider-wrap {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            max-width: 680px;
+            display: grid
+        }
+
+        .hero-slide-panel {
+            grid-area: 1/1;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .5s ease, visibility .5s;
+        }
+
+        .hero-slide-panel.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Movimento de entrada cinematográfico dos elementos da Hero vindo da lateral para o centro */
+        .hero-slide-panel.active .eyebrow {
+            animation: heroInLeft .75s cubic-bezier(.16, 1, .3, 1) .06s both;
+        }
+
+        .hero-slide-panel.active h1,
+        .hero-slide-panel.active .hero-logo-box {
+            animation: heroInLeft .9s cubic-bezier(.16, 1, .3, 1) .18s both;
+        }
+
+        .hero-slide-panel.active p {
+            animation: heroInLeft .9s cubic-bezier(.16, 1, .3, 1) .30s both;
+        }
+
+        .hero-slide-panel.active .hero-actions {
+            animation: heroInLeft .95s cubic-bezier(.16, 1, .3, 1) .44s both;
+        }
+
+        .hero-slide-panel.active .trust {
+            animation: heroInLeft 1s cubic-bezier(.16, 1, .3, 1) .58s both;
+        }
+
+        @keyframes heroInLeft {
+            0% {
+                opacity: 0;
+                transform: translate3d(-70px, 0, 0);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .hero-copy {
+            max-width: 680px;
+            background: none;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            backdrop-filter: none;
+            box-shadow: none
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-size: .76rem;
+            font-weight: 900;
+            letter-spacing: .14em;
+            text-transform: uppercase
+        }
+
+        .eyebrow:before {
+            content: '';
+            width: 29px;
+            height: 1px;
+            background: currentColor
+        }
+
+        .hero h1 {
+            margin: 14px 0 16px;
+            color: #fff;
+            font: 500 clamp(2.6rem, 4.8vw, 4.3rem)/1.04 var(--serif);
+            letter-spacing: -.04em;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, .65)
+        }
+
+        .hero-slide-panel>p,
+        .hero-copy>p {
+            max-width: 680px;
+            margin: 0 0 22px;
+            color: #d0d8dc;
+            font-size: 1.05rem;
+            text-shadow: 0 1px 10px rgba(0, 0, 0, .5)
+        }
+
+        .hero-logo-box {
+            margin: -8px 0 16px;
+            display: flex;
+            align-items: flex-start
+        }
+
+        .hero-logo-25 {
+            display: block;
+            width: 100%;
+            max-width: min(390px, 92vw);
+            height: auto;
+            max-height: 310px;
+            object-fit: contain;
+            object-position: left center;
+            filter: drop-shadow(0 8px 28px rgba(0, 0, 0, .8))
+        }
+
+        .hero-slider-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 18px
+        }
+
+        .hero-slider-dot {
+            display: flex;
+            align-items: center;
+            width: 44px;
+            height: 24px;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            cursor: pointer
+        }
+
+        .hero-slider-bar {
+            display: block;
+            width: 100%;
+            height: 3px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, .28);
+            transition: background .35s, height .25s, transform .25s
+        }
+
+        .hero-slider-dot:hover .hero-slider-bar {
+            background: rgba(203, 213, 225, .6)
+        }
+
+        .hero-slider-dot.active .hero-slider-bar {
+            background: #e2e8f0;
+            height: 4px;
+            box-shadow: 0 0 12px rgba(226, 232, 240, .6)
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+
+        .hero .btn-outline {
+            border-color: rgba(255, 255, 255, .35);
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+            backdrop-filter: blur(8px)
+        }
+
+        .trust {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 22px
+        }
+
+        .stars {
+            color: #cbd5e1;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .6))
+        }
+
+        .trust strong {
+            display: block;
+            color: #fff
+        }
+
+        .trust small {
+            display: block;
+            color: #a6b4ba
+        }
+
+        .hero-visual {
+            position: relative
+        }
+
+        .hero-photo {
+            height: 520px;
+            overflow: hidden;
+            border-radius: 170px 28px 28px 28px;
+            box-shadow: 0 30px 78px color-mix(in srgb, var(--deep) 25%, transparent);
+            background: var(--deep)
+        }
+
+        .hero-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center
+        }
+
+        .hero-photo:after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 60%, color-mix(in srgb, var(--deep) 65%, transparent));
+            pointer-events: none;
+            border-radius: 170px 28px 28px 28px
+        }
+
+        .stamp {
+            position: absolute;
+            left: -32px;
+            bottom: 34px;
+            z-index: 2;
+            width: 225px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, .75);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .96);
+            box-shadow: var(--shadow)
+        }
+
+        .stamp strong {
+            display: block;
+            color: var(--accent);
+            font: 600 1.7rem var(--serif)
+        }
+
+        .stamp small {
+            color: var(--muted)
+        }
+
+        .metrics {
+            position: relative;
+            z-index: 4;
+            margin-top: -25px
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: var(--shadow)
+        }
+
+        .metric {
+            padding: 27px 29px;
+            border-right: 1px solid var(--line)
+        }
+
+        .metric:last-child {
+            border: 0
+        }
+
+        .metric strong {
+            display: block;
+            color: var(--deep);
+            font: 600 1.85rem/1.1 var(--serif)
+        }
+
+        .metric small {
+            display: block;
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: .77rem;
+            font-weight: 750
+        }
+
+        .section {
+            padding: 108px 0
+        }
+
+        .section-head {
+            display: grid;
+            grid-template-columns: 1fr .78fr;
+            gap: 60px;
+            align-items: end;
+            margin-bottom: 48px
+        }
+
+        .section-head-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 820px;
+            margin: 0 auto 52px;
+        }
+
+        .section-head-center .eyebrow {
+            justify-content: center;
+        }
+
+        .section-head-center h2 {
+            text-align: center;
+            max-width: 780px;
+            margin: 12px 0 0;
+        }
+
+        .section-head-center p {
+            text-align: center;
+            max-width: 620px;
+            margin: 14px 0 0;
+            font-size: 1.05rem;
+            color: var(--muted);
+        }
+
+        .section h2,
+        .section-head h2,
+        .about-copy h2,
+        .contact-copy h2 {
+            margin: 13px 0 0;
+            color: var(--deep);
+            font: 500 clamp(2.35rem, 4.8vw, 4.3rem)/1.05 var(--serif);
+            letter-spacing: -.045em
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted)
+        }
+
+        .areas {
+            background: #f8fafb
+        }
+
+        .area-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px
+        }
+
+        @media (min-width: 992px) {
+            .areas .area-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            .areas .area:nth-child(1) { grid-column: 1 / span 2; }
+            .areas .area:nth-child(2) { grid-column: 3 / span 2; }
+            .areas .area:nth-child(3) { grid-column: 5 / span 2; }
+            .areas .area:nth-child(4) { grid-column: 2 / span 2; }
+            .areas .area:nth-child(5) { grid-column: 4 / span 2; }
+        }
+
+        @media (max-width: 991px) and (min-width: 640px) {
+            .areas .area-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .areas .area:nth-child(5) {
+                grid-column: 1 / span 2;
+                max-width: 500px;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+
+        .area {
+            position: relative;
+            min-height: 305px;
+            padding: 31px;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: #fff;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, .025);
+            transition: .3s
+        }
+
+        .area:hover {
+            transform: translateY(-7px);
+            border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+            box-shadow: var(--soft-shadow)
+        }
+
+        .area>span {
+            display: grid;
+            place-items: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            background: var(--soft);
+            color: var(--accent);
+            font-weight: 900
+        }
+
+        .area h3 {
+            margin: 25px 0 9px;
+            color: var(--deep);
+            font: 600 1.4rem var(--serif)
+        }
+
+        .area p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .89rem;
+            line-height: 1.65
+        }
+
+        .area a {
+            position: absolute;
+            left: 31px;
+            bottom: 25px;
+            color: var(--accent);
+            font-size: .73rem;
+            font-weight: 900;
+            letter-spacing: .04em
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: .92fr 1.08fr;
+            gap: 75px;
+            align-items: center
+        }
+
+        .about-visual {
+            position: relative;
+            padding: 0 0 48px 48px
+        }
+
+        .about-visual img {
+            width: 100%;
+            height: 555px;
+            object-fit: cover;
+            border-radius: 28px;
+            box-shadow: var(--shadow)
+        }
+
+        .about-badge {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            padding: 22px 24px;
+            border: 7px solid #fff;
+            border-radius: 20px;
+            background: var(--deep);
+            color: #fff;
+            box-shadow: var(--shadow)
+        }
+
+        .about-badge strong {
+            display: block;
+            font: 600 1.5rem var(--serif)
+        }
+
+        .about-badge small {
+            color: #c7d1d6
+        }
+
+        .about-copy>p {
+            color: var(--muted);
+            font-size: 1rem
+        }
+
+        .values {
+            display: grid;
+            gap: 15px;
+            margin: 29px 0 34px
+        }
+
+        .value {
+            display: grid;
+            grid-template-columns: 38px 1fr;
+            gap: 14px;
+            align-items: start
+        }
+
+        .value i {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--soft);
+            color: var(--accent);
+            font-style: normal;
+            font-weight: 900
+        }
+
+        .value strong {
+            display: block;
+            color: var(--deep)
+        }
+
+        .value span {
+            color: var(--muted);
+            font-size: .88rem
+        }
+
+        .process {
+            background: var(--deep);
+            color: #fff
+        }
+
+        .process .section-head h2 {
+            color: #fff
+        }
+
+        .process .section-head p {
+            color: #bdc8cd
+        }
+
+        .process .eyebrow {
+            color: #cbd5e1
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            border-radius: 22px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .14)
+        }
+
+        .step {
+            padding: 35px 29px;
+            background: var(--deep)
+        }
+
+        .step b {
+            color: #cbd5e1;
+            font: 500 2.1rem var(--serif)
+        }
+
+        .step h3 {
+            margin: 20px 0 8px;
+            font: 600 1.25rem var(--serif)
+        }
+
+        .step p {
+            margin: 0;
+            color: #b9c5ca;
+            font-size: .86rem
+        }
+
+        .team {
+            background: var(--soft)
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px
+        }
+
+        .person {
+            overflow: hidden;
+            border-radius: 24px;
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: var(--soft-shadow)
+        }
+
+        .person img {
+            width: 100%;
+            height: 430px;
+            object-fit: cover;
+            object-position: center top
+        }
+
+        .person div {
+            padding: 27px
+        }
+
+        .person h3 {
+            margin: 0;
+            color: var(--deep);
+            font: 600 1.55rem var(--serif)
+        }
+
+        .person p {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: .86rem
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: .7fr 1.3fr;
+            gap: 75px
+        }
+
+        .faq-intro p {
+            color: var(--muted)
+        }
+
+        .faq-list {
+            border-top: 1px solid var(--line)
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--line)
+        }
+
+        .faq-q {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 24px 0;
+            border: 0;
+            background: none;
+            text-align: left;
+            color: var(--deep);
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .faq-q b {
+            font-size: 1.35rem;
+            font-weight: 300;
+            transition: .25s
+        }
+
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .35s
+        }
+
+        .faq-a p {
+            margin: 0 38px 23px 0;
+            color: var(--muted);
+            font-size: .92rem
+        }
+
+        .faq-item.open .faq-a {
+            max-height: 190px
+        }
+
+        .faq-item.open .faq-q b {
+            transform: rotate(45deg)
+        }
+
+        .contact {
+            padding: 0 0 108px
+        }
+
+        .contact-panel {
+            display: grid;
+            grid-template-columns: .85fr 1.15fr;
+            overflow: hidden;
+            border-radius: 28px;
+            background: var(--soft);
+            box-shadow: var(--soft-shadow)
+        }
+
+        .contact-copy {
+            padding: 58px
+        }
+
+        .contact-copy h2 {
+            font-size: clamp(2.1rem, 4vw, 3.6rem)
+        }
+
+        .contact-list {
+            display: grid;
+            gap: 11px;
+            margin: 26px 0
+        }
+
+        .contact-list a,
+        .contact-list span {
+            color: #53636d;
+            font-size: .9rem
+        }
+
+        .contact iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 480px;
+            border: 0
+        }
+
+        .footer {
+            padding: 72px 0 28px;
+            background: var(--deep);
+            color: #c6d0d4;
+            position: relative;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.3fr .65fr .85fr;
+            gap: 65px;
+            padding-bottom: 42px
+        }
+
+        .footer-brand {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 16px;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        .footer-brand:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(0, 0, 0, .3);
+        }
+
+        .footer-brand.dark {
+            background: var(--deep);
+            border: 1px solid rgba(255, 255, 255, .16)
+        }
+
+        .footer-brand img {
+            max-width: 195px;
+            height: 54px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .footer p {
+            max-width: 430px;
+            font-size: .88rem;
+            line-height: 1.65;
+            color: #94a3b8;
+            margin: 16px 0 0;
+        }
+
+        .footer h3 {
+            color: #fff;
+            font: 600 1.12rem var(--serif);
+            margin: 0 0 16px;
+        }
+
+        .footer-links {
+            display: grid;
+            gap: 10px;
+            font-size: .88rem;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            transition: color .2s ease, transform .2s ease;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+            transform: translateX(3px);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, .12);
+            font-size: .75rem;
+            color: #94a3b8;
+        }
+
+        .wa-float {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 40;
+            display: grid;
+            place-items: center;
+            width: 59px;
+            height: 59px;
+            border-radius: 50%;
+            background: var(--green);
+            color: #fff;
+            font-weight: 900;
+            box-shadow: 0 15px 34px rgba(37, 211, 102, .38)
+        }
+
+        .wa-float .wa-icon {
+            width: 29px;
+            height: 29px
+        }
+
+        .motion-item {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .reveal {
+            opacity: 1;
+            transform: none;
+        }
+
+        @media(prefers-reduced-motion: reduce) {
+            .motion-item {
+                transform: none !important;
+                opacity: 1 !important;
+            }
+        }
+
+        body.dark-luxury {
+            background: #090b0e;
+            color: #e2e8f0
+        }
+
+        .dark-luxury .topbar {
+            border-bottom: 1px solid rgba(180, 195, 210, .22)
+        }
+
+        .dark-luxury .header {
+            background: rgba(9, 11, 14, .95);
+            border-bottom-color: rgba(180, 195, 210, .24)
+        }
+
+        .dark-luxury .brand.dark {
+            background: #050709;
+            border: 1px solid rgba(180, 195, 210, .44);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .35)
+        }
+
+        .dark-luxury .nav-links {
+            color: #d4dde7;
+            background: #090b0e
+        }
+
+        .dark-luxury .menu {
+            color: var(--accent)
+        }
+
+        .dark-luxury .hero {
+            background: radial-gradient(circle at 78% 24%, rgba(180, 195, 210, .14), transparent 31%), linear-gradient(135deg, #07090c 0%, #12171f 100%)
+        }
+
+        .dark-luxury .hero:before {
+            border-color: rgba(180, 195, 210, .28);
+            box-shadow: 0 0 0 90px rgba(180, 195, 210, .035), 0 0 0 180px rgba(180, 195, 210, .025)
+        }
+
+        .dark-luxury .hero h1 {
+            color: #fff
+        }
+
+        .dark-luxury .hero-copy>p {
+            color: #cbd5e1
+        }
+
+        .dark-luxury .btn-outline {
+            border-color: rgba(180, 195, 210, .48);
+            background: transparent;
+            color: #e2e8f0
+        }
+
+        .dark-luxury .trust strong {
+            color: #fff
+        }
+
+        .dark-luxury .trust small {
+            color: #94a3b8
+        }
+
+        .dark-luxury .hero-photo {
+            border: 1px solid rgba(180, 195, 210, .5);
+            box-shadow: 0 34px 85px rgba(0, 0, 0, .52)
+        }
+
+        .dark-luxury .stamp {
+            border-color: rgba(180, 195, 210, .42);
+            background: #f1f5f9
+        }
+
+        .dark-luxury .metrics-grid {
+            background: #0f1318;
+            border-color: rgba(180, 195, 210, .3);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .34)
+        }
+
+        .dark-luxury .metric {
+            border-color: rgba(180, 195, 210, .22)
+        }
+
+        .dark-luxury .metric strong {
+            color: var(--accent)
+        }
+
+        .dark-luxury .metric small {
+            color: #94a3b8
+        }
+
+        .dark-luxury .areas {
+            background: #0a0d11
+        }
+
+        .dark-luxury .areas .section-head h2,
+        .dark-luxury .team .section-head h2 {
+            color: #fff
+        }
+
+        .dark-luxury .areas .section-head p,
+        .dark-luxury .team .section-head p {
+            color: #94a3b8
+        }
+
+        .dark-luxury .area {
+            background: #11161d;
+            border-color: rgba(180, 195, 210, .22);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, .22)
+        }
+
+        .dark-luxury .area:hover {
+            border-color: rgba(180, 195, 210, .62);
+            box-shadow: 0 18px 46px rgba(0, 0, 0, .36)
+        }
+
+        .dark-luxury .area>span {
+            background: rgba(180, 195, 210, .12)
+        }
+
+        .dark-luxury .area h3 {
+            color: #fff
+        }
+
+        .dark-luxury .area p {
+            color: #94a3b8
+        }
+
+        .dark-luxury #escritorio {
+            background: #f1f5f9;
+            color: #192229
+        }
+
+        .dark-luxury .about-badge {
+            border-color: #f1f5f9
+        }
+
+        .dark-luxury .process {
+            border-top: 1px solid rgba(180, 195, 210, .2);
+            border-bottom: 1px solid rgba(180, 195, 210, .2)
+        }
+
+        .dark-luxury .step {
+            background: #0d1117
+        }
+
+        .dark-luxury .team {
+            background: #0a0d11
+        }
+
+        .dark-luxury .person {
+            background: #11161d;
+            border-color: rgba(180, 195, 210, .25);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .3)
+        }
+
+        .dark-luxury .person h3 {
+            color: #fff
+        }
+
+        .dark-luxury .person p {
+            color: #94a3b8
+        }
+
+        .dark-luxury #duvidas {
+            background: #f1f5f9;
+            color: #192229
+        }
+
+        .dark-luxury .contact {
+            padding-top: 108px;
+            background: #090b0e
+        }
+
+        .dark-luxury .contact-panel {
+            background: #11161d;
+            border: 1px solid rgba(180, 195, 210, .28);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .42)
+        }
+
+        .dark-luxury .contact-copy h2 {
+            color: #fff
+        }
+
+        .dark-luxury .contact-copy>p,
+        .dark-luxury .contact-list a,
+        .dark-luxury .contact-list span {
+            color: #cbd5e1
+        }
+
+        .dark-luxury .footer {
+            border-top: 1px solid rgba(180, 195, 210, .28)
+        }
+
+        .dark-luxury .footer-brand.dark {
+            background: #050709;
+            border: 1px solid rgba(180, 195, 210, .52);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .42)
+        }
+
+        .dark-luxury .footer h3 {
+            color: var(--accent)
+        }
+
+        .dark-luxury .footer-bottom {
+            border-top-color: rgba(180, 195, 210, .22)
+        }
+
+        @media(max-width:980px) {
+            .nav-split {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-height: 74px;
+            }
+
+            .header.scrolled .nav-split {
+                min-height: 64px;
+            }
+
+            .nav-side {
+                display: none;
+            }
+
+            .brand-center {
+                justify-self: auto;
+            }
+
+            .brand-center img {
+                height: 52px;
+                max-width: 190px;
+            }
+
+            .header.scrolled .brand-center img {
+                height: 42px;
+                max-width: 160px;
+            }
+
+            .nav-mobile-drawer {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                padding: 24px 30px;
+                background: #fff;
+                border-bottom: 1px solid var(--line);
+                box-shadow: var(--shadow);
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .nav-mobile-drawer.open {
+                display: flex;
+            }
+
+            .menu {
+                display: block;
+            }
+
+            .hero-grid,
+            .about-grid,
+            .faq-grid {
+                grid-template-columns: 1fr
+            }
+
+            .hero-visual {
+                width: min(630px, 100%);
+                margin: auto
+            }
+
+            .section-head {
+                grid-template-columns: 1fr;
+                gap: 20px
+            }
+
+            .area-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .metrics-grid,
+            .steps {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .metric:nth-child(2) {
+                border-right: 0
+            }
+
+            .metric:nth-child(-n+2) {
+                border-bottom: 1px solid var(--line)
+            }
+
+            .contact-panel {
+                grid-template-columns: 1fr
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .footer-grid>div:first-child {
+                grid-column: 1/-1
+            }
+        }
+
+        @media(max-width:820px) {
+            .topbar-tagline {
+                display: none;
+            }
+        }
+
+        @media(max-width:650px) {
+            .container {
+                width: min(100% - 28px, 1180px);
+            }
+
+            .topbar-social-label {
+                display: none;
+            }
+
+            .topbar-contacts {
+                gap: 12px;
+            }
+
+            .topbar-item {
+                font-size: .76rem;
+            }
+
+            .topbar-social a {
+                width: 26px;
+                height: 26px;
+            }
+
+            .nav {
+                min-height: 72px
+            }
+
+            .brand img {
+                height: 48px;
+                max-width: 172px
+            }
+
+            .nav-links {
+                top: 72px
+            }
+
+            .header .btn {
+                display: none
+            }
+
+            .section {
+                padding: 78px 0
+            }
+
+            .hero-grid {
+                min-height: auto;
+                padding: 36px 0 44px;
+                gap: 28px
+            }
+
+            .hero-copy {
+                width: 100%;
+                min-width: 0
+            }
+
+            .hero h1 {
+                max-width: 100%;
+                font-size: clamp(2.25rem, 9.7vw, 2.6rem);
+                line-height: 1.02;
+                overflow-wrap: anywhere
+            }
+
+            .hero-copy>p {
+                max-width: 100%;
+                overflow-wrap: anywhere
+            }
+
+            .eyebrow {
+                display: block;
+                max-width: 100%;
+                line-height: 1.55;
+                overflow-wrap: break-word
+            }
+
+            .eyebrow:before {
+                display: inline-block;
+                margin-right: 10px;
+                vertical-align: middle
+            }
+
+            .hero-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                width: 100%
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+                padding-inline: 16px
+            }
+
+            .hero-photo {
+                height: 400px;
+                border-radius: 110px 23px 23px 23px
+            }
+
+            .hero-photo:after {
+                border-radius: 110px 23px 23px 23px
+            }
+
+            .stamp {
+                left: 12px;
+                bottom: 17px;
+                width: 205px
+            }
+
+            .metrics {
+                margin-top: -13px
+            }
+
+            .metric {
+                padding: 21px 17px
+            }
+
+            .metric strong {
+                font-size: 1.45rem
+            }
+
+            .area-grid,
+            .steps {
+                grid-template-columns: 1fr
+            }
+
+            .area {
+                min-height: 285px
+            }
+
+            .about-visual {
+                padding: 0 0 35px 28px
+            }
+
+            .about-visual img {
+                height: 430px
+            }
+
+            .contact-copy {
+                padding: 41px 27px
+            }
+
+            .contact iframe {
+                min-height: 350px
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 28px
+            }
+
+            .footer-grid>div:first-child {
+                grid-column: auto
+            }
+
+            .footer-bottom {
+                flex-direction: column
+            }
+        }
+
+        @media(max-width:440px) {
+            .topbar-contacts a.topbar-item:nth-child(2) span {
+                display: none;
+            }
+        }
+
+        .dark-luxury .topbar .container {
+            min-height: 30px
+        }
+
+        .dark-luxury .nav {
+            min-height: 76px
+        }
+
+        .dark-luxury .brand {
+            max-width: 188px
+        }
+
+        .dark-luxury .brand img {
+            height: 46px;
+            max-width: 172px
+        }
+
+        .dark-luxury .brand.dark {
+            padding: 7px 12px;
+            border-radius: 0
+        }
+
+        .dark-luxury .header .btn-wa {
+            min-height: 44px;
+            padding: 0 20px;
+            font-size: .8rem
+        }
+
+        .dark-luxury .hero {
+            border-bottom: 1px solid rgba(180, 195, 210, .22)
+        }
+
+        .dark-luxury .hero-grid {
+            min-height: min(670px, calc(100svh - 106px));
+            padding: 44px 0 52px;
+            display: flex;
+            align-items: center
+        }
+
+        .dark-luxury .hero-copy {
+            position: relative;
+            z-index: 4;
+            max-width: 680px;
+            background: none;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            backdrop-filter: none;
+            box-shadow: none
+        }
+
+        .dark-luxury .hero h1 {
+            max-width: 720px;
+            margin: 18px 0 22px;
+            font-size: clamp(3.55rem, 5vw, 5rem);
+            line-height: .97;
+            letter-spacing: -.052em;
+            text-wrap: balance
+        }
+
+        .dark-luxury .hero h1 em {
+            color: var(--accent);
+            font-weight: 500
+        }
+
+        .dark-luxury .hero-copy>p {
+            max-width: 590px;
+            margin-bottom: 26px;
+            color: #cbd5e1;
+            font-size: 1rem;
+            line-height: 1.72
+        }
+
+        .dark-luxury .hero-actions {
+            gap: 11px
+        }
+
+        .dark-luxury .trust {
+            margin-top: 27px
+        }
+
+        .dark-luxury .hero-visual {
+            position: relative;
+            height: 570px;
+            min-width: 0
+        }
+
+        .dark-luxury .hero-visual:before {
+            content: '';
+            position: absolute;
+            z-index: 0;
+            width: 420px;
+            height: 420px;
+            right: 2%;
+            top: 3%;
+            border: 1px solid rgba(180, 195, 210, .38);
+            border-radius: 50%;
+            box-shadow: 0 0 80px rgba(180, 195, 210, .12), inset 0 0 80px rgba(180, 195, 210, .06)
+        }
+
+        .dark-luxury .hero-photo {
+            position: absolute;
+            inset: 0;
+            height: 100%;
+            overflow: hidden;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none
+        }
+
+        .dark-luxury .hero-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            filter: saturate(.72) contrast(1.08) brightness(.82) sepia(.08)
+        }
+
+        .dark-luxury .hero-photo:after {
+            z-index: 1;
+            border-radius: 0;
+            background: linear-gradient(90deg, #080705 0%, rgba(8, 7, 5, .7) 9%, transparent 38%), linear-gradient(0deg, #080705 0%, rgba(8, 7, 5, .42) 16%, transparent 46%), linear-gradient(270deg, rgba(8, 7, 5, .18), transparent 30%)
+        }
+
+        .dark-luxury .hero-person {
+            position: absolute;
+            right: 12px;
+            bottom: 36px;
+            z-index: 3;
+            padding: 2px 0 2px 16px;
+            border-left: 1px solid var(--accent);
+            text-align: left
+        }
+
+        .dark-luxury .hero-person strong {
+            display: block;
+            color: #fff;
+            font: 500 1.15rem var(--serif)
+        }
+
+        .dark-luxury .hero-person small {
+            display: block;
+            color: #94a3b8;
+            font-size: .69rem;
+            letter-spacing: .08em;
+            text-transform: uppercase
+        }
+
+        .dark-luxury .stamp {
+            left: 0;
+            bottom: 38px;
+            width: 155px;
+            padding: 15px 17px;
+            border: 1px solid rgba(180, 195, 210, .5);
+            border-radius: 0;
+            background: rgba(9, 11, 14, .86);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, .34)
+        }
+
+        .dark-luxury .stamp strong {
+            font-size: 1.42rem
+        }
+
+        .dark-luxury .stamp small {
+            color: #94a3b8;
+            font-size: .69rem;
+            line-height: 1.35
+        }
+
+        .dark-luxury .metrics {
+            margin-top: 0;
+            background: #0a0d11
+        }
+
+        .dark-luxury .metrics-grid {
+            border-width: 1px 0;
+            border-radius: 0;
+            box-shadow: none
+        }
+
+        .dark-luxury .metric {
+            padding: 22px 29px
+        }
+
+        .dark-luxury .section {
+            padding: 92px 0;
+            border-bottom: 1px solid rgba(180, 195, 210, .14)
+        }
+
+        .dark-luxury .section-head {
+            margin-bottom: 40px
+        }
+
+        .dark-luxury .section h2,
+        .dark-luxury .section-head h2,
+        .dark-luxury .about-copy h2,
+        .dark-luxury .contact-copy h2 {
+            font-size: clamp(2.45rem, 4vw, 3.75rem);
+            line-height: 1.04
+        }
+
+        .dark-luxury .area-grid {
+            gap: 0;
+            border-top: 1px solid rgba(180, 195, 210, .22);
+            border-left: 1px solid rgba(180, 195, 210, .22)
+        }
+
+        .dark-luxury .area {
+            min-height: 270px;
+            padding: 28px;
+            border: 0;
+            border-right: 1px solid rgba(180, 195, 210, .22);
+            border-bottom: 1px solid rgba(180, 195, 210, .22);
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none
+        }
+
+        .dark-luxury .area:hover {
+            z-index: 2;
+            transform: translateY(-3px);
+            background: #11161d;
+            box-shadow: 0 18px 46px rgba(0, 0, 0, .32)
+        }
+
+        .dark-luxury .area>span {
+            width: 39px;
+            height: 39px;
+            border-radius: 50%;
+            border: 1px solid rgba(180, 195, 210, .35);
+            background: transparent
+        }
+
+        .dark-luxury .area h3 {
+            margin-top: 21px
+        }
+
+        .dark-luxury .area a {
+            left: 28px;
+            bottom: 22px
+        }
+
+        .dark-luxury #escritorio {
+            background: radial-gradient(circle at 22% 50%, rgba(180, 195, 210, .08), transparent 28%), #0a0d11;
+            color: #e2e8f0
+        }
+
+        .dark-luxury .about-visual {
+            paddin@media(min-width:981px) {
+                .dark-luxury .hero-copy {
+                    padding-right: 18px
+                }
+
+                .dark-luxury .hero-visual {
+                    margin-right: -28px
+                }
+            }
+
+            @media(max-width:980px) {
+                .dark-luxury .hero-grid {
+                    min-height: auto;
+                    padding: 56px 0 64px;
+                    grid-template-columns: 1fr;
+                    gap: 28px
+                }
+
+                .dark-luxury .hero h1 {
+                    max-width: 760px
+                }
+
+                .dark-luxury .hero-visual {
+                    width: min(620px, 100%);
+                    height: 540px
+                }
+
+                .dark-luxury .nav-links {
+                    background: #090b0e;
+                    border-bottom-color: rgba(180, 195, 210, .25)
+                }
+
+                .dark-luxury .step {
+                    border-right: 0;
+                    border-bottom: 1px solid rgba(180, 195, 210, .18)
+                }
+
+                .dark-luxury .step:last-child {
+                    border-bottom: 0
+                }
+            }
+
+            @media(max-width:650px) {
+                .dark-luxury .topbar .container {
+                    min-height: 32px
+                }
+
+                .dark-luxury .nav {
+                    min-height: 68px
+                }
+
+                .dark-luxury .brand img {
+                    height: 42px;
+                    max-width: 154px
+                }
+
+                .dark-luxury .nav-links {
+                    top: 68px
+                }
+
+                .dark-luxury .hero-grid {
+                    padding: 46px 0 52px
+                }
+
+                .dark-luxury .hero h1 {
+                    font-size: clamp(2.7rem, 13vw, 3.55rem);
+                    line-height: .98
+                }
+
+                .dark-luxury .hero-copy>p {
+                    font-size: .96rem
+                }
+
+                .dark-luxury .hero-actions .btn {
+                    width: 100%
+                }
+
+                .dark-luxury .hero-visual {
+                    height: 465px
+                }
+
+                .dark-luxury .hero-visual:before {
+                    width: 320px;
+                    height: 320px;
+                    right: -4%;
+                    top: 5%
+                }
+
+                .dark-luxury .hero-photo img {
+                    object-position: center top
+                }
+
+                .dark-luxury .hero-person {
+                    right: 4px;
+                    bottom: 18px
+                }
+
+                .dark-luxury .stamp {
+                    left: 0;
+                    bottom: 18px;
+                    width: 132px;
+                    padding: 12px
+                }
+
+                .dark-luxury .stamp small {
+                    display: none
+                }
+
+                .dark-luxury .metrics-grid {
+                    border-left: 1px solid rgba(180, 195, 210, .22);
+                    border-right: 1px solid rgba(180, 195, 210, .22)
+                }
+
+                .dark-luxury .area-grid {
+                    grid-template-columns: 1fr
+                }
+
+                .dark-luxury .area {
+                    min-height: 250px
+                }
+
+                .dark-luxury .about-visual {
+                    padding: 0 0 28px 18px
+                }
+
+                .dark-luxury .about-visual img {
+                    height: 405px;
+                    border-radius: 0 76px 0 0
+                }
+
+                .dark-luxury .contact {
+                    padding: 78px 0
+                }
+            }
+
+            .hero-photo {
+                position: relative
+            }
+
+            .hero-slide {
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+                margin: 0;
+                opacity: 0;
+                transform: scale(1.025);
+                pointer-events: none;
+                transition: opacity 1s ease, transform 1.5s ease
+            }
+
+            .hero-slide.active {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto
+            }
+
+            .hero-slide img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover
+            }
+
+            .hero-slide .hero-person {
+                z-index: 4
+            }
+
+            .hero-switcher {
+                position: absolute;
+                left: 50%;
+                bottom: 18px;
+                z-index: 5;
+                display: flex;
+                gap: 8px;
+                transform: translateX(-50%)
+            }
+
+            .hero-dot {
+                display: grid;
+                place-items: center;
+                width: 38px;
+                height: 38px;
+                padding: 0;
+                border: 1px solid rgba(180, 195, 210, .42);
+                border-radius: 50%;
+                background: rgba(12, 16, 21, .72);
+                color: #cbd5e1;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                transition: background .25s, border-color .25s, color .25s, transform .25s
+            }
+
+            .hero-dot:hover,
+            .hero-dot:focus-visible {
+                border-color: var(--accent);
+                color: #fff;
+                transform: translateY(-2px);
+                outline: none
+            }
+
+            .hero-dot.active {
+                border-color: var(--accent);
+                background: var(--accent);
+                color: #0c1015
+            }
+
+            .hero-dot span {
+                font-size: .68rem;
+                font-weight: 900;
+                letter-spacing: .08em
+            }
+
+            .dark-luxury .hero-photo:after {
+                z-index: 2
+            }
+
+            .dark-luxury .hero-carousel .hero-photo:after {
+                display: none
+            }
+
+            .dark-luxury .hero-carousel .hero-slide:after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                z-index: 2;
+                background: linear-gradient(90deg, #080705 0%, rgba(8, 7, 5, .68) 9%, transparent 38%), linear-gradient(0deg, #080705 0%, rgba(8, 7, 5, .48) 18%, transparent 48%), linear-gradient(270deg, rgba(8, 7, 5, .14), transparent 30%);
+                pointer-events: none
+            }
+
+            .dark-luxury .hero-carousel .hero-slide img {
+                position: relative;
+                z-index: 1
+            }
+
+            .dark-luxury .hero-carousel .stamp {
+                z-index: 5
+            }
+
+            .dark-luxury .hero-carousel .hero-person {
+                right: 12px;
+                bottom: 72px;
+                z-index: 4;
+                max-width: 255px;
+                padding: 10px 12px 10px 15px;
+                background: linear-gradient(90deg, rgba(9, 8, 6, .78), rgba(9, 8, 6, .26));
+                backdrop-filter: blur(7px);
+                text-shadow: 0 2px 10px rgba(0, 0, 0, .7)
+            }
+
+            @media(max-width:650px) {
+                .hero-switcher {
+                    bottom: 11px
+                }
+
+                .hero-dot {
+                    width: 34px;
+                    height: 34px
+                }
+
+                .dark-luxury .hero-carousel .hero-person {
+                    bottom: 58px
+                }
+
+                .dark-luxury .hero-carousel .stamp {
+                    bottom: 58px
+                }
+            }
+
+        .motion-item {
+            will-change: transform, opacity;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+            html {
+                scroll-behavior: auto
+            }
+
+            .motion-item {
+                opacity: 1 !important;
+                transform: none !important;
+                will-change: auto !important;
+            }
+
+            .reveal {
+                opacity: 1;
+                transform: none;
+                transition: none
+            }
+
+            .btn,
+            .area,
+            .hero-slide,
+            .hero-dot {
+                transition: none
+            }
+        }
+    </style>
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"LegalService","name":"EVI Sociedade de Advogados","url":"https://evi.adv.br/","telephone":"(11) 4362-3533","email":"contato@evi.adv.br","address":{"@type":"PostalAddress","addressLocality":"São Paulo · SP"}}</script>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="container">
+            <div class="topbar-left">
+                <span class="topbar-tagline">São Paulo · SP · Atendimento Nacional</span>
+                <div class="topbar-contacts">
+                    <a class="topbar-item" href="tel:+551143623533" title="Ligue para (11) 4362-3533">
+                        <svg class="topbar-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>(11) 4362-3533</span>
+                    </a>
+                    <a class="topbar-item" href="mailto:contato@evi.adv.br" title="Envie um e-mail para contato@evi.adv.br">
+                        <svg class="topbar-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                        <span>contato@evi.adv.br</span>
+                    </a>
+                </div>
+            </div>
+            <div class="topbar-social">
+                <span class="topbar-social-label">Siga-nos:</span>
+                <a href="https://www.facebook.com/EVISociedadedeAdvogados/" target="_blank" rel="noopener noreferrer" title="Facebook da EVI Advogados" aria-label="Facebook">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/eviadvogados/?hl=pt-br" target="_blank" rel="noopener noreferrer" title="Instagram da EVI Advogados" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/company/evi-sociedade-de-advogados/" target="_blank" rel="noopener noreferrer" title="LinkedIn da EVI Advogados" aria-label="LinkedIn">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+                </a>
+                <a href="https://www.youtube.com/channel/UCo_k-NzKbkFVJ5zXz4xOwrQ" target="_blank" rel="noopener noreferrer" title="YouTube da EVI Advogados" aria-label="YouTube">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33zM9.75 15.02l.01-6.54 5.74 3.27-5.75 3.27z"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <header class="header" id="mainHeader">
+        <div class="container nav-split">
+            <nav class="nav-side nav-left" aria-label="Navegação esquerda">
+                <a class="nav-item" href="#atuacao">Atuação</a>
+                <a class="nav-item" href="#escritorio">O escritório</a>
+            </nav>
+
+            <a class="brand-center" href="#inicio" aria-label="EVI Sociedade de Advogados">
+                <img src="assets/logo.png" alt="Logo oficial EVI Sociedade de Advogados">
+            </a>
+
+            <nav class="nav-side nav-right" aria-label="Navegação direita">
+                <a class="nav-item" href="#duvidas">Dúvidas</a>
+                <a class="nav-item" href="#contato">Contato</a>
+            </nav>
+
+            <button class="menu" id="menu" aria-label="Abrir menu" aria-expanded="false">☰</button>
+
+            <div class="nav-mobile-drawer" id="navLinks" role="dialog" aria-label="Menu de navegação mobile">
+                <a class="nav-item" href="#atuacao">Atuação</a>
+                <a class="nav-item" href="#escritorio">O escritório</a>
+                <a class="nav-item" href="#duvidas">Dúvidas</a>
+                <a class="nav-item" href="#contato">Contato</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <section class="hero" id="inicio">
+            <div class="container hero-grid">
+                <div class="hero-copy reveal">
+                    <div class="hero-slider-wrap" id="heroSlider" aria-roledescription="carousel"
+                        aria-label="Apresentação do escritório">
+                        <article class="hero-slide-panel active" data-hero-slide="0" aria-label="1 de 2"><span
+                                class="eyebrow">Atuação preventiva e contenciosa · alcance nacional</span>
+                            <h1>Experiência multidisciplinar para decisões jurídicas consistentes.</h1>
+                            <p>Consultoria e atuação contenciosa em Direito Médico, Cível, Família, Trabalhista e
+                                Empresarial, atendendo clientes em todo o território nacional.</p>
+                            <div class="hero-actions"><a class="btn btn-wa"
+                                    href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                                    target="_blank" rel="noopener"><svg class="wa-icon" viewBox="0 0 16 16"
+                                        aria-hidden="true">
+                                        <path fill="currentColor"
+                                            d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z" />
+                                    </svg><span>Falar pelo WhatsApp</span></a><a class="btn btn-outline"
+                                    href="#atuacao">Conhecer a atuação</a></div>
+                            <div class="trust">
+                                <div class="stars">★★★★★</div>
+                                <div><strong>5,0 no Google</strong><small>100+ avaliações públicas</small></div>
+                            </div>
+                        </article>
+                        <article class="hero-slide-panel" data-hero-slide="1" aria-label="2 de 2" aria-hidden="true">
+                            <div class="hero-logo-box"><img src="assets/logo_25_anos.webp"
+                                    alt="25 Anos EVI Sociedade de Advogados" class="hero-logo-25" width="420"
+                                    height="380"></div>
+                            <p>Há um quarto de século construindo uma advocacia pautada na ética,<br> inovação técnica e
+                                relações de confiança em todo o Brasil.</p>
+                            <div class="hero-actions"><a class="btn btn-wa"
+                                    href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                                    target="_blank" rel="noopener"><svg class="wa-icon" viewBox="0 0 16 16"
+                                        aria-hidden="true">
+                                        <path fill="currentColor"
+                                            d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z" />
+                                    </svg><span>Falar pelo WhatsApp</span></a><a class="btn btn-outline"
+                                    href="#atuacao">Conhecer a atuação</a></div>
+                            <div class="trust">
+                                <div class="stars">★★★★★</div>
+                                <div><strong>5,0 no Google</strong><small>100+ avaliações públicas</small></div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="hero-slider-nav" role="tablist" aria-label="Controle de slides da Hero"><button
+                            class="hero-slider-dot active" type="button" role="tab" aria-selected="true"
+                            aria-label="Ver slide 1" data-hero-target="0"><span
+                                class="hero-slider-bar"></span></button><button class="hero-slider-dot" type="button"
+                            role="tab" aria-selected="false" aria-label="Ver slide 2 (25 anos)"
+                            data-hero-target="1"><span class="hero-slider-bar"></span></button></div>
+                </div>
+            </div>
+        </section>
+        <div class="metrics">
+            <div class="container metrics-grid">
+                <div class="metric motion-item" data-motion="left"><strong>5,0 ★</strong><small>avaliação no Google</small></div>
+                <div class="metric motion-item" data-motion="up"><strong>100+</strong><small>avaliações públicas</small></div>
+                <div class="metric motion-item" data-motion="up"><strong>5 áreas</strong><small>de atuação jurídica</small></div>
+                <div class="metric motion-item" data-motion="right"><strong>Brasil</strong><small>alcance nacional</small></div>
+            </div>
+        </div>
+        <section class="section areas" id="atuacao">
+            <div class="container">
+                <div class="section-head section-head-center motion-item" data-motion="up">
+                    <span class="eyebrow">Áreas de atuação</span>
+                    <h2>Orientação clara para decisões que não podem esperar.</h2>
+                    <p>Atuação organizada por contexto, com análise individual e comunicação objetiva ao longo de cada etapa.</p>
+                </div>
+                <div class="area-grid">
+                    <article class="area motion-item" data-motion="left"><span>01</span>
+                        <h3>Direito Médico</h3>
+                        <p>Consultoria preventiva, análise de riscos e interface jurídica com médicos, hospitais e
+                            laboratórios.</p><a
+                            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                            target="_blank" rel="noopener">Conversar sobre esta área →</a>
+                    </article>
+                    <article class="area motion-item" data-motion="up"><span>02</span>
+                        <h3>Direito Cível</h3>
+                        <p>Análise de contratos, negociações, orientações e atuação em demandas contenciosas.</p><a
+                            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                            target="_blank" rel="noopener">Conversar sobre esta área →</a>
+                    </article>
+                    <article class="area motion-item" data-motion="right"><span>03</span>
+                        <h3>Direito de Família</h3>
+                        <p>Orientação em questões familiares e patrimoniais que exigem condução cuidadosa.</p><a
+                            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                            target="_blank" rel="noopener">Conversar sobre esta área →</a>
+                    </article>
+                    <article class="area motion-item" data-motion="left"><span>04</span>
+                        <h3>Direito Trabalhista</h3>
+                        <p>Consultoria preventiva e atuação em situações ligadas às relações de trabalho.</p><a
+                            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                            target="_blank" rel="noopener">Conversar sobre esta área →</a>
+                    </article>
+                    <article class="area motion-item" data-motion="right"><span>05</span>
+                        <h3>Direito Empresarial</h3>
+                        <p>Orientação societária, concorrencial e jurídica para decisões empresariais.</p><a
+                            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                            target="_blank" rel="noopener">Conversar sobre esta área →</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+        <section class="section" id="escritorio">
+            <div class="container about-grid">
+                <div class="about-visual motion-item" data-motion="left"><img src="assets/escritorio.webp"
+                        alt="Estrutura e equipe de EVI Sociedade de Advogados" loading="lazy">
+                    <div class="about-badge"><strong>EVI Advogados</strong><small>Advocacia com propósito</small></div>
+                </div>
+                <div class="about-copy motion-item" data-motion="right"><span class="eyebrow">O escritório</span>
+                    <h2>Prevenção e contencioso conectados em uma visão completa.</h2>
+                    <p>A EVI reúne profissionais experientes e atuação multidisciplinar para antecipar riscos e conduzir
+                        conflitos. O atendimento nacional integra consultoria, estratégia e acompanhamento jurídico
+                        responsável.</p>
+                    <div class="values">
+                        <div class="value"><i>✓</i>
+                            <div><strong>Análise individual</strong><span>Cada situação é compreendida antes da
+                                    definição de qualquer estratégia.</span></div>
+                        </div>
+                        <div class="value"><i>✓</i>
+                            <div><strong>Comunicação transparente</strong><span>Informações objetivas sobre
+                                    possibilidades, riscos e próximos passos.</span></div>
+                        </div>
+                        <div class="value"><i>✓</i>
+                            <div><strong>Atuação responsável</strong><span>Compromisso técnico e ético, sem promessas de
+                                    resultado.</span></div>
+                        </div>
+                    </div><a class="btn btn-outline" href="#contato">Ver canais de contato</a>
+                </div>
+            </div>
+        </section>
+        <section class="section process">
+            <div class="container">
+                <div class="section-head motion-item" data-motion="up">
+                    <div><span class="eyebrow">Como funciona</span>
+                        <h2>Um caminho claro desde o primeiro contato.</h2>
+                    </div>
+                    <p>Organização e transparência para que você compreenda o andamento e participe das decisões.</p>
+                </div>
+                <div class="steps">
+                    <article class="step motion-item" data-motion="left"><b>01</b>
+                        <h3>Primeiro contato</h3>
+                        <p>Você apresenta a situação e os objetivos principais.</p>
+                    </article>
+                    <article class="step motion-item" data-motion="up"><b>02</b>
+                        <h3>Análise inicial</h3>
+                        <p>O contexto e os documentos disponíveis são avaliados.</p>
+                    </article>
+                    <article class="step motion-item" data-motion="up"><b>03</b>
+                        <h3>Estratégia</h3>
+                        <p>São explicados os caminhos possíveis, riscos e próximos passos.</p>
+                    </article>
+                    <article class="step motion-item" data-motion="right"><b>04</b>
+                        <h3>Acompanhamento</h3>
+                        <p>O caso é conduzido com atualizações e comunicação objetiva.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="duvidas">
+            <div class="container faq-grid">
+                <div class="faq-intro motion-item" data-motion="left"><span class="eyebrow">Dúvidas frequentes</span>
+                    <h2>Informação também é segurança.</h2>
+                    <p>Respostas iniciais para facilitar seu primeiro contato com o escritório.</p>
+                </div>
+                <div class="faq-list motion-item" data-motion="right">
+                    <div class="faq-item open"><button class="faq-q" aria-expanded="true"><span>O escritório atende em
+                                todo o Brasil?</span><b>+</b></button>
+                        <div class="faq-a">
+                            <p>Sim. A EVI informa atuação em todo o território nacional.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Há consultoria preventiva
+                                para médicos?</span><b>+</b></button>
+                        <div class="faq-a">
+                            <p>Sim. A atuação divulgada inclui análise preventiva de riscos e interface com hospitais e
+                                laboratórios.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Quais áreas são
+                                atendidas?</span><b>+</b></button>
+                        <div class="faq-a">
+                            <p>Direito Médico, Cível, de Família, Trabalhista e Empresarial estão entre as áreas
+                                divulgadas.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Como iniciar o
+                                atendimento?</span><b>+</b></button>
+                        <div class="faq-a">
+                            <p>Entre em contato pelos canais oficiais e apresente a demanda para uma análise inicial.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="contact" id="contato">
+            <div class="container contact-panel">
+                <div class="contact-copy motion-item" data-motion="left"><span class="eyebrow">Contato</span>
+                    <h2>Converse com o escritório.</h2>
+                    <p>Apresente sua necessidade pelos canais oficiais e receba orientação sobre o atendimento.</p>
+                    <div class="contact-list"><a href="tel:+551143623533">Telefone · (11) 4362-3533</a><a
+                            href="mailto:contato@evi.adv.br">contato@evi.adv.br</a><span>Atendimento em todo o
+                            território nacional</span></div><a class="btn btn-wa"
+                        href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                        target="_blank" rel="noopener"><svg class="wa-icon" viewBox="0 0 16 16" aria-hidden="true">
+                            <path fill="currentColor"
+                                d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z" />
+                        </svg><span>Iniciar conversa</span></a>
+                </div><iframe class="motion-item" data-motion="right" title="Mapa de EVI Sociedade de Advogados" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps?q=S%C3%A3o%20Paulo%20SP&output=embed"></iframe>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="motion-item" data-motion="left"><a class="footer-brand" href="#inicio"><img src="assets/logo.png"
+                            alt="Logo oficial EVI Sociedade de Advogados"></a>
+                    <p>Consultoria e atuação contenciosa em Direito Médico, Cível, Família, Trabalhista e Empresarial,
+                        atendendo clientes em todo o território nacional.</p>
+                </div>
+                <div class="motion-item" data-motion="up">
+                    <h3>Navegação</h3>
+                    <div class="footer-links"><a href="#atuacao">Atuação</a><a href="#escritorio">O escritório</a><a
+                            href="#duvidas">Dúvidas</a><a href="#contato">Contato</a></div>
+                </div>
+                <div class="motion-item" data-motion="right">
+                    <h3>Canais oficiais</h3>
+                    <div class="footer-links">
+                        <a href="tel:+551143623533" style="display:inline-flex;align-items:center;gap:8px;">
+                            <svg class="topbar-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            <span>(11) 4362-3533</span>
+                        </a>
+                        <a href="mailto:contato@evi.adv.br" style="display:inline-flex;align-items:center;gap:8px;">
+                            <svg class="topbar-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                            <span>contato@evi.adv.br</span>
+                        </a>
+                        <span>São Paulo · SP</span>
+                        <div class="topbar-social" style="margin-top:8px;">
+                            <a href="https://www.facebook.com/EVISociedadedeAdvogados/" target="_blank" rel="noopener noreferrer" title="Facebook da EVI Advogados" aria-label="Facebook">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            </a>
+                            <a href="https://www.instagram.com/eviadvogados/?hl=pt-br" target="_blank" rel="noopener noreferrer" title="Instagram da EVI Advogados" aria-label="Instagram">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                            </a>
+                            <a href="https://www.linkedin.com/company/evi-sociedade-de-advogados/" target="_blank" rel="noopener noreferrer" title="LinkedIn da EVI Advogados" aria-label="LinkedIn">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+                            </a>
+                            <a href="https://www.youtube.com/channel/UCo_k-NzKbkFVJ5zXz4xOwrQ" target="_blank" rel="noopener noreferrer" title="YouTube da EVI Advogados" aria-label="YouTube">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33zM9.75 15.02l.01-6.54 5.74 3.27-5.75 3.27z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><span>© 2026 EVI Sociedade de Advogados. Todos os direitos
+                    reservados.</span><span>Conteúdo informativo. Resultados jurídicos dependem das circunstâncias de
+                    cada caso.</span></div>
+        </div>
+    </footer>
+    <a class="wa-float"
+        href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+        target="_blank" rel="noopener" aria-label="Falar pelo WhatsApp"><svg class="wa-icon" viewBox="0 0 16 16"
+            aria-hidden="true">
+            <path fill="currentColor"
+                d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z" />
+        </svg></a>
+    <script>
+        const m = document.getElementById('menu'), n = document.getElementById('navLinks');
+        if (m && n) {
+            m.addEventListener('click', () => {
+                const o = n.classList.toggle('open');
+                m.setAttribute('aria-expanded', String(o));
+            });
+            n.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                n.classList.remove('open');
+                m.setAttribute('aria-expanded', 'false');
+            }));
+        }
+
+        // Controle da Menubar: Logo maior no topo, encolhe suavemente ao rolar
+        const mainHeader = document.getElementById('mainHeader');
+        function handleHeaderScroll() {
+            if (!mainHeader) return;
+            mainHeader.classList.toggle('scrolled', window.scrollY > 35);
+        }
+        window.addEventListener('scroll', handleHeaderScroll, { passive: true });
+        handleHeaderScroll();
+
+        document.querySelectorAll('.faq-q').forEach(b => b.addEventListener('click', () => {
+            const i = b.parentElement, o = i.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(x => { x.classList.remove('open'); x.querySelector('.faq-q').setAttribute('aria-expanded', 'false') });
+            if (!o) { i.classList.add('open'); b.setAttribute('aria-expanded', 'true') }
+        }));
+        const reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
+        const heroPanels = [...document.querySelectorAll('.hero-slide-panel')], heroDots = [...document.querySelectorAll('.hero-slider-dot')], heroSlider = document.getElementById('heroSlider');
+        let heroIdx = 0, heroTimer;
+        const setHeroSlide = i => {
+            if (heroPanels.length < 2) return;
+            heroIdx = (i + heroPanels.length) % heroPanels.length;
+            heroPanels.forEach((p, idx) => {
+                const active = idx === heroIdx;
+                p.classList.toggle('active', active);
+                p.setAttribute('aria-hidden', String(!active))
+            });
+            heroDots.forEach((d, idx) => {
+                const active = idx === heroIdx;
+                d.classList.toggle('active', active);
+                d.setAttribute('aria-selected', String(active))
+            })
+        }, stopHero = () => { if (heroTimer) { clearInterval(heroTimer); heroTimer = undefined } },
+        startHero = () => {
+            if (reduced || heroPanels.length < 2 || document.hidden) return;
+            stopHero();
+            heroTimer = setInterval(() => setHeroSlide(heroIdx + 1), 6000)
+        };
+        heroDots.forEach(d => d.addEventListener('click', () => { setHeroSlide(Number(d.dataset.heroTarget)); stopHero(); startHero() }));
+        if (heroSlider) {
+            heroSlider.addEventListener('pointerenter', stopHero);
+            heroSlider.addEventListener('pointerleave', startHero);
+            heroSlider.addEventListener('focusin', stopHero);
+            heroSlider.addEventListener('focusout', startHero)
+        }
+        document.addEventListener('visibilitychange', () => document.hidden ? stopHero() : startHero());
+        startHero();
+
+        // Suporte a navegação suave nas âncoras sem travar o scroll manual
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (!targetId || targetId === '#') return;
+                const targetEl = document.querySelector(targetId);
+                if (targetEl) {
+                    e.preventDefault();
+                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Motor de Animação em Tempo Real Conectado ao Scroll (Extremidades -> Centro / Reverso perceptível no Scroll Up)
+        (function initRealtimeScrollMotion() {
+            if (reduced) return;
+            const motionElements = [...document.querySelectorAll('.motion-item')];
+            if (!motionElements.length) return;
+
+            const nodes = motionElements.map(el => ({
+                el,
+                type: el.dataset.motion || 'up',
+                current: -1,
+                target: 0
+            }));
+
+            let isRunning = false;
+
+            function updateTargets() {
+                const wh = window.innerHeight;
+                const scrollBottom = window.innerHeight + window.scrollY;
+                const docHeight = document.documentElement.scrollHeight;
+                const isNearDocBottom = (docHeight - scrollBottom) < 140;
+                // Faixa ampla e dinâmica de transição (0.95 na base até 0.40 no centro da tela)
+                const bottomThreshold = 0.95;
+                const centerThreshold = 0.40;
+                const span = bottomThreshold - centerThreshold;
+
+                for (let i = 0; i < nodes.length; i++) {
+                    const node = nodes[i];
+                    const rect = node.el.getBoundingClientRect();
+                    const relY = rect.top / wh;
+
+                    // Progresso proporcional contínuo:
+                    // relY >= 0.95 -> p = 0 (nas laterais/extremidades)
+                    // relY <= 0.40 -> p = 1 (no centro)
+                    let p = (bottomThreshold - relY) / span;
+                    if (isNearDocBottom && rect.top < wh) {
+                        p = 1;
+                    } else if (p < 0) {
+                        p = 0;
+                    } else if (p > 1) {
+                        p = 1;
+                    }
+                    node.target = p;
+                }
+            }
+
+            function tick() {
+                const isMobile = window.innerWidth <= 768;
+                // Amplitudes expressivas para tornar o retorno às laterais bem perceptível
+                const xDist = isMobile ? 75 : 160;
+                const yDist = isMobile ? 38 : 65;
+                let hasDelta = false;
+
+                for (let i = 0; i < nodes.length; i++) {
+                    const node = nodes[i];
+                    if (node.current === -1) {
+                        node.current = node.target;
+                    } else {
+                        const diff = node.target - node.current;
+                        if (Math.abs(diff) > 0.001) {
+                            node.current += diff * 0.16; // Lerp responsivo e fluido
+                            hasDelta = true;
+                        } else {
+                            node.current = node.target;
+                        }
+                    }
+
+                    const p = node.current;
+                    const inv = 1 - p;
+
+                    let transform = '';
+                    if (node.type === 'left') {
+                        transform = 'translate3d(' + (-xDist * inv).toFixed(2) + 'px, 0, 0)';
+                    } else if (node.type === 'right') {
+                        transform = 'translate3d(' + (xDist * inv).toFixed(2) + 'px, 0, 0)';
+                    } else {
+                        transform = 'translate3d(0, ' + (yDist * inv).toFixed(2) + 'px, 0)';
+                    }
+
+                    // Opacidade sutil no início (0.05) progredindo para 1 no centro
+                    const opacity = (0.05 + 0.95 * p).toFixed(3);
+                    node.el.style.transform = transform;
+                    node.el.style.opacity = opacity;
+                }
+
+                if (hasDelta) {
+                    requestAnimationFrame(tick);
+                } else {
+                    isRunning = false;
+                }
+            }
+
+            function trigger() {
+                updateTargets();
+                if (!isRunning) {
+                    isRunning = true;
+                    requestAnimationFrame(tick);
+                }
+            }
+
+            window.addEventListener('scroll', trigger, { passive: true });
+            window.addEventListener('resize', trigger, { passive: true });
+
+            trigger();
+            setTimeout(trigger, 100);
+            setTimeout(trigger, 500);
+        })();
+    </script>
+    <script src="assets/banner-data.js"></script>
+    <script src="assets/glass-reveal.js"></script>
+</body>
+
+</html>
