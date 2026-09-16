@@ -4,11 +4,9 @@ export default function ProcessSection() {
   return (
     <section className="section process">
       <div className="container">
-        <div className="section-head motion-item" data-motion="up">
-          <div>
-            <span className="eyebrow">Como funciona</span>
-            <h2>Um caminho claro desde o primeiro contato.</h2>
-          </div>
+        <div className="section-head section-head-center motion-item" data-motion="up">
+          <span className="eyebrow">Como funciona</span>
+          <h2>Um caminho claro desde o primeiro contato.</h2>
           <p>
             Organização e transparência para que você compreenda o andamento e participe das decisões.
           </p>

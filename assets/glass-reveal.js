@@ -4,17 +4,18 @@
  * Implementação fiel e exata do componente oficial @reactbits-starter/glass-reveal-tw
  * Configuração:
  *   shape: "portal" (uShape = 3)
- *   size: 0.41
- *   distortion: 1.4000000000000004
- *   aberration: 0.012
- *   wobble: 0.35000000000000003
- *   wobbleSpeed: 0.7000000000000001
+ *   size: 0.5900000000000001
+ *   distortion: 0.40
+ *   aberration: 0.008
+ *   wobble: 0.4
+ *   wobbleSpeed: 2.4000000000000004
  *   waveFrequency: 0
  *   waveStrength: 0
  *   waveSpeed: 0
- *   grain: 0.008
- *   grainSpeed: 13
- *   follow: 0.45
+ *   grain: 0
+ *   grainSpeed: 0
+ *   grayscale: 0
+ *   follow: 0
  */
 
 (function initGlassReveal() {
@@ -28,26 +29,27 @@
   }
 
   // Configuração oficial
+  const userOpts = (window.__GLASS_REVEAL_CONFIG__) || {};
   const config = {
-    shape: 'portal',
-    shapeIndex: 3, // square:0, circle:1, blob:2, portal:3
-    size: 0.4,
-    distortion: 0.10000000000000009,
-    aberration: 0.002,
-    wobble: 0.0,
-    wobbleSpeed: 0.0,
-    waveFrequency: 0.0,
-    waveStrength: 0.0,
-    waveSpeed: 0.0,
-    grain: 0.002,
-    grainSpeed: 11.0,
-    follow: 0.0,
-    softness: 0.0,
-    grayscale: 1.0,
-    dim: 0.0,
-    fallbackColor: [0.09, 0.09, 0.09], // #171717
-    returnToCenter: true,
-    dpr: 1.5,
+    shape: userOpts.shape || 'portal',
+    shapeIndex: userOpts.shape === 'square' ? 0 : (userOpts.shape === 'circle' ? 1 : (userOpts.shape === 'blob' ? 2 : 3)), // square:0, circle:1, blob:2, portal:3
+    size: userOpts.size !== undefined ? userOpts.size : 0.5900000000000001,
+    distortion: userOpts.distortion !== undefined ? userOpts.distortion : 0.40,
+    aberration: userOpts.aberration !== undefined ? userOpts.aberration : 0.008,
+    wobble: userOpts.wobble !== undefined ? userOpts.wobble : 0.4,
+    wobbleSpeed: userOpts.wobbleSpeed !== undefined ? userOpts.wobbleSpeed : 2.4000000000000004,
+    waveFrequency: userOpts.waveFrequency !== undefined ? userOpts.waveFrequency : 0,
+    waveStrength: userOpts.waveStrength !== undefined ? userOpts.waveStrength : 0,
+    waveSpeed: userOpts.waveSpeed !== undefined ? userOpts.waveSpeed : 0,
+    grain: userOpts.grain !== undefined ? userOpts.grain : 0,
+    grainSpeed: userOpts.grainSpeed !== undefined ? userOpts.grainSpeed : 0,
+    follow: userOpts.follow !== undefined ? userOpts.follow : 0,
+    softness: userOpts.softness !== undefined ? userOpts.softness : 0.0,
+    grayscale: userOpts.grayscale !== undefined ? userOpts.grayscale : 0,
+    dim: userOpts.dim !== undefined ? userOpts.dim : 0.0,
+    fallbackColor: userOpts.fallbackColor || [0.09, 0.09, 0.09], // #171717
+    returnToCenter: userOpts.returnToCenter !== undefined ? userOpts.returnToCenter : true,
+    dpr: userOpts.dpr !== undefined ? userOpts.dpr : 1.5,
     insideImage: (window.__GLASS_REVEAL_ASSETS__ && window.__GLASS_REVEAL_ASSETS__.inside) || 'assets/banner_color.webp',
     outsideImage: (window.__GLASS_REVEAL_ASSETS__ && window.__GLASS_REVEAL_ASSETS__.outside) || 'assets/banner_pb.webp'
   };
@@ -140,7 +142,7 @@
       vec2 scale = boxRatio > texRatio
         ? vec2(1.0, texRatio / boxRatio)
         : vec2(boxRatio / texRatio, 1.0);
-      return (uv - 0.5) * scale + 0.5;
+      return vec2(1.0 - (1.0 - uv.x) * scale.x, 1.0 - (1.0 - uv.y) * scale.y);
     }
 
     float grain(vec2 uv, float t) {
@@ -245,7 +247,7 @@
       vec2 scale = boxRatio > texRatio
         ? vec2(1.0, texRatio / boxRatio)
         : vec2(boxRatio / texRatio, 1.0);
-      return (uv - 0.5) * scale + 0.5;
+      return vec2(1.0 - (1.0 - uv.x) * scale.x, 1.0 - (1.0 - uv.y) * scale.y);
     }
 
     float grain(vec2 uv, float t) {

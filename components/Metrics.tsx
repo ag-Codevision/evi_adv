@@ -5,20 +5,20 @@ export default function Metrics() {
     <div className="metrics">
       <div className="container metrics-grid">
         <div className="metric motion-item" data-motion="left">
-          <strong>5,0 ★</strong>
-          <small>avaliação no Google</small>
+          <strong>+25 Anos</strong>
+          <small>Tradição & Liderança Jurídica</small>
         </div>
         <div className="metric motion-item" data-motion="up">
-          <strong>100+</strong>
-          <small>avaliações públicas</small>
+          <strong>+3.500</strong>
+          <small>Demandas & Casos Estratégicos</small>
         </div>
         <div className="metric motion-item" data-motion="up">
-          <strong>5 áreas</strong>
-          <small>de atuação jurídica</small>
+          <strong>Band News & TV</strong>
+          <small>Presença na Grande Mídia</small>
         </div>
         <div className="metric motion-item" data-motion="right">
-          <strong>Brasil</strong>
-          <small>alcance nacional</small>
+          <strong>Prêmio Quality</strong>
+          <small>Excelência & Ética na Justiça</small>
         </div>
       </div>
     </div>

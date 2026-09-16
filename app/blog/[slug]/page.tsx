@@ -3,8 +3,7 @@ import Header from '@/components/Header';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { fetchPostBySlug } from '@/lib/supabase';
-import { INITIAL_EDITORIAL_TOPICS } from '@/lib/blog-topics';
-import { getCuratedImages } from '@/lib/image-provider';
+import { getBlogArticleBySlug, getRelatedBlogArticles, getAllBlogArticles, BlogArticle } from '@/lib/blog-data';
 import { Post } from '@/lib/types';
 
 interface PageProps {
@@ -15,277 +14,338 @@ interface PageProps {
 
 export const revalidate = 60;
 
-function findLocalTopic(slug: string) {
-  return INITIAL_EDITORIAL_TOPICS.find((t) => {
-    const s = t.title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-    return s === slug || slug.includes(t.categorySlug);
-  }) || INITIAL_EDITORIAL_TOPICS[0];
+export async function generateStaticParams() {
+  const articles = getAllBlogArticles();
+  return articles.map((article) => ({
+    slug: article.slug,
+  }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = await fetchPostBySlug(params.slug);
-  if (post) {
+  const dbPost = await fetchPostBySlug(params.slug);
+  if (dbPost) {
     return {
-      title: `${post.seo_title || post.title} | EVI Sociedade de Advogados`,
-      description: post.seo_description || post.excerpt,
+      title: `${dbPost.seo_title || dbPost.title} | EVI Sociedade de Advogados`,
+      description: dbPost.seo_description || dbPost.excerpt,
       openGraph: {
-        title: post.title,
-        description: post.excerpt,
-        images: post.cover_image ? [{ url: post.cover_image }] : [],
+        title: dbPost.title,
+        description: dbPost.excerpt,
+        images: dbPost.cover_image ? [{ url: dbPost.cover_image }] : [],
       },
     };
   }
 
-  const topic = findLocalTopic(params.slug);
+  const localArticle = getBlogArticleBySlug(params.slug);
+  if (localArticle) {
+    return {
+      title: `${localArticle.title} | EVI Sociedade de Advogados`,
+      description: localArticle.excerpt,
+      openGraph: {
+        title: localArticle.title,
+        description: localArticle.excerpt,
+        images: [{ url: localArticle.featuredImage }],
+      },
+    };
+  }
+
   return {
-    title: `${topic.title} | EVI Sociedade de Advogados`,
-    description: topic.excerpt,
+    title: 'Artigo | EVI Sociedade de Advogados',
+    description: 'Análise estratégica e jurídica por EVI Advogados.',
   };
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const post: Post | null = await fetchPostBySlug(params.slug);
+  // 1. Tenta buscar no banco Supabase
+  const dbPost: Post | null = await fetchPostBySlug(params.slug);
 
-  if (!post) {
-    const localTopic = findLocalTopic(params.slug);
-    const images = getCuratedImages(localTopic.categorySlug);
+  // 2. Se não estiver no Supabase, busca na base local rica do blog
+  const localArticle: BlogArticle | undefined = getBlogArticleBySlug(params.slug);
 
+  if (!dbPost && !localArticle) {
     return (
       <>
-        <Header
-          leftLinks={[
-            { label: 'Início', href: '/' },
-            { label: 'Blog', href: '/blog' },
-          ]}
-          rightLinks={[
-            { label: 'Dr. Eduardo', href: '/eduardo-verissimo' },
-            { label: 'Contato', href: '/#contato' },
-          ]}
-        />
-        <article className="bg-[#f8fafb] min-h-screen py-16">
-          <div className="container max-w-4xl">
-            <Link
-              href="/blog"
-              className="text-sm font-semibold text-evi-accent hover:text-evi-deep mb-8 inline-block"
-            >
-              ← Voltar para o Blog
-            </Link>
-
-            <div className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card">
-              {/* Banner de Capa do Artigo (mesma imagem do card do blog) */}
-              <div className="w-full aspect-[21/9] md:aspect-[2.2/1] overflow-hidden relative bg-slate-100">
-                <img
-                  src={images.cover}
-                  alt={localTopic.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="p-8 md:p-14">
-                <span className="eyebrow mb-4">{localTopic.categoryName}</span>
-                <h1 className="text-3xl md:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6">
-                  {localTopic.title}
-                </h1>
-
-                <div className="flex items-center gap-4 py-4 border-y border-evi-border mb-10 text-sm text-evi-text-muted">
-                  <div className="font-semibold text-evi-deep">
-                    Por Dr. Eduardo Veríssimo Inocente
-                  </div>
-                  <span>·</span>
-                  <div>OAB/SP 200.322</div>
-                  <span>·</span>
-                  <div>5 min de leitura</div>
-                </div>
-
-                <div className="prose max-w-none text-evi-text font-sans leading-relaxed space-y-6 text-lg">
-                  <p className="text-xl font-serif text-evi-deep leading-relaxed">
-                    {localTopic.excerpt}
-                  </p>
-                  <p>
-                    O cenário jurídico contemporâneo exige soluções estratégicas que combinem rigor técnico, conhecimento aprofundado dos precedentes judiciais e visão pragmática dos negócios. Em temas de alta complexidade, a prevenção de riscos e a correta estruturação contratual e processual definem o desfecho das decisões empresariais.
-                  </p>
-
-                  {/* 1ª Imagem no Corpo do Artigo */}
-                  <figure className="my-10 overflow-hidden rounded-2xl border border-evi-border shadow-evi-card">
-                    <img
-                      src={images.body1.url}
-                      alt={images.body1.caption}
-                      className="w-full max-h-[460px] object-cover"
-                      loading="lazy"
-                    />
-                    <figcaption className="p-4 bg-evi-soft text-xs text-evi-text-muted italic border-t border-evi-border text-center">
-                      {images.body1.caption}
-                    </figcaption>
-                  </figure>
-
-                  <h2 className="text-2xl font-serif font-bold text-evi-deep pt-4">
-                    Considerações Técnicas e Precedentes dos Tribunais Superiores
-                  </h2>
-                  <p>
-                    A uniformização de entendimentos no Superior Tribunal de Justiça (STJ) tem conferido maior previsibilidade e segurança jurídica aos operadores do direito e aos gestores corporativos. Diante disso, a atuação jurídica deve ser pautada em uma análise individualizada e detalhada de cada caso concreto.
-                  </p>
-
-                  {/* 2ª Imagem no Corpo do Artigo */}
-                  <figure className="my-10 overflow-hidden rounded-2xl border border-evi-border shadow-evi-card">
-                    <img
-                      src={images.body2.url}
-                      alt={images.body2.caption}
-                      className="w-full max-h-[460px] object-cover"
-                      loading="lazy"
-                    />
-                    <figcaption className="p-4 bg-evi-soft text-xs text-evi-text-muted italic border-t border-evi-border text-center">
-                      {images.body2.caption}
-                    </figcaption>
-                  </figure>
-
-                  <p>
-                    A estruturação preventiva permite às companhias salvaguardar seus fluxos de caixa, otimizar garantias e estabelecer negociações de alto nível com credores, instituições bancárias e parceiros comerciais estratégicos.
-                  </p>
-                </div>
-
-                {/* Caixa de Autoridade do Dr. Eduardo */}
-                <div className="mt-14 p-6 bg-evi-soft rounded-2xl border border-evi-border flex flex-col md:flex-row items-center gap-6">
-                  <img
-                    src="/assets/hero.jpg"
-                    alt="Dr. Eduardo Veríssimo Inocente"
-                    className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0"
-                  />
-                  <div>
-                    <h4 className="font-serif font-bold text-evi-deep text-lg">
-                      Dr. Eduardo Veríssimo Inocente
-                    </h4>
-                    <p className="text-xs text-evi-text-muted mb-2">
-                      Sócio-Fundador & Diretor Jurídico · OAB/SP 200.322
-                    </p>
-                    <p className="text-xs text-evi-text-light leading-relaxed">
-                      Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.
-                    </p>
-                  </div>
-                </div>
-
-                {/* CTA do Artigo */}
-                <div className="mt-10 text-center pt-8 border-t border-evi-border">
-                  <p className="text-evi-deep font-serif text-xl font-semibold mb-4">
-                    Deseja discutir a aplicação desse tema ao seu caso?
-                  </p>
-                  <a
-                    href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20li%20o%20artigo%20sobre%20esse%20tema%20e%20gostaria%20de%20conversar."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-wa"
-                  >
-                    Falar Diretamente com a Equipe
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
+        <Header />
+        <main className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 bg-[#f8fafb]">
+          <h1 className="text-3xl font-serif font-bold text-evi-deep mb-4">Artigo não encontrado</h1>
+          <p className="text-evi-text-light mb-8 max-w-md">O conteúdo que você procura pode ter sido movido ou atualizado em nosso Blog.</p>
+          <Link href="/blog" className="btn btn-primary">
+            Voltar para o Blog
+          </Link>
+        </main>
       </>
     );
   }
 
-  // Artigo vindo do Supabase
-  const cover = post.cover_image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80';
+  // Normaliza os dados para renderização
+  const isDb = Boolean(dbPost);
+  const title = isDb ? dbPost!.title : localArticle!.title;
+  const category = isDb ? (dbPost!.category?.name || 'Direito Empresarial') : localArticle!.category;
+  const date = isDb ? new Date(dbPost!.published_at).toLocaleDateString('pt-BR') : localArticle!.date;
+  const readingTime = isDb ? (dbPost!.reading_time || 6) : localArticle!.readingTime;
+  const excerpt = isDb ? dbPost!.excerpt : localArticle!.excerpt;
+  const coverImage = isDb
+    ? (dbPost!.cover_image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80')
+    : localArticle!.featuredImage;
+
+  const related = getRelatedBlogArticles(params.slug, 3);
 
   return (
     <>
-      <Header
-        leftLinks={[
-          { label: 'Início', href: '/' },
-          { label: 'Blog', href: '/blog' },
-        ]}
-        rightLinks={[
-          { label: 'Dr. Eduardo', href: '/eduardo-verissimo' },
-          { label: 'Contato', href: '/#contato' },
-        ]}
-      />
-      <article className="bg-[#f8fafb] min-h-screen py-16">
-        <div className="container max-w-4xl">
-          <Link
-            href="/blog"
-            className="text-sm font-semibold text-evi-accent hover:text-evi-deep mb-8 inline-block"
-          >
-            ← Voltar para o Blog
-          </Link>
+      <Header />
 
-          <div className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card">
-            {/* Banner de Capa do Artigo (mesma imagem do card do blog) */}
-            <div className="w-full aspect-[21/9] md:aspect-[2.2/1] overflow-hidden relative bg-slate-100">
+      <main className="bg-[#f8fafb] min-h-screen pb-20 pt-8">
+        <div className="container max-w-5xl">
+          {/* Breadcrumb de navegação */}
+          <nav className="flex items-center gap-2 text-xs text-evi-text-muted mb-8 overflow-x-auto pb-2" aria-label="Breadcrumb">
+            <Link href="/" className="hover:text-evi-accent whitespace-nowrap">Início</Link>
+            <span>/</span>
+            <Link href="/blog" className="hover:text-evi-accent whitespace-nowrap">Blog & Artigos</Link>
+            <span>/</span>
+            <span className="text-evi-deep font-semibold truncate max-w-xs md:max-w-md">{title}</span>
+          </nav>
+
+          {/* Cabeçalho do Artigo */}
+          <header className="mb-10">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-white bg-evi-deep px-3.5 py-1.5 rounded-full">
+                {category}
+              </span>
+              <span className="text-xs font-semibold text-evi-accent bg-white border border-evi-border px-3 py-1 rounded-full">
+                {readingTime} min de leitura
+              </span>
+              <span className="text-xs text-evi-text-muted">
+                {date}
+              </span>
+            </div>
+
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6">
+              {title}
+            </h1>
+
+            <p className="text-lg md:text-xl text-evi-text-light leading-relaxed border-l-4 border-evi-accent pl-4 py-2 italic bg-white/70 rounded-r-xl shadow-sm">
+              {excerpt}
+            </p>
+          </header>
+
+          {/* Imagem de Capa do Artigo */}
+          <div className="mb-12 rounded-3xl overflow-hidden shadow-evi-card border border-evi-border bg-slate-900">
+            <div className="relative aspect-[21/9] md:aspect-[2.2/1] w-full overflow-hidden">
               <img
-                src={cover}
-                alt={post.title}
+                src={coverImage}
+                alt={title}
                 className="w-full h-full object-cover"
               />
             </div>
+          </div>
 
-            <div className="p-8 md:p-14">
-              <span className="eyebrow mb-4">
-                {post.category?.name || 'Direito Empresarial'}
-              </span>
-              <h1 className="text-3xl md:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6">
-                {post.title}
-              </h1>
+          {/* Grid do Conteúdo com Barra Lateral Institucional */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+            {/* Coluna Principal: Texto Completo */}
+            <div className="lg:col-span-8 bg-white p-8 md:p-12 rounded-3xl border border-evi-border shadow-evi-card space-y-8">
+              {isDb ? (
+                /* Conteúdo HTML vindo do Supabase */
+                <div
+                  className="prose prose-slate max-w-none text-evi-text leading-relaxed text-base md:text-lg space-y-6 article-body"
+                  dangerouslySetInnerHTML={{ __html: dbPost!.content }}
+                />
+              ) : (
+                /* Conteúdo Estruturado Local */
+                <div className="prose prose-slate max-w-none text-evi-text leading-relaxed text-base md:text-lg space-y-6">
+                  {localArticle!.paragraphs.map((para, idx) => (
+                    <p key={idx} className="text-justify md:text-left">
+                      {para}
+                    </p>
+                  ))}
 
-              <div className="flex items-center gap-4 py-4 border-y border-evi-border mb-10 text-sm text-evi-text-muted">
-                <div className="font-semibold text-evi-deep">
-                  Por {post.author?.name || 'Dr. Eduardo Veríssimo Inocente'}
+                  {/* 1ª Imagem Ilustrativa / Técnica se houver */}
+                  {localArticle!.bodyImages && localArticle!.bodyImages[0] && (
+                    <figure className="my-8 overflow-hidden rounded-2xl border border-evi-border shadow-evi-card">
+                      <img
+                        src={localArticle!.bodyImages[0].url}
+                        alt={localArticle!.bodyImages[0].caption}
+                        className="w-full max-h-[460px] object-cover"
+                        loading="lazy"
+                      />
+                      <figcaption className="p-4 bg-evi-soft text-xs text-evi-text-muted italic border-t border-evi-border text-center">
+                        {localArticle!.bodyImages[0].caption}
+                      </figcaption>
+                    </figure>
+                  )}
+
+                  {/* Subseções com subtítulos h2 */}
+                  {localArticle!.subsections &&
+                    localArticle!.subsections.map((sub, sIdx) => (
+                      <div key={sIdx} className="space-y-4 pt-4">
+                        <h2 className="text-2xl font-serif font-bold text-evi-deep border-b border-evi-border/60 pb-2">
+                          {sub.subtitle}
+                        </h2>
+                        {sub.paragraphs.map((subPara, spIdx) => (
+                          <p key={spIdx} className="text-justify md:text-left">
+                            {subPara}
+                          </p>
+                        ))}
+                      </div>
+                    ))}
                 </div>
-                <span>·</span>
-                <div>{new Date(post.published_at).toLocaleDateString('pt-BR')}</div>
-                <span>·</span>
-                <div>{post.reading_time || 5} min de leitura</div>
+              )}
+
+              {/* Compartilhamento e Voltar */}
+              <div className="pt-8 border-t border-evi-border/80 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-sm text-evi-text-muted">
+                  <span className="font-semibold text-evi-deep">Compartilhar:</span>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`${title} - Leia este artigo completo: ` + (typeof window !== 'undefined' ? window.location.href : ''))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full hover:bg-emerald-100 transition-colors"
+                  >
+                    <span>WhatsApp</span>
+                  </a>
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors"
+                  >
+                    <span>LinkedIn</span>
+                  </a>
+                </div>
+
+                <Link
+                  href="/blog"
+                  className="text-xs font-bold text-evi-deep hover:text-evi-accent uppercase tracking-wider inline-flex items-center gap-1"
+                >
+                  <span>← Voltar para o Blog</span>
+                </Link>
               </div>
 
-              {/* Corpo do Artigo com tipografia e suporte a figuras com imagens */}
-              <div
-                className="prose max-w-none text-evi-text font-sans leading-relaxed space-y-6 text-lg article-body"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
-
-              {/* Caixa de Autoridade do Dr. Eduardo */}
-              <div className="mt-14 p-6 bg-evi-soft rounded-2xl border border-evi-border flex flex-col md:flex-row items-center gap-6">
+              {/* Caixa de Autoridade do Dr. Eduardo no final da página */}
+              <div className="p-6 md:p-8 bg-evi-soft rounded-2xl border border-evi-border flex flex-col md:flex-row items-center gap-6">
                 <img
-                  src={post.author?.avatar_url || '/assets/hero.jpg'}
-                  alt={post.author?.name || 'Dr. Eduardo Veríssimo Inocente'}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0"
+                  src="/img/01.png"
+                  alt="Dr. Eduardo Veríssimo Inocente"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-evi-accent shadow-md flex-shrink-0"
                 />
                 <div>
-                  <h4 className="font-serif font-bold text-evi-deep text-lg">
-                    {post.author?.name || 'Dr. Eduardo Veríssimo Inocente'}
+                  <h4 className="font-serif font-bold text-evi-deep text-xl">
+                    Dr. Eduardo Veríssimo Inocente
                   </h4>
-                  <p className="text-xs text-evi-text-muted mb-2">
-                    {post.author?.role || 'Sócio-Fundador & Diretor Jurídico'} {post.author?.oab && `· ${post.author.oab}`}
+                  <p className="text-xs font-semibold text-evi-accent mb-2">
+                    Sócio-Fundador & Diretor Jurídico · OAB/SP 200.322
                   </p>
                   <p className="text-xs text-evi-text-light leading-relaxed">
-                    {post.author?.bio || 'Mais de 25 anos de liderança e atuação de vanguarda no Direito Empresarial e Estratégico.'}
+                    Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.
                   </p>
                 </div>
               </div>
 
               {/* CTA do Artigo */}
-              <div className="mt-10 text-center pt-8 border-t border-evi-border">
-                <p className="text-evi-deep font-serif text-xl font-semibold mb-4">
+              <div className="pt-6 border-t border-evi-border text-center">
+                <p className="text-evi-deep font-serif text-xl font-semibold mb-3">
                   Deseja discutir a aplicação desse tema ao seu caso?
                 </p>
+                <p className="text-sm text-evi-text-light mb-6 max-w-lg mx-auto">
+                  Agende uma consulta estratégica com o Dr. Eduardo Veríssimo e nossa banca de especialistas.
+                </p>
                 <a
-                  href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20li%20o%20artigo%20e%20gostaria%20de%20uma%20orienta%C3%A7%C3%A3o."
+                  href={`https://wa.me/5511991390045?text=${encodeURIComponent(`Olá, li o artigo "${title}" no blog e gostaria de conversar com o Dr. Eduardo.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-wa"
                 >
-                  Falar Diretamente com a Equipe
+                  Falar com Dr. Eduardo e Equipe
                 </a>
               </div>
             </div>
+
+            {/* Coluna Lateral: Perfil do Dr. Eduardo & CTA Institucional */}
+            <aside className="lg:col-span-4 space-y-8">
+              {/* Card do Dr. Eduardo Veríssimo */}
+              <div className="bg-white p-6 rounded-3xl border border-evi-border shadow-evi-card">
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src="/img/01.png"
+                    alt="Dr. Eduardo Veríssimo Inocente"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-evi-accent shadow-sm"
+                  />
+                  <div>
+                    <h4 className="font-serif font-bold text-evi-deep text-lg">Dr. Eduardo Veríssimo</h4>
+                    <span className="text-xs text-evi-accent font-semibold block">Sócio-Fundador EVI</span>
+                    <span className="text-[11px] text-evi-text-muted">OAB/SP 200.322</span>
+                  </div>
+                </div>
+                <p className="text-xs text-evi-text-light leading-relaxed mb-4">
+                  Advocacia de vanguarda e soluções sob medida para empresas em momentos decisivos, reestruturação societária e proteção patrimonial.
+                </p>
+                <Link href="/quem-somos#dr-eduardo" className="btn btn-outline w-full text-center text-xs py-2.5">
+                  Conhecer Perfil Completo
+                </Link>
+              </div>
+
+              {/* Card de Atendimento Direto */}
+              <div className="bg-evi-deep text-white p-6 rounded-3xl shadow-evi-card">
+                <span className="text-[10px] uppercase tracking-widest text-evi-silver font-semibold block mb-2">
+                  Atendimento Especializado
+                </span>
+                <h4 className="font-serif font-bold text-xl mb-3">
+                  Precisa de assessoria jurídica personalizada?
+                </h4>
+                <p className="text-slate-300 text-xs leading-relaxed mb-6">
+                  Converse diretamente com o Dr. Eduardo e nossos advogados especialistas para analisar o seu caso com total sigilo.
+                </p>
+                <a
+                  href={`https://wa.me/5511991390045?text=${encodeURIComponent(`Olá, li um artigo no blog e gostaria de uma avaliação jurídica especializada.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-wa w-full text-center text-sm py-3 font-bold"
+                >
+                  Falar no WhatsApp
+                </a>
+              </div>
+            </aside>
           </div>
+
+          {/* Seção de Artigos Recomendados */}
+          {related && related.length > 0 && (
+            <section className="pt-12 border-t border-evi-border">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-evi-accent">Veja Também</span>
+                  <h2 className="text-2xl font-serif font-bold text-evi-deep">Análises Recomendadas</h2>
+                </div>
+                <Link href="/blog" className="text-xs font-bold text-evi-deep hover:text-evi-accent uppercase tracking-wider">
+                  Ver Todas →
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {related.map((rel) => (
+                  <Link
+                    key={rel.slug}
+                    href={`/blog/${rel.slug}`}
+                    className="bg-white rounded-2xl border border-evi-border p-5 hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                  >
+                    <div>
+                      <span className="text-[11px] font-bold text-evi-accent uppercase tracking-wider block mb-2">
+                        {rel.category}
+                      </span>
+                      <h3 className="font-serif font-bold text-evi-deep group-hover:text-evi-accent transition-colors line-clamp-2 text-base mb-2">
+                        {rel.title}
+                      </h3>
+                      <p className="text-xs text-evi-text-light line-clamp-2 leading-relaxed">
+                        {rel.excerpt}
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-evi-deep group-hover:text-evi-accent pt-4 mt-4 border-t border-evi-border/60 block">
+                      Ler análise completa →
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-      </article>
+      </main>
     </>
   );
 }

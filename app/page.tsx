@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '@/components/Header';
 import HeroSlider from '@/components/HeroSlider';
 import Metrics from '@/components/Metrics';
+import MediaAuthoritySection from '@/components/MediaAuthoritySection';
 import AreasSection from '@/components/AreasSection';
 import AboutSection from '@/components/AboutSection';
 import ProcessSection from '@/components/ProcessSection';
@@ -12,16 +13,7 @@ export default function HomePage() {
   return (
     <>
       {/* Header com Menubar Simétrica Harmônica e Logotipo Centralizado */}
-      <Header
-        leftLinks={[
-          { label: 'Atuação', href: '/#atuacao' },
-          { label: 'O Escritório', href: '/#escritorio' },
-        ]}
-        rightLinks={[
-          { label: 'Dúvidas', href: '/#duvidas' },
-          { label: 'Contato', href: '/#contato' },
-        ]}
-      />
+      <Header />
 
       <main>
         {/* Banner Hero com Slider 25 Anos e WebGL Glass Reveal */}
@@ -29,6 +21,9 @@ export default function HomePage() {
 
         {/* Indicadores e Métricas de Autoridade */}
         <Metrics />
+
+        {/* Seção de Autoridade na Mídia, TV e Premiações */}
+        <MediaAuthoritySection />
 
         {/* Áreas de Atuação */}
         <AreasSection />

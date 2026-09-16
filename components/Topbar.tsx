@@ -5,9 +5,6 @@ export default function Topbar() {
     <div className="topbar">
       <div className="container">
         <div className="topbar-left">
-          <span className="topbar-tagline">
-            Desde 2001 · Excelência Jurídica e Atendimento Consultivo em Todo o Brasil
-          </span>
           <div className="topbar-contacts">
             <a href="tel:+551143623533" className="topbar-item" title="Telefone comercial da EVI Advogados">
               <svg className="topbar-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -32,7 +29,7 @@ export default function Topbar() {
             </svg>
           </a>
           <a href="https://www.instagram.com/eviadvogados/?hl=pt-br" target="_blank" rel="noopener noreferrer" title="Instagram da EVI Advogados" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
               <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
               <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />

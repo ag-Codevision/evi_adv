@@ -39,24 +39,38 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
     finalLeft = allLinks.slice(0, half);
     finalRight = allLinks.slice(half);
   } else {
-    // Links padrão equilibrados da Home
+    // Menu Único Global Oficial (4 à esquerda + LOGO + 4 à direita)
     finalLeft = [
-      { label: 'Atuação', href: '/#atuacao' },
-      { label: 'O Escritório', href: '/#escritorio' },
+      { label: 'Início', href: '/' },
+      { label: 'Quem Somos', href: '/quem-somos' },
+      { label: 'Áreas de Atuação', href: '/areas-de-atuacao' },
+      { label: 'Nossa Estrutura', href: '/nossa-estrutura' },
     ];
     finalRight = [
-      { label: 'Dúvidas', href: '/#duvidas' },
-      { label: 'Contato', href: '/#contato' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Podcast', href: '/podcast' },
+      { label: 'Imprensa & Mídia', href: '/imprensa' },
+      { label: 'Contato', href: '/contato' },
     ];
   }
 
-  const combinedLinks = [...finalLeft, ...finalRight];
+  // Lista completa de navegação para a gaveta mobile
+  const allNavItems = [
+    { label: 'Início', href: '/' },
+    { label: 'Quem Somos', href: '/quem-somos' },
+    { label: 'Áreas de Atuação & Diferenciais', href: '/areas-de-atuacao' },
+    { label: 'Nossa Estrutura', href: '/nossa-estrutura' },
+    { label: 'Blog Jurídico', href: '/blog' },
+    { label: 'Podcast EVI', href: '/podcast' },
+    { label: 'Imprensa & Mídia', href: '/imprensa' },
+    { label: 'Contato', href: '/contato' },
+  ];
 
   return (
     <header id="mainHeader" className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
         {/* Mobile Header Bar */}
-        <div className="md:hidden flex items-center justify-between w-full min-h-[66px]">
+        <div className="lg:hidden flex items-center justify-between w-full min-h-[66px]">
           <Link href="/" className="brand-center p-0">
             <img
               src="/assets/logo.png"
@@ -66,7 +80,7 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
           </Link>
           <button
             type="button"
-            className="menu"
+            className="menu text-xl p-2 font-bold"
             aria-label="Abrir menu de navegação"
             aria-expanded={mobileMenuOpen}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -91,7 +105,9 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
             <img
               src="/assets/logo.png"
               alt="EVI Sociedade de Advogados"
-              className="transition-all duration-350"
+              className="max-h-[52px] w-auto object-contain transition-all duration-350"
+              width={180}
+              height={52}
             />
           </Link>
 
@@ -108,25 +124,30 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
 
       {/* Gaveta Mobile Responsiva */}
       {mobileMenuOpen && (
-        <div className="nav-mobile-drawer md:hidden">
-          {combinedLinks.map((item, idx) => (
-            <Link
-              key={idx}
-              href={item.href}
+        <div className="nav-mobile-drawer lg:hidden bg-white/95 backdrop-blur-md border-b border-evi-border p-6 shadow-xl space-y-3">
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {allNavItems.map((item, idx) => (
+              <Link
+                key={idx}
+                href={item.href}
+                className="py-2 px-3 rounded-lg text-evi-deep hover:bg-evi-soft font-semibold text-xs"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <div className="pt-3 border-t border-evi-border">
+            <a
+              href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-wa w-full text-center justify-center text-xs py-3"
               onClick={() => setMobileMenuOpen(false)}
             >
-              {item.label}
-            </Link>
-          ))}
-          <a
-            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-wa mt-2 text-center"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Falar pelo WhatsApp
-          </a>
+              Falar pelo WhatsApp
+            </a>
+          </div>
         </div>
       )}
     </header>
