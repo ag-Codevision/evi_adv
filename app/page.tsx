@@ -20,11 +20,11 @@ export default function HomePage() {
         {/* Banner Hero com Slider 25 Anos e WebGL Glass Reveal */}
         <HeroSlider />
 
-        {/* Avaliações do Google Meu Negócio */}
-        <GoogleReviewsSection />
-
         {/* Indicadores e Métricas de Autoridade */}
         <Metrics />
+
+        {/* Avaliações do Google Meu Negócio */}
+        <GoogleReviewsSection />
 
         {/* Seção de Autoridade na Mídia, TV e Premiações */}
         <MediaAuthoritySection />

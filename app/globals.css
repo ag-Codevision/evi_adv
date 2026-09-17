@@ -839,8 +839,8 @@ button {
 /* METRICS */
 .metrics {
   position: relative;
-  z-index: 4;
-  margin-top: -25px;
+  z-index: 10;
+  margin-top: -38px;
 }
 
 .metrics-grid {
