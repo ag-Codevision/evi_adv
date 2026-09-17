@@ -164,9 +164,9 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
                     className="w-16 h-16 rounded-full object-cover border-2 border-evi-accent shadow-sm"
                   />
                   <div>
-                    <h4 className="font-serif font-bold text-evi-deep text-lg">Dr. Eduardo Veríssimo</h4>
+                    <h4 className="font-serif font-bold text-evi-deep text-lg">Dr. Eduardo Veríssimo Inocente</h4>
                     <span className="text-xs text-evi-accent font-semibold block">Sócio-Fundador EVI</span>
-                    <span className="text-[11px] text-evi-text-muted">OAB/SP 192.528</span>
+                    <span className="text-[11px] text-evi-text-muted">OAB/SP 200.334</span>
                   </div>
                 </div>
                 <p className="text-xs text-evi-text-light leading-relaxed mb-4">

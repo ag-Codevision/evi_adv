@@ -15,14 +15,14 @@ export default function AboutSection() {
           />
           <div className="about-badge">
             <strong>25 Anos de Vanguarda</strong>
-            <small>Fundado pelo Dr. Eduardo Veríssimo</small>
+            <small>Fundado pelo Dr. Eduardo Veríssimo Inocente</small>
           </div>
         </div>
         <div className="about-copy motion-item" data-motion="right">
           <span className="eyebrow">Sobre o Escritório</span>
           <h2>Autoridade jurídica e acolhimento humano real.</h2>
           <p>
-            Fundada em 2001 pelo <strong>Dr. Eduardo Veríssimo Inocente</strong>, a <strong>EVI Sociedade de Advogados</strong> une um quarto de século de tradição a soluções contemporâneas e dinâmicas. Com sede própria no Ipiranga (São Paulo) e atuação em todo o território nacional, representamos empresas e famílias em decisões críticas de alto impacto.
+            Fundada em 2001 pelo <strong>Dr. Eduardo Veríssimo Inocente</strong>, a <strong>EVI Sociedade de Advogados</strong> une há mais de duas décadas tradição a soluções contemporâneas e dinâmicas. Com sede própria no Ipiranga (São Paulo) e atuação em todo o território nacional, representamos empresas e famílias em decisões críticas de alto impacto.
           </p>
           <p className="mt-4 text-muted">
             Nossa prática alia rigor técnico processual a um atendimento personalizado e consultivo, assegurando solidez jurídica e tranquilidade para cada cliente.
@@ -38,7 +38,7 @@ export default function AboutSection() {
           <div className="value-card">
             <div className="value-icon">✓</div>
             <div className="value-content">
-              <strong>Liderança do Dr. Eduardo Veríssimo</strong>
+              <strong>Liderança do Dr. Eduardo Veríssimo Inocente</strong>
               <p>Mestre em Direitos Difusos, autor de livro, ex-instrutor de Ética da OAB e fonte de grandes redes de TV.</p>
             </div>
           </div>

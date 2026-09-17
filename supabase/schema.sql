@@ -117,5 +117,5 @@ ON CONFLICT (slug) DO NOTHING;
 
 -- DADOS INICIAIS: Autor Principal (Dr. Eduardo Veríssimo Inocente)
 INSERT INTO public.authors (name, role, oab, bio, avatar_url, is_director) VALUES
-('Dr. Eduardo Veríssimo Inocente', 'Sócio-Fundador & Diretor Jurídico', 'OAB/SP 200.322', 'Advogado com mais de 25 anos de atuação de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Passivos e Agronegócio.', '/assets/hero.jpg', true)
+('Dr. Eduardo Veríssimo Inocente', 'Sócio-Fundador & Diretor Jurídico', 'OAB/SP 200.334', 'Advogado com mais de 25 anos de atuação de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Passivos e Agronegócio.', '/assets/hero.jpg', true)
 ON CONFLICT DO NOTHING;

@@ -5,9 +5,9 @@ import { Metadata } from 'next';
 import { getLatestPodcastEpisodes, PodcastEpisode } from '@/lib/youtube';
 
 export const metadata: Metadata = {
-  title: 'Podcast EVI Advogados | Direito, Estratégia e Sociedade',
+  title: 'Podcast Direito e Arte | EVI Advogados',
   description:
-    'Assista aos episódios do podcast oficial da EVI Sociedade de Advogados, com análises profundas do Dr. Eduardo Veríssimo Inocente e convidados sobre temas contemporâneos do Direito.',
+    'Assista aos episódios do podcast Direito e Arte, com análises profundas do Dr. Eduardo Veríssimo Inocente e convidados sobre temas contemporâneos do Direito.',
 };
 
 // Revalidação automática em segundo plano (ISR) a cada 1 hora
@@ -36,7 +36,7 @@ export default async function PodcastPage() {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="eyebrow justify-center mb-3">Conteúdo Audiovisual Exclusivo</span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6">
-              Podcast EVI Advogados
+              Podcast Direito e Arte
             </h1>
             <p className="text-evi-text-light text-lg md:text-xl leading-relaxed">
               O direito explicado com inteligência, clareza e profundidade prática. Acompanhe os vídeos e episódios mais recentes com o Dr. Eduardo Veríssimo Inocente e convidados especiais.

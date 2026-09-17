@@ -9,11 +9,11 @@ export default function Metrics() {
           <small>Tradição & Liderança Jurídica</small>
         </div>
         <div className="metric motion-item" data-motion="up">
-          <strong>+3.500</strong>
+          <strong>+5.000</strong>
           <small>Demandas & Casos Estratégicos</small>
         </div>
         <div className="metric motion-item" data-motion="up">
-          <strong>Band News & TV</strong>
+          <strong>Band News & CNN</strong>
           <small>Presença na Grande Mídia</small>
         </div>
         <div className="metric motion-item" data-motion="right">

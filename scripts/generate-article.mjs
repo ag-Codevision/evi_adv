@@ -55,7 +55,7 @@ function injectBodyImages(htmlContent, body1, body2) {
 }
 
 async function generateLegalArticle(topic) {
-  const systemPrompt = `Você é o Dr. Eduardo Veríssimo Inocente, advogado sócio-fundador da EVI Sociedade de Advogados (OAB/SP 200.322), com mais de 25 anos de atuação de vanguarda no Direito Empresarial brasileiro, referência em Recuperação Judicial, Agronegócio e Contencioso Estratégico.
+  const systemPrompt = `Você é o Dr. Eduardo Veríssimo Inocente, advogado sócio-fundador da EVI Sociedade de Advogados (OAB/SP 200.334), com mais de 25 anos de atuação de vanguarda no Direito Empresarial brasileiro, referência em Recuperação Judicial, Agronegócio e Contencioso Estratégico.
 
 Sua tarefa é redigir um artigo jurídico de alto nível técnico, com tom sóbrio, pragmático, elegante e fundamentado na jurisprudência brasileira (especialmente STJ e Tribunais Estaduais).
 

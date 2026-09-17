@@ -42,7 +42,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -87,7 +87,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -132,7 +132,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -164,7 +164,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -198,7 +198,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -236,7 +236,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -268,7 +268,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -302,7 +302,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -341,7 +341,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -375,7 +375,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -413,7 +413,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },
@@ -447,7 +447,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: 'Dr. Eduardo Veríssimo Inocente',
       role: 'Sócio-Fundador & Diretor Jurídico',
-      oab: 'OAB/SP 200.322',
+      oab: 'OAB/SP 200.334',
       avatar: '/img/01.png',
       bio: 'Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.',
     },

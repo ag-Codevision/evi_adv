@@ -174,7 +174,7 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
     { label: 'Áreas de Atuação', href: '/areas-de-atuacao', icon: Scale, desc: 'Direito Empresarial, Agronegócio e RJ' },
     { label: 'Nossa Estrutura', href: '/nossa-estrutura', icon: Building2, desc: 'Sede moderna e infraestrutura de ponta' },
     { label: 'Blog Jurídico', href: '/blog', icon: BookOpen, desc: 'Análises técnicas e novidades do Direito' },
-    { label: 'Podcast EVI', href: '/podcast', icon: Radio, desc: 'Episódios e debates com especialistas' },
+    { label: 'Podcast Direito e Arte', href: '/podcast', icon: Radio, desc: 'Episódios e debates com especialistas' },
     { label: 'Imprensa & Mídia', href: '/imprensa', icon: Newspaper, desc: 'EVI nos principais veículos de notícia' },
     { label: 'Contato & Localização', href: '/contato', icon: Phone, desc: 'Atendimento presencial e remoto' },
   ];

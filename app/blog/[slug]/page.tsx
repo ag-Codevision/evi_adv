@@ -231,7 +231,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     Dr. Eduardo Veríssimo Inocente
                   </h4>
                   <p className="text-xs font-semibold text-evi-accent mb-2">
-                    Sócio-Fundador & Diretor Jurídico · OAB/SP 200.322
+                    Sócio-Fundador & Diretor Jurídico · OAB/SP 200.334
                   </p>
                   <p className="text-xs text-evi-text-light leading-relaxed">
                     Mais de 25 anos de vanguarda no Direito Empresarial, referência nacional em Recuperação Judicial, Reestruturação de Dívidas e Agronegócio.
@@ -245,22 +245,22 @@ export default async function BlogPostPage({ params }: PageProps) {
                   Deseja discutir a aplicação desse tema ao seu caso?
                 </p>
                 <p className="text-sm text-evi-text-light mb-6 max-w-lg mx-auto">
-                  Agende uma consulta estratégica com o Dr. Eduardo Veríssimo e nossa banca de especialistas.
+                  Agende uma consulta com o Dr. Eduardo Veríssimo Inocente e nossa banca de especialistas.
                 </p>
                 <a
-                  href={`https://wa.me/5511991390045?text=${encodeURIComponent(`Olá, li o artigo "${title}" no blog e gostaria de conversar com o Dr. Eduardo.`)}`}
+                  href={`https://wa.me/5511991390045?text=${encodeURIComponent(`Olá, li o artigo "${title}" no blog e gostaria de conversar com o Dr. Eduardo Veríssimo Inocente.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-wa"
                 >
-                  Falar com Dr. Eduardo e Equipe
+                  Falar com Dr. Eduardo Veríssimo Inocente e Equipe
                 </a>
               </div>
             </div>
 
             {/* Coluna Lateral: Perfil do Dr. Eduardo & CTA Institucional */}
             <aside className="lg:col-span-4 space-y-8">
-              {/* Card do Dr. Eduardo Veríssimo */}
+              {/* Card do Dr. Eduardo Veríssimo Inocente */}
               <div className="bg-white p-6 rounded-3xl border border-evi-border shadow-evi-card">
                 <div className="flex items-center gap-4 mb-4">
                   <img
@@ -269,9 +269,9 @@ export default async function BlogPostPage({ params }: PageProps) {
                     className="w-16 h-16 rounded-full object-cover border-2 border-evi-accent shadow-sm"
                   />
                   <div>
-                    <h4 className="font-serif font-bold text-evi-deep text-lg">Dr. Eduardo Veríssimo</h4>
+                    <h4 className="font-serif font-bold text-evi-deep text-lg">Dr. Eduardo Veríssimo Inocente</h4>
                     <span className="text-xs text-evi-accent font-semibold block">Sócio-Fundador EVI</span>
-                    <span className="text-[11px] text-evi-text-muted">OAB/SP 200.322</span>
+                    <span className="text-[11px] text-evi-text-muted">OAB/SP 200.334</span>
                   </div>
                 </div>
                 <p className="text-xs text-evi-text-light leading-relaxed mb-4">

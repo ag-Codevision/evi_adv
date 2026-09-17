@@ -98,6 +98,11 @@ const timelineEvents = [
     title: 'Jubileu de Prata: 25 Anos de Vanguarda',
     desc: 'Comemoração de 25 anos de atuação ininterrupta, modernização digital, podcast exclusivo e atendimento estratégico a clientes em todo o território nacional.',
   },
+  {
+    year: '2026',
+    title: 'Capa da Revista Prospere',
+    desc: 'O advogado que tornou sua experiência de paternidade referência para outras famílias.',
+  },
 ];
 
 export default function QuemSomosPage() {
@@ -133,7 +138,7 @@ export default function QuemSomosPage() {
                       Sócio-Diretor & Fundador
                     </span>
                     <strong className="text-xl font-serif">Dr. Eduardo Veríssimo Inocente</strong>
-                    <span className="text-xs text-slate-300">Inscrição OAB/SP 200.322 · Mestre em Direitos Difusos</span>
+                    <span className="text-xs text-slate-300">Inscrição OAB/SP 200.334 · Mestre em Direitos Difusos</span>
                   </div>
                 </div>
               </div>
@@ -153,16 +158,16 @@ export default function QuemSomosPage() {
                   A trajetória da EVI teve início em São Bernardo do Campo, sob a visão obstinada do advogado <strong>Eduardo Veríssimo Inocente</strong>, cujas iniciais batizam o escritório. O propósito desde o primeiro dia foi claro: romper com a advocacia burocrática e entregar uma atuação proativa, artesanal e implacável na defesa dos direitos de cada cliente.
                 </p>
                 <p className="text-base text-evi-text-light">
-                  Com mais de <strong>25 anos de atuação ininterrupta</strong>, o Dr. Eduardo é uma das mentes jurídicas mais respeitadas do país, com formação acadêmica de ponta — incluindo Mestrado em Direitos Difusos e Coletivos e diplomação em Ávila (Espanha) —, além de presença frequente como fonte técnica de grandes redes de TV como <strong>Band News</strong>, <strong>SBT</strong> e <strong>Rede Brasil de Televisão</strong>.
+                  Com mais de <strong>25 anos de atuação ininterrupta</strong>, o Dr. Eduardo Veríssimo Inocente é uma das mentes jurídicas mais respeitadas do país, com formação acadêmica de ponta — incluindo Mestrado em Direitos Difusos e Coletivos e diplomação em Ávila (Espanha) —, além de presença frequente como fonte técnica de grandes redes de TV como <strong>Band News</strong>, <strong>SBT</strong> e <strong>Rede Brasil de Televisão</strong>.
                 </p>
                 <div className="pt-4 flex flex-wrap gap-4 items-center">
                   <a
-                    href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta%20estrat%C3%A9gica%20com%20o%20Dr.%20Eduardo%20Ver%C3%ADssimo."
+                    href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta%20com%20o%20Dr.%20Eduardo%20Ver%C3%ADssimo%20Inocente."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-wa"
                   >
-                    Agendar Consulta com Dr. Eduardo
+                    Agende uma Consulta com o Dr. Eduardo Veríssimo Inocente
                   </a>
                   <Link href="/imprensa" className="btn btn-outline">
                     Ver Matérias na TV e Imprensa
@@ -505,18 +510,18 @@ export default function QuemSomosPage() {
           {/* 9. CTA FINAL */}
           <div className="bg-white rounded-3xl border border-evi-border p-10 md:p-14 text-center max-w-3xl mx-auto shadow-evi-card">
             <h3 className="text-3xl font-serif font-bold text-evi-deep mb-3">
-              Agende uma reunião estratégica com o Dr. Eduardo e equipe
+              Agende uma consulta com o Dr. Eduardo Veríssimo Inocente e equipe
             </h3>
             <p className="text-evi-text-light text-base mb-8">
               Atendimento presencial na sede do Ipiranga em São Paulo ou por videoconferência reservada com discrição incondicional.
             </p>
             <a
-              href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta%20com%20o%20Dr.%20Eduardo%20Ver%C3%ADssimo%20e%20equipe."
+              href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta%20com%20o%20Dr.%20Eduardo%20Ver%C3%ADssimo%20Inocente%20e%20equipe."
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-wa text-base px-8 py-4"
             >
-              Falar no WhatsApp com o Dr. Eduardo e Equipe
+              Falar no WhatsApp com o Dr. Eduardo Veríssimo Inocente e Equipe
             </a>
           </div>
         </div>

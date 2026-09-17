@@ -28,7 +28,7 @@ export default function Footer() {
               <Link href="/nossa-estrutura">Nossa Estrutura</Link>
               <Link href="/areas-de-atuacao#diferenciais">Diferenciais</Link>
               <Link href="/quem-somos#profissionais">Corpo Jurídico</Link>
-              <Link href="/quem-somos#dr-eduardo">Dr. Eduardo Veríssimo</Link>
+              <Link href="/quem-somos#dr-eduardo">Dr. Eduardo Veríssimo Inocente</Link>
             </div>
           </div>
 
@@ -51,7 +51,7 @@ export default function Footer() {
             <div className="footer-links text-sm space-y-2 mb-4">
               <Link href="/blog">Blog & Artigos Jurídicos</Link>
               <Link href="/imprensa">Sala de Imprensa & Clipping</Link>
-              <Link href="/podcast">Podcast EVI no YouTube</Link>
+              <Link href="/podcast">Podcast Direito e Arte no YouTube</Link>
               <Link href="/atendimento">Atendimento Personalizado</Link>
               <Link href="/contato">Fale Conosco</Link>
             </div>
