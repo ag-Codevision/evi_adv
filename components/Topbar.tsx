@@ -12,13 +12,16 @@ export default function Topbar() {
               </svg>
               <span>(11) 4362-3533</span>
             </a>
-            <a href="mailto:contato@evi.adv.br" className="topbar-item" title="E-mail oficial da EVI Advogados">
+            <a href="mailto:contato@evi.adv.br" className="topbar-item email-item" title="E-mail oficial da EVI Advogados">
               <svg className="topbar-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect width="20" height="16" x="2" y="4" rx="2" />
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
               <span>contato@evi.adv.br</span>
             </a>
+            <span className="hidden md:inline-flex items-center text-xs text-slate-400 pl-2 border-l border-slate-700/60 font-medium">
+              Atendimento Nacional
+            </span>
           </div>
         </div>
         <div className="topbar-social">
