@@ -907,25 +907,24 @@ button {
   }
 }
 
-/* GOOGLE REVIEWS INFINITE CONTINUOUS MARQUEE */
-@keyframes reviewsMarquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
+/* GOOGLE REVIEWS DRAGGABLE & INFINITE MARQUEE */
 .reviews-marquee-mask {
   overflow: hidden;
   position: relative;
   width: 100%;
-  padding: 10px 0;
+  padding: 12px 0;
   mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+
+.reviews-marquee-mask.is-dragging {
+  cursor: grabbing !important;
 }
 
 .reviews-marquee-mask::-webkit-scrollbar {
@@ -936,17 +935,11 @@ button {
   display: flex;
   width: max-content;
   gap: 1.5rem;
-  animation: reviewsMarquee 42s linear infinite;
   will-change: transform;
-}
-
-.reviews-marquee-track:hover {
-  animation-play-state: paused;
 }
 
 @media (max-width: 768px) {
   .reviews-marquee-track {
-    animation-duration: 32s;
     gap: 1rem;
   }
 }

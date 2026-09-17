@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface ReviewItem {
   id: string;
@@ -75,8 +75,158 @@ const GOOGLE_MAPS_URL =
   'https://www.google.com/maps/place/EVI+Sociedade+de+Advogados/@-23.5955075,-46.6083219,712m/data=!3m1!1e3!4m16!1m7!3m6!1s0x94ce59b8983035d9:0x344dfa9c9341de93!2sEVI+Sociedade+de+Advogados!8m2!3d-23.5955124!4d-46.605747!16s%2Fg%2F11c6ldrhgn!3m7!1s0x94ce59b8983035d9:0x344dfa9c9341de93!8m2!3d-23.5955124!4d-46.605747!9m1!1b1!16s%2Fg%2F11c6ldrhgn?hl=pt-BR&entry=ttu&g_ep=EgoyMDI2MDkxNS4wIKXMDSoASAFQAw%3D%3D';
 
 export default function GoogleReviewsSection() {
-  // Duplicamos a lista para criar um loop contínuo e perfeitamente infinito sem interrupções
-  const marqueeReviews = [...REVIEWS_DATA, ...REVIEWS_DATA];
+  // Triplicamos a lista para permitir arraste livre e loop contínuo infinito
+  const marqueeReviews = [...REVIEWS_DATA, ...REVIEWS_DATA, ...REVIEWS_DATA];
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
+  const isHoveredRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartOffsetRef = useRef(0);
+  const offsetRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const lastTimeRef = useRef<number | null>(null);
+
+  // Normaliza o offset para rotação contínua infinita
+  const normalizeOffset = useCallback((offset: number): number => {
+    if (!trackRef.current) return offset;
+    const singleSetWidth = trackRef.current.scrollWidth / 3;
+    if (singleSetWidth <= 0) return offset;
+
+    let normalized = offset;
+    while (normalized <= -singleSetWidth) {
+      normalized += singleSetWidth;
+    }
+    while (normalized > 0) {
+      normalized -= singleSetWidth;
+    }
+    return normalized;
+  }, []);
+
+  // Animação contínua suave via requestAnimationFrame
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const animate = (time: number) => {
+      if (lastTimeRef.current !== null && trackRef.current) {
+        const deltaTime = Math.min((time - lastTimeRef.current) / 1000, 0.1);
+        const speed = 42; // 42 pixels por segundo (movimento suave e elegante)
+
+        if (!isDraggingRef.current && !isHoveredRef.current) {
+          offsetRef.current -= speed * deltaTime;
+          offsetRef.current = normalizeOffset(offsetRef.current);
+          trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+        }
+      }
+
+      lastTimeRef.current = time;
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [normalizeOffset]);
+
+  // Eventos de Mouse Drag globais na window
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current || !trackRef.current) return;
+
+      const deltaX = e.pageX - dragStartXRef.current;
+      if (Math.abs(deltaX) > 4) {
+        hasDraggedRef.current = true;
+      }
+
+      offsetRef.current = dragStartOffsetRef.current + deltaX;
+      offsetRef.current = normalizeOffset(offsetRef.current);
+      trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+    };
+
+    const handleMouseUp = () => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        setIsDragging(false);
+
+        // Previne clique acidental em links se houve arraste
+        setTimeout(() => {
+          hasDraggedRef.current = false;
+        }, 120);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [normalizeOffset]);
+
+  // Início do arraste com o mouse
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    hasDraggedRef.current = false;
+    dragStartXRef.current = e.pageX;
+    dragStartOffsetRef.current = offsetRef.current;
+  };
+
+  // Suporte a Touch Drag para telas sensíveis ao toque
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      isDraggingRef.current = true;
+      setIsDragging(true);
+      hasDraggedRef.current = false;
+      dragStartXRef.current = e.touches[0].pageX;
+      dragStartOffsetRef.current = offsetRef.current;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingRef.current || !trackRef.current || e.touches.length !== 1) return;
+
+    const deltaX = e.touches[0].pageX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 4) {
+      hasDraggedRef.current = true;
+    }
+
+    offsetRef.current = dragStartOffsetRef.current + deltaX;
+    offsetRef.current = normalizeOffset(offsetRef.current);
+    trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+  };
+
+  const handleTouchEnd = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsDragging(false);
+      setTimeout(() => {
+        hasDraggedRef.current = false;
+      }, 120);
+    }
+  };
+
+  // Botões de navegação rápida manual
+  const handleNavigate = (direction: 'prev' | 'next') => {
+    if (!trackRef.current) return;
+    const step = 380;
+    const targetOffset = direction === 'next' ? offsetRef.current - step : offsetRef.current + step;
+    offsetRef.current = normalizeOffset(targetOffset);
+    trackRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+    trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+
+    setTimeout(() => {
+      if (trackRef.current) {
+        trackRef.current.style.transition = 'none';
+      }
+    }, 360);
+  };
 
   return (
     <section
@@ -187,24 +337,71 @@ export default function GoogleReviewsSection() {
         </div>
       </div>
 
-      {/* Subtítulo da Esteira Contínua */}
-      <div className="container mb-5 flex items-center justify-between">
+      {/* Subtítulo e Controles do Carrossel */}
+      <div className="container mb-5 flex items-center justify-between gap-4">
         <div>
           <span className="text-xs uppercase tracking-widest font-bold text-slate-500">Depoimentos Públicos Reais</span>
           <p className="text-sm font-serif font-bold text-evi-deep">O que nossos clientes dizem sobre nossa atuação</p>
         </div>
-        <span className="hidden sm:inline-flex text-xs text-slate-400 font-medium">
-          Passe o mouse para pausar
-        </span>
+
+        <div className="flex items-center gap-3">
+          {/* Dica interativa de arraste com mouse */}
+          <span className="hidden md:inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-white/80 px-3 py-1.5 rounded-full border border-slate-200/80 shadow-2xs">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
+              <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+              <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2" />
+              <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+              <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+            </svg>
+            <span>Arraste com o mouse para navegar</span>
+          </span>
+
+          {/* Botões de navegação lateral (prev/next) */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => handleNavigate('prev')}
+              aria-label="Avaliação anterior"
+              className="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-evi-deep hover:border-slate-300 hover:bg-slate-50 flex items-center justify-center shadow-xs transition-colors active:scale-95 cursor-pointer"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleNavigate('next')}
+              aria-label="Próxima avaliação"
+              className="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-evi-deep hover:border-slate-300 hover:bg-slate-50 flex items-center justify-center shadow-xs transition-colors active:scale-95 cursor-pointer"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Esteira Infinita de Cards (Marquee) — 100% sem barra de rolagem */}
-      <div className="reviews-marquee-mask">
-        <div className="reviews-marquee-track">
+      {/* Esteira de Cards Arrastável com o Mouse (Drag-to-scroll) & 100% sem barra de rolagem */}
+      <div
+        ref={containerRef}
+        className={`reviews-marquee-mask ${isDragging ? 'is-dragging' : ''}`}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => {
+          isHoveredRef.current = true;
+        }}
+        onMouseLeave={() => {
+          isHoveredRef.current = false;
+        }}
+      >
+        <div ref={trackRef} className="reviews-marquee-track">
           {marqueeReviews.map((review, idx) => (
             <article
               key={`${review.id}-${idx}`}
-              className="w-[310px] sm:w-[350px] md:w-[380px] flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-slate-200/90 flex flex-col justify-between select-none"
+              className="w-[310px] sm:w-[350px] md:w-[380px] flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200 border border-slate-200/90 flex flex-col justify-between select-none"
             >
               <div>
                 {/* Topo do Card: Autor, Avatar, Data */}
@@ -214,7 +411,7 @@ export default function GoogleReviewsSection() {
                       <img
                         src={review.avatar}
                         alt={review.author}
-                        className="w-11 h-11 rounded-full object-cover border border-slate-200 shadow-xs flex-shrink-0"
+                        className="w-11 h-11 rounded-full object-cover border border-slate-200 shadow-xs flex-shrink-0 pointer-events-none"
                         loading="lazy"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
@@ -226,7 +423,7 @@ export default function GoogleReviewsSection() {
                     ) : null}
                     <div
                       style={{ display: review.avatar ? 'none' : 'flex' }}
-                      className="w-11 h-11 rounded-full bg-slate-800 text-amber-300 font-bold text-sm items-center justify-center shadow-xs flex-shrink-0"
+                      className="w-11 h-11 rounded-full bg-slate-800 text-amber-300 font-bold text-sm items-center justify-center shadow-xs flex-shrink-0 pointer-events-none"
                     >
                       {review.initials}
                     </div>
@@ -248,13 +445,13 @@ export default function GoogleReviewsSection() {
                   </div>
 
                   {/* Ícone de Aspas Google */}
-                  <span className="text-slate-300 font-serif text-3xl leading-none select-none">
+                  <span className="text-slate-300 font-serif text-3xl leading-none select-none pointer-events-none">
                     “
                   </span>
                 </div>
 
                 {/* Estrelas */}
-                <div className="flex items-center text-[#F4B400] gap-0.5 mb-3" aria-label={`${review.stars} estrelas`}>
+                <div className="flex items-center text-[#F4B400] gap-0.5 mb-3 pointer-events-none" aria-label={`${review.stars} estrelas`}>
                   {[0, 1, 2, 3, 4].slice(0, review.stars).map((i) => (
                     <svg
                       key={i}
@@ -268,14 +465,14 @@ export default function GoogleReviewsSection() {
                 </div>
 
                 {/* Texto da Avaliação */}
-                <p className="text-slate-700 text-sm leading-relaxed mb-4">
+                <p className="text-slate-700 text-sm leading-relaxed mb-4 pointer-events-none">
                   "{review.content}"
                 </p>
               </div>
 
               {/* Rodapé do Card */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1 pointer-events-none">
                   <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" className="text-slate-400">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
@@ -285,6 +482,11 @@ export default function GoogleReviewsSection() {
                   href={GOOGLE_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (hasDraggedRef.current) {
+                      e.preventDefault();
+                    }
+                  }}
                   className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
                 >
                   Ver no Google →
