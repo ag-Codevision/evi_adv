@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import HeroSlider from '@/components/HeroSlider';
+import GoogleReviewsSection from '@/components/GoogleReviewsSection';
 import Metrics from '@/components/Metrics';
 import MediaAuthoritySection from '@/components/MediaAuthoritySection';
 import AreasSection from '@/components/AreasSection';
@@ -18,6 +19,9 @@ export default function HomePage() {
       <main>
         {/* Banner Hero com Slider 25 Anos e WebGL Glass Reveal */}
         <HeroSlider />
+
+        {/* Avaliações do Google Meu Negócio */}
+        <GoogleReviewsSection />
 
         {/* Indicadores e Métricas de Autoridade */}
         <Metrics />
