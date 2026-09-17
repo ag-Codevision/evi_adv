@@ -267,8 +267,8 @@ export default function GoogleReviewsSection() {
 
               {/* Informações de Avaliação */}
               <div>
-                <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <span className="font-serif text-3xl sm:text-4xl font-bold text-evi-deep tracking-tight">
                     5.0
                   </span>
                   {/* 5 Estrelas Douradas */}
@@ -284,22 +284,22 @@ export default function GoogleReviewsSection() {
                       </svg>
                     ))}
                   </div>
-                  <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200/80">
+                  <span className="font-sans bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200/80">
                     Classificação Máxima
                   </span>
                 </div>
 
                 <h2
                   id="google-reviews-title"
-                  className="text-lg sm:text-xl font-bold text-evi-deep flex items-center gap-2"
+                  className="font-serif text-xl sm:text-2xl font-medium text-evi-deep flex items-center gap-2.5 flex-wrap"
                 >
                   <span>Avaliações no Google Meu Negócio</span>
-                  <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-md">
+                  <span className="font-sans text-[11px] uppercase tracking-[0.14em] bg-slate-100 text-evi-text-muted font-bold px-2.5 py-0.5 rounded-full border border-slate-200/80">
                     Perfil Verificado
                   </span>
                 </h2>
-                <p className="text-slate-500 text-sm mt-0.5">
-                  Baseado em <strong className="text-slate-800 font-bold">+145 avaliações</strong> e depoimentos de clientes reais atendidos pela <strong>EVI Sociedade de Advogados</strong>.
+                <p className="font-sans text-evi-text-muted text-sm sm:text-base mt-1 leading-relaxed">
+                  Baseado em <strong className="text-evi-deep font-semibold">+145 avaliações</strong> e depoimentos de clientes reais atendidos pela <strong className="text-evi-deep font-semibold">EVI Sociedade de Advogados</strong>.
                 </p>
               </div>
             </div>
@@ -310,7 +310,7 @@ export default function GoogleReviewsSection() {
                 href={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm font-bold bg-[#1a73e8] hover:bg-[#1557b0] text-white px-5 py-3 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 font-sans text-sm font-semibold bg-evi-deep hover:bg-[#1f334a] text-white px-6 py-3 rounded-full shadow-sm transition-all duration-200 active:scale-[0.98]"
               >
                 <span>Ver Todas no Google Maps</span>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -324,7 +324,7 @@ export default function GoogleReviewsSection() {
                 href={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-700 hover:text-evi-deep bg-slate-100 hover:bg-slate-200 px-4 py-3 rounded-xl transition-colors"
+                className="inline-flex items-center justify-center gap-2 font-sans text-sm font-semibold text-evi-deep hover:text-evi-navy bg-slate-100 hover:bg-slate-200 px-5 py-3 rounded-full transition-colors border border-slate-200/60"
               >
                 <span>Escrever Avaliação</span>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -340,8 +340,8 @@ export default function GoogleReviewsSection() {
       {/* Subtítulo e Controles do Carrossel */}
       <div className="container mb-5 flex items-center justify-between gap-4">
         <div>
-          <span className="text-xs uppercase tracking-widest font-bold text-slate-500">Depoimentos Públicos Reais</span>
-          <p className="text-sm font-serif font-bold text-evi-deep">O que nossos clientes dizem sobre nossa atuação</p>
+          <span className="font-sans text-xs uppercase tracking-[0.14em] font-extrabold text-evi-accent">Depoimentos Públicos Reais</span>
+          <p className="font-serif text-lg sm:text-xl font-medium text-evi-deep mt-0.5">O que nossos clientes dizem sobre nossa atuação</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -429,15 +429,15 @@ export default function GoogleReviewsSection() {
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                      <h3 className="font-sans text-[15px] font-bold text-evi-deep leading-snug">
                         {review.author}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <div className="flex items-center gap-1.5 font-sans text-xs text-evi-text-muted">
                         <span>{review.timeAgo}</span>
                         {review.badge && (
                           <>
                             <span>•</span>
-                            <span className="text-emerald-700 font-medium">{review.badge}</span>
+                            <span className="text-emerald-700 font-semibold font-sans">{review.badge}</span>
                           </>
                         )}
                       </div>
@@ -445,7 +445,7 @@ export default function GoogleReviewsSection() {
                   </div>
 
                   {/* Ícone de Aspas Google */}
-                  <span className="text-slate-300 font-serif text-3xl leading-none select-none pointer-events-none">
+                  <span className="text-evi-silver font-serif text-3xl leading-none select-none pointer-events-none">
                     “
                   </span>
                 </div>
@@ -465,13 +465,13 @@ export default function GoogleReviewsSection() {
                 </div>
 
                 {/* Texto da Avaliação */}
-                <p className="text-slate-700 text-sm leading-relaxed mb-4 pointer-events-none">
+                <p className="font-sans text-evi-ink text-[13.5px] leading-[1.7] mb-4 pointer-events-none">
                   "{review.content}"
                 </p>
               </div>
 
               {/* Rodapé do Card */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between font-sans text-[11px] text-evi-text-muted">
                 <span className="flex items-center gap-1 pointer-events-none">
                   <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" className="text-slate-400">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -487,7 +487,7 @@ export default function GoogleReviewsSection() {
                       e.preventDefault();
                     }
                   }}
-                  className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                  className="font-sans font-semibold text-evi-deep hover:text-evi-accent transition-colors"
                 >
                   Ver no Google →
                 </a>

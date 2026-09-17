@@ -191,7 +191,7 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
       <header id="mainHeader" className={`header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="container">
           {/* Mobile Header Bar */}
-          <div className="lg:hidden flex items-center justify-between w-full min-h-[66px] px-1">
+          <div className="lg:hidden relative flex items-center justify-center w-full min-h-[66px] px-1">
             <Link href="/" className="brand-center p-0" aria-label="EVI Advogados - Início">
               <img
                 src="/assets/logo.png"
@@ -202,7 +202,7 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
 
             <button
               type="button"
-              className="md3-ripple-container w-11 h-11 rounded-full flex items-center justify-center bg-slate-100/90 hover:bg-slate-200/90 border border-slate-200/80 text-evi-deep active:scale-95 transition-all shadow-sm"
+              className="absolute right-2 md3-ripple-container w-11 h-11 rounded-full flex items-center justify-center bg-slate-100/90 hover:bg-slate-200/90 border border-slate-200/80 text-evi-deep active:scale-95 transition-all shadow-sm"
               aria-label={isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
               aria-expanded={isOpen}
               onClick={(e) => {

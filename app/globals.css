@@ -239,10 +239,10 @@ button {
 
 .nav-split {
   min-height: 86px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: center;
-  gap: clamp(18px, 2.4vw, 36px);
+  gap: clamp(16px, 2vw, 32px);
   width: 100%;
   transition: min-height .35s cubic-bezier(.16, 1, .3, 1);
 }
@@ -538,54 +538,118 @@ button {
   color: var(--deep);
 }
 
-/* HERO SECTION */
+/* HERO SECTION CINEMATOGRÁFICA PREMIUM */
 .hero {
   position: relative;
   overflow: hidden;
-  background: #0d1219 url('/assets/banner_pb.webp') right top / cover no-repeat;
+  min-height: clamp(640px, 92vh, 920px);
+  background: #080d16;
   color: #fff;
-  aspect-ratio: 2200 / 1051;
-  max-height: 100svh;
-}
-
-.glass-reveal-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.glass-reveal-bg canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.hero:after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(10, 16, 24, .88) 0%, rgba(10, 16, 24, .45) 50%, transparent 85%), linear-gradient(180deg, rgba(10, 16, 24, .35) 0%, transparent 20%, transparent 80%, rgba(10, 16, 24, .6) 100%);
-  z-index: 1;
-  pointer-events: none;
-}
-
-.hero-grid {
-  position: relative;
-  z-index: 2;
   display: flex;
   align-items: center;
+  isolation: isolate;
+}
+
+/* CAMADA 1: BACKGROUND CINEMATOGRÁFICO & STAGE */
+.hero-cinematic-stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Imagem de Fundo com Parallax e Escala Lenta */
+.hero-bg-media {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  background: #080d16 url('/img/fundo-hero2.jpg') center 28% / cover no-repeat;
+  will-change: transform;
+  transition: transform 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: brightness(0.92) contrast(1.06);
+}
+
+/* Vinhetagem Atmosférica & Máscara de Contraste WCAG para Layout Centralizado */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: 
+    /* Máscara central sutil e arejada para destacar o conteúdo sem escurecimento excessivo */
+    radial-gradient(ellipse 85% 75% at 50% 48%, rgba(8, 13, 22, 0.42) 0%, rgba(8, 13, 22, 0.68) 75%, rgba(8, 13, 22, 0.88) 100%),
+    /* Gradiente vertical suave para integração natural com Header e seções seguintes */
+    linear-gradient(180deg, rgba(8, 13, 22, 0.75) 0%, transparent 25%, transparent 78%, rgba(8, 13, 22, 0.9) 100%),
+    /* Gradientes laterais arejados */
+    linear-gradient(90deg, rgba(8, 13, 22, 0.6) 0%, transparent 30%, transparent 70%, rgba(8, 13, 22, 0.6) 100%);
+}
+
+/* Feixes de Luz Volumétricos Sutis (React Bits Beams inspired) */
+.hero-light-beams {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(132deg, transparent 25%, rgba(148, 185, 225, 0.05) 40%, rgba(255, 255, 255, 0.07) 48%, rgba(114, 134, 153, 0.03) 58%, transparent 72%);
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+/* Spotlight Interativo reativo ao cursor (React Bits Spotlight inspired) */
+.hero-interactive-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+/* Canvas de Partículas / Poeira de Luz Flutuante */
+.hero-particles-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Film Grain Texturizado de Película 35mm */
+.hero-film-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.034;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* CAMADA FOREGROUND CENTRALIZADA */
+.hero-grid {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
   min-height: 100%;
-  padding: 60px 0;
+  padding: 85px 0 95px;
 }
 
 .hero-slider-wrap {
   position: relative;
-  z-index: 3;
+  z-index: 6;
   width: 100%;
-  max-width: 640px;
+  max-width: 820px;
+  margin: 0 auto;
   display: grid;
+  justify-items: center;
 }
 
 .hero-slide-panel {
@@ -593,45 +657,77 @@ button {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity .5s ease, visibility .5s;
+  transform: translate3d(0, 16px, 0);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.55s;
   height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .hero-slide-panel.active {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  transform: translate3d(0, 0, 0);
 }
 
+/* ANIMAÇÕES COREOGRAFADAS DE ENTRADA (TIMELINE CINEMATOGRÁFICA CENTRALIZADA) */
 .hero-slide-panel.active .eyebrow {
-  animation: heroInLeft .75s cubic-bezier(.16, 1, .3, 1) .06s both;
-}
-.hero-slide-panel.active h1,
-.hero-slide-panel.active .hero-logo-box,
-.hero-slide-panel.active .hero-heading-group {
-  animation: heroInLeft .9s cubic-bezier(.16, 1, .3, 1) .18s both;
-}
-.hero-slide-panel.active p {
-  animation: heroInLeft .9s cubic-bezier(.16, 1, .3, 1) .30s both;
-}
-.hero-slide-panel.active .hero-actions {
-  animation: heroInLeft .95s cubic-bezier(.16, 1, .3, 1) .44s both;
-}
-.hero-slide-panel.active .trust {
-  animation: heroInLeft 1s cubic-bezier(.16, 1, .3, 1) .58s both;
+  animation: heroCinematicIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
 }
 
-@keyframes heroInLeft {
-  0% { opacity: 0; transform: translate3d(-70px, 0, 0); }
-  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+.hero-slide-panel.active .hero-logo-box {
+  animation: heroCinematicIn 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+}
+
+.hero-slide-panel.active .hero-cinematic-title,
+.hero-slide-panel.active h1 {
+  animation: heroBlurReveal 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+}
+
+.hero-slide-panel.active p {
+  animation: heroCinematicIn 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.38s both;
+}
+
+.hero-slide-panel.active .hero-actions {
+  animation: heroCinematicIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both;
+}
+
+@keyframes heroCinematicIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes heroBlurReveal {
+  0% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translate3d(0, 24px, 0);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .hero-copy {
-  max-width: 640px;
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
+  align-items: center;
+  text-align: center;
+  gap: 26px;
   background: none;
   padding: 0;
   border: none;
@@ -640,50 +736,61 @@ button {
 .hero-heading-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 14px;
   color: #cbd5e1;
-  font-size: .8rem;
-  font-weight: 900;
-  letter-spacing: .16em;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin: 0 auto 18px;
 }
 
-.eyebrow:before {
+.eyebrow:before,
+.eyebrow:after {
   content: '';
-  width: 29px;
-  height: 1px;
-  background: currentColor;
+  width: 28px;
+  height: 2px;
+  background: linear-gradient(90deg, #728699, #b8c7d6);
+  border-radius: 99px;
 }
 
-.hero h1 {
-  margin: 0;
-  color: #fff;
-  font: 500 clamp(2.2rem, 3.6vw, 3rem)/1.2 var(--serif);
-  letter-spacing: -.035em;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, .65);
-  max-width: 580px;
+.hero h1,
+.hero-cinematic-title {
+  margin: 0 auto;
+  color: #ffffff;
+  font: 500 clamp(2.25rem, 3.8vw, 3.15rem)/1.18 var(--serif);
+  letter-spacing: -0.035em;
+  text-align: center;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.38), 0 1px 2px rgba(0, 0, 0, 0.45);
+  max-width: 780px;
 }
 
 .hero-slide-panel > p,
 .hero-copy > p {
-  max-width: 560px;
-  margin: 0;
-  color: #d0d8dc;
+  max-width: 680px;
+  margin: 0 auto;
+  color: #d8e2ea;
   font-size: 1.15rem;
-  line-height: 1.82;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, .5);
+  line-height: 1.84;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
 }
 
 .hero-logo-box {
-  margin: 0;
+  margin: 0 auto;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .hero-logo-25 {
@@ -693,42 +800,43 @@ button {
   height: auto;
   max-height: 310px;
   object-fit: contain;
-  object-position: left center;
-  filter: drop-shadow(0 8px 28px rgba(0, 0, 0, .8));
+  object-position: center center;
+  margin: 0 auto;
+  filter: drop-shadow(0 8px 20px rgba(24, 40, 58, 0.38)) drop-shadow(0 2px 6px rgba(24, 40, 58, 0.25));
 }
 
-/* BOTÕES DE NAVEGAÇÃO LATERAL DA HERO (DISCRETOS E SEMITRANSPARENTES) */
+/* BOTÕES DE NAVEGAÇÃO LATERAL (AEROSPACE FROSTED GLASS) */
 .hero-arrow-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: rgba(10, 18, 28, .42);
-  border: 1px solid rgba(255, 255, 255, .18);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: rgba(255, 255, 255, .78);
+  background: rgba(10, 18, 30, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: rgba(255, 255, 255, 0.85);
   display: grid;
   place-items: center;
   cursor: pointer;
   padding: 0;
-  transition: all .25s cubic-bezier(.16, 1, .3, 1);
-  box-shadow: 0 6px 22px rgba(0, 0, 0, .35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
 }
 
 .hero-arrow-btn:hover {
-  background: rgba(255, 255, 255, .16);
-  border-color: rgba(255, 255, 255, .45);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.45);
   color: #ffffff;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28), 0 0 14px rgba(184, 199, 214, 0.2);
 }
 
 .hero-arrow-btn:active {
-  transform: translateY(-50%) scale(.95);
+  transform: translateY(-50%) scale(0.95);
 }
 
 .hero-arrow-prev {
@@ -741,39 +849,144 @@ button {
 
 @media (max-width: 900px) {
   .hero-arrow-btn {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
   .hero-arrow-prev {
-    left: 10px;
+    left: 14px;
   }
   .hero-arrow-next {
-    right: 10px;
+    right: 14px;
   }
 }
 
+@media (max-width: 768px) {
+  /* Em telas menores, remove as setas para liberar 100% do respiro lateral e evitar sobreposição ao texto */
+  .hero-arrow-btn {
+    display: none !important;
+  }
+}
+
+/* AÇÕES E BOTÕES COM EFEITOS REACT BITS */
 .hero-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 20px;
   flex-wrap: nowrap;
   max-width: 640px;
-  margin: 0;
+  margin: 0 auto;
 }
 
 .hero .btn {
-  font-size: .92rem;
-  padding: 0 26px;
-  min-height: 54px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0 28px;
+  min-height: 56px;
   white-space: nowrap;
   flex-shrink: 0;
+  border-radius: 99px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero .btn-outline {
-  border-color: rgba(255, 255, 255, .35);
-  background: rgba(255, 255, 255, .08);
+/* Efeito Shiny Button (React Bits) */
+.btn-shine-effect {
+  position: relative;
+  background: #25d366;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.22);
+}
+
+.btn-shine-effect:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  transform: skewX(-24deg);
+  transition: left 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-shine-effect:hover:before {
+  left: 180%;
+}
+
+.btn-shine-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.32), 0 0 16px rgba(37, 211, 102, 0.2);
+}
+
+/* Efeito Glass Hover no Botão Secundário */
+.btn-glass-hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+.btn-glass-hover:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 0 14px rgba(255, 255, 255, 0.12);
+}
+
+/* PAGINAÇÃO DE PONTOS / BARRA TEMPORAL */
+.hero-pagination-wrap {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.hero-dot {
+  background: none;
+  border: none;
+  padding: 10px 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.hero-dot-bar {
+  display: block;
+  width: 32px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.28);
+  position: relative;
+  overflow: hidden;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-dot.active .hero-dot-bar {
+  width: 60px;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.hero-dot.active .hero-dot-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #728699, #ffffff);
+  border-radius: 99px;
+  transform-origin: left center;
+  animation: heroDotProgress 5.5s linear forwards;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes heroDotProgress {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
 }
 
 .trust {
@@ -788,35 +1001,87 @@ button {
   .hero {
     aspect-ratio: auto;
     max-height: none;
+    min-height: auto;
+    padding: 28px 0 44px;
   }
   .hero-grid {
     height: auto;
     min-height: auto;
-    padding: 56px 0 64px;
+    padding: 20px 14px 40px;
   }
   .hero-slider-wrap,
   .hero-copy,
-  .hero h1,
-  .hero-slide-panel > p,
-  .hero-copy > p,
   .trust {
     max-width: 100%;
   }
   .hero-copy {
     min-height: auto;
-    justify-content: flex-start;
-    gap: 32px;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 4px;
+  }
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    gap: 8px;
+    margin: 0 auto 10px;
+  }
+  .eyebrow:before,
+  .eyebrow:after {
+    width: 16px;
+  }
+  .hero h1,
+  .hero-cinematic-title {
+    font-size: clamp(1.32rem, 5.2vw, 1.75rem);
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    max-width: 95%;
+    margin-bottom: 2px;
+  }
+  .hero-slide-panel > p,
+  .hero-copy > p {
+    font-size: clamp(0.85rem, 3.6vw, 0.96rem);
+    line-height: 1.6;
+    max-width: 94%;
+    padding: 0 4px;
+    color: #d2dde6;
+  }
+  .hero-logo-25 {
+    max-width: min(240px, 70vw);
+    max-height: 170px;
   }
 }
 
 @media (max-width: 640px) {
+  .hero-grid {
+    padding: 14px 12px 46px;
+  }
+  .hero-heading-group {
+    gap: 6px;
+  }
   .hero-actions {
-    flex-wrap: wrap;
-    gap: 14px;
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin: 4px auto 0;
+    gap: 10px;
   }
   .hero-actions .btn {
     width: 100%;
+    min-height: 48px;
+    font-size: 0.88rem;
+    padding: 0 16px;
     white-space: normal;
+  }
+  .hero-pagination-wrap {
+    bottom: 12px;
+  }
+  .hero-dot-bar {
+    width: 24px;
+    height: 3px;
+  }
+  .hero-dot.active .hero-dot-bar {
+    width: 44px;
   }
 }
 
@@ -1732,8 +1997,23 @@ button {
 }
 
 @media(prefers-reduced-motion: reduce) {
-  .motion-item {
+  .motion-item,
+  .hero-slide-panel.active .eyebrow,
+  .hero-slide-panel.active .hero-logo-box,
+  .hero-slide-panel.active .hero-cinematic-title,
+  .hero-slide-panel.active h1,
+  .hero-slide-panel.active p,
+  .hero-slide-panel.active .hero-actions {
+    animation: none !important;
     transform: none !important;
     opacity: 1 !important;
+    filter: none !important;
+  }
+  .hero-bg-media {
+    transition: none !important;
+    transform: none !important;
+  }
+  .btn-shine-effect:before {
+    display: none !important;
   }
 }
