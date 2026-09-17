@@ -71,7 +71,7 @@ export default function Footer() {
                 <span>contato@evi.adv.br</span>
               </a>
               <a
-                href="https://maps.google.com/?q=Rua+Costa+Aguiar+2432+Ipiranga+Sao+Paulo"
+                href="https://www.google.com/maps/place/EVI+Sociedade+de+Advogados/@-23.5955075,-46.6083219,712m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94ce59b8983035d9:0x344dfa9c9341de93!8m2!3d-23.5955124!4d-46.605747!16s%2Fg%2F11c6ldrhgn?hl=pt-BR&entry=ttu&g_ep=EgoyMDI2MDkxNS4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Ver endereço no Google Maps"

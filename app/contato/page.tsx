@@ -256,20 +256,35 @@ export default function ContatoPage() {
 
           {/* Mapa do Google Maps Embutido */}
           <div className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card p-4">
-            <div className="mb-3 px-4 pt-2">
-              <span className="text-xs font-bold text-evi-deep uppercase tracking-wider">Localização no Ipiranga</span>
-              <p className="text-xs text-evi-text-light">Rua Costa Aguiar, 2432 - Ipiranga, São Paulo - SP</p>
+            <div className="mb-3 px-4 pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <span className="text-xs font-bold text-evi-deep uppercase tracking-wider">Localização no Ipiranga</span>
+                <p className="text-xs text-evi-text-light">Rua Costa Aguiar, 2432 - Ipiranga, São Paulo - SP</p>
+              </div>
+              <a
+                href="https://www.google.com/maps/place/EVI+Sociedade+de+Advogados/@-23.5955075,-46.6083219,712m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94ce59b8983035d9:0x344dfa9c9341de93!8m2!3d-23.5955124!4d-46.605747!16s%2Fg%2F11c6ldrhgn?hl=pt-BR&entry=ttu&g_ep=EgoyMDI2MDkxNS4wIKXMDSoASAFQAw%3D%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-bold text-evi-deep hover:text-evi-accent bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl border border-slate-200 transition-colors w-fit"
+              >
+                <span>Abrir no Google Maps</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </a>
             </div>
             <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden border border-evi-border">
               <iframe
-                title="Mapa EVI Sociedade de Advogados"
+                title="Localização de EVI Sociedade de Advogados no Google Maps"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
                 loading="lazy"
                 allowFullScreen
                 referrerPolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.3262809628045!2d-46.6025537!3d-23.5926526!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5b8c34f1954d%3A0xc3ce7ef6e2361661!2sR.%20Costa%20Aguiar%2C%202432%20-%20Ipiranga%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%2004204-002!5e0!3m2!1spt-BR!2sbr!4v1710500000000!5m2!1spt-BR!2sbr"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.241512497698!2d-46.6083219!3d-23.5955075!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59b8983035d9%3A0x344dfa9c9341de93!2sEVI%20Sociedade%20de%20Advogados!5e0!3m2!1spt-BR!2sbr!4v1710500000000!5m2!1spt-BR!2sbr"
               ></iframe>
             </div>
           </div>
