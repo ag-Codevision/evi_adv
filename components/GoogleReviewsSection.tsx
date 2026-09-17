@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React from 'react';
 
 interface ReviewItem {
   id: string;
@@ -75,38 +75,21 @@ const GOOGLE_MAPS_URL =
   'https://www.google.com/maps/place/EVI+Sociedade+de+Advogados/@-23.5955075,-46.6083219,712m/data=!3m1!1e3!4m16!1m7!3m6!1s0x94ce59b8983035d9:0x344dfa9c9341de93!2sEVI+Sociedade+de+Advogados!8m2!3d-23.5955124!4d-46.605747!16s%2Fg%2F11c6ldrhgn!3m7!1s0x94ce59b8983035d9:0x344dfa9c9341de93!8m2!3d-23.5955124!4d-46.605747!9m1!1b1!16s%2Fg%2F11c6ldrhgn?hl=pt-BR&entry=ttu&g_ep=EgoyMDI2MDkxNS4wIKXMDSoASAFQAw%3D%3D';
 
 export default function GoogleReviewsSection() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const checkScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (!scrollRef.current) return;
-    const scrollAmount = 360;
-    scrollRef.current.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  };
+  // Duplicamos a lista para criar um loop contínuo e perfeitamente infinito sem interrupções
+  const marqueeReviews = [...REVIEWS_DATA, ...REVIEWS_DATA];
 
   return (
     <section
       id="avaliacoes-google"
-      className="relative bg-gradient-to-b from-[#f8fafc] via-[#f1f5f9] to-[#edf2f7] py-14 md:py-18 border-b border-slate-200/80 overflow-hidden"
+      className="relative bg-gradient-to-b from-[#f8fafc] via-[#f1f5f9] to-[#edf2f7] pt-10 pb-16 md:pt-14 md:pb-20 border-b border-slate-200/80 overflow-hidden"
       aria-labelledby="google-reviews-title"
     >
-      {/* Luz ambiente sutil decorativa */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[250px] bg-gradient-to-b from-blue-100/40 via-amber-100/20 to-transparent blur-3xl pointer-events-none -z-0" />
+      {/* Luz ambiente suave decorativa */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[220px] bg-gradient-to-b from-blue-100/30 via-amber-100/20 to-transparent blur-3xl pointer-events-none -z-0" />
 
-      <div className="container relative z-10">
+      <div className="container relative z-10 mb-8 md:mb-10">
         {/* Cabeçalho Oficial do Google Meu Negócio */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-sm border border-slate-200/90 mb-10 md:mb-12">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-sm border border-slate-200/90">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
             {/* Bloco de Marca Google + Nota */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
@@ -202,58 +185,26 @@ export default function GoogleReviewsSection() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Controles do Carrossel de Depoimentos */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <span className="text-xs uppercase tracking-widest font-bold text-slate-500">Depoimentos Públicos Reais</span>
-            <p className="text-sm font-serif font-bold text-evi-deep">O que nossos clientes dizem sobre nossa atuação</p>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleScroll('left')}
-              disabled={!canScrollLeft}
-              className={`w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center transition-all ${
-                canScrollLeft
-                  ? 'bg-white text-slate-800 hover:bg-slate-100 shadow-sm cursor-pointer'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
-              }`}
-              aria-label="Avaliações anteriores"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleScroll('right')}
-              disabled={!canScrollRight}
-              className={`w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center transition-all ${
-                canScrollRight
-                  ? 'bg-white text-slate-800 hover:bg-slate-100 shadow-sm cursor-pointer'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
-              }`}
-              aria-label="Próximas avaliações"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          </div>
+      {/* Subtítulo da Esteira Contínua */}
+      <div className="container mb-5 flex items-center justify-between">
+        <div>
+          <span className="text-xs uppercase tracking-widest font-bold text-slate-500">Depoimentos Públicos Reais</span>
+          <p className="text-sm font-serif font-bold text-evi-deep">O que nossos clientes dizem sobre nossa atuação</p>
         </div>
+        <span className="hidden sm:inline-flex text-xs text-slate-400 font-medium">
+          Passe o mouse para pausar
+        </span>
+      </div>
 
-        {/* Lista Horizontal de Cards de Avaliações */}
-        <div
-          ref={scrollRef}
-          onScroll={checkScroll}
-          className="flex items-stretch gap-6 overflow-x-auto pb-6 pt-1 snap-x snap-mandatory scrollbar-none scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
-        >
-          {REVIEWS_DATA.map((review) => (
+      {/* Esteira Infinita de Cards (Marquee) — 100% sem barra de rolagem */}
+      <div className="reviews-marquee-mask">
+        <div className="reviews-marquee-track">
+          {marqueeReviews.map((review, idx) => (
             <article
-              key={review.id}
-              className="w-[300px] sm:w-[350px] md:w-[370px] flex-shrink-0 snap-start bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-slate-200/90 flex flex-col justify-between"
+              key={`${review.id}-${idx}`}
+              className="w-[310px] sm:w-[350px] md:w-[380px] flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-slate-200/90 flex flex-col justify-between select-none"
             >
               <div>
                 {/* Topo do Card: Autor, Avatar, Data */}
@@ -263,7 +214,7 @@ export default function GoogleReviewsSection() {
                       <img
                         src={review.avatar}
                         alt={review.author}
-                        className="w-11 h-11 rounded-full object-cover border border-slate-200 shadow-xs"
+                        className="w-11 h-11 rounded-full object-cover border border-slate-200 shadow-xs flex-shrink-0"
                         loading="lazy"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
@@ -275,7 +226,7 @@ export default function GoogleReviewsSection() {
                     ) : null}
                     <div
                       style={{ display: review.avatar ? 'none' : 'flex' }}
-                      className="w-11 h-11 rounded-full bg-slate-800 text-amber-300 font-bold text-sm items-center justify-center shadow-xs"
+                      className="w-11 h-11 rounded-full bg-slate-800 text-amber-300 font-bold text-sm items-center justify-center shadow-xs flex-shrink-0"
                     >
                       {review.initials}
                     </div>
@@ -341,11 +292,6 @@ export default function GoogleReviewsSection() {
               </div>
             </article>
           ))}
-        </div>
-
-        {/* Indicador de rolagem no mobile */}
-        <div className="sm:hidden text-center mt-2 text-xs text-slate-400">
-          ← Deslize para ver mais avaliações →
         </div>
       </div>
     </section>
