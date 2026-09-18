@@ -60,10 +60,6 @@ export default async function PodcastPage() {
                 </svg>
                 <span>Canal Oficial no YouTube (@direitoearte_podcast)</span>
               </a>
-              <span className="text-xs text-evi-text-muted bg-white border border-evi-border px-3 py-2 rounded-full inline-flex items-center gap-1.5 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Últimos 11 episódios completos sincronizados
-              </span>
             </div>
           </div>
 
