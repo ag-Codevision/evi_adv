@@ -190,19 +190,18 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
     <>
       <header id="mainHeader" className={`header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="container">
-          {/* Mobile Header Bar */}
-          <div className="lg:hidden relative flex items-center justify-center w-full min-h-[66px] px-1">
-            <Link href="/" className="brand-center p-0" aria-label="EVI Advogados - Início">
+          {/* Mobile Header Bar: Logotipo no Centro e Menu Hambúrguer no Lado Direito */}
+          <div className="lg:hidden mobile-header-bar">
+            <Link href="/" className="mobile-header-logo" aria-label="EVI Advogados - Início">
               <img
                 src="/assets/logo.png"
                 alt="EVI Sociedade de Advogados"
-                className="h-[40px] w-auto object-contain"
               />
             </Link>
 
             <button
               type="button"
-              className="absolute right-2 md3-ripple-container w-11 h-11 rounded-full flex items-center justify-center bg-slate-100/90 hover:bg-slate-200/90 border border-slate-200/80 text-evi-deep active:scale-95 transition-all shadow-sm"
+              className="mobile-header-btn md3-ripple-container"
               aria-label={isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
               aria-expanded={isOpen}
               onClick={(e) => {
@@ -272,11 +271,12 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
             aria-modal="true"
             aria-label="Menu Principal do Aplicativo EVI"
           >
-            {/* Topbar / App Header */}
-            <div className="flex items-center justify-between px-5 pt-[max(14px,env(safe-area-inset-top))] pb-3.5 border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-20">
+            {/* Topbar / App Header: Logotipo rigorosamente centralizado e botão fechar à direita */}
+            <div className="mobile-drawer-header flex items-center justify-between px-5 pt-[max(14px,env(safe-area-inset-top))] pb-3.5 border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-20 relative min-h-[64px]">
               <Link
                 href="/"
-                className="flex items-center gap-3"
+                className="mobile-drawer-logo flex items-center justify-center"
+                aria-label="EVI Advogados - Início"
                 onClick={(e) => {
                   triggerInkRipple(e);
                   handleCloseMenu(e);
@@ -291,7 +291,7 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
 
               <button
                 type="button"
-                className="md3-ripple-container w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 border border-slate-200/70 text-slate-700 active:scale-90 transition-all"
+                className="mobile-drawer-close md3-ripple-container w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 border border-slate-200/70 text-slate-700 active:scale-90 transition-all ml-auto relative z-10"
                 aria-label="Fechar menu"
                 onClick={(e) => {
                   triggerInkRipple(e);
