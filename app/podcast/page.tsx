@@ -15,8 +15,15 @@ export const revalidate = 3600;
 
 function formatPublishDate(dateStr?: string): string | null {
   if (!dateStr) return null;
+  // Se for texto relativo fornecido pelo YouTube (ex: "há 3 semanas", "há 1 mês")
+  if (dateStr.toLowerCase().includes('há') || dateStr.toLowerCase().includes('atrás') || dateStr.toLowerCase().includes('ano')) {
+    return dateStr;
+  }
   try {
     const d = new Date(dateStr);
+    if (isNaN(d.getTime())) {
+      return null;
+    }
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch {
     return null;
@@ -24,7 +31,7 @@ function formatPublishDate(dateStr?: string): string | null {
 }
 
 export default async function PodcastPage() {
-  const episodes: PodcastEpisode[] = await getLatestPodcastEpisodes(15);
+  const episodes: PodcastEpisode[] = await getLatestPodcastEpisodes(11);
 
   return (
     <>
@@ -39,23 +46,23 @@ export default async function PodcastPage() {
               Podcast Direito e Arte
             </h1>
             <p className="text-evi-text-light text-lg md:text-xl leading-relaxed">
-              O direito explicado com inteligência, clareza e profundidade prática. Acompanhe os vídeos e episódios mais recentes com o Dr. Eduardo Veríssimo Inocente e convidados especiais.
+              O direito explicado com inteligência, clareza e sensibilidade cultural. Acompanhe os episódios completos e debates jurídicos e culturais sob a liderança do Dr. Eduardo Veríssimo Inocente e convidados especiais.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
               <a
-                href="https://www.youtube.com/@evisociedadedeadvogados443"
+                href="https://www.youtube.com/@direitoearte_podcast"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-outline border-red-600 text-red-600 hover:bg-red-600 hover:text-white inline-flex items-center gap-2"
+                className="btn btn-outline border-red-600 text-red-600 hover:bg-red-600 hover:text-white inline-flex items-center gap-2 font-bold shadow-sm transition-all active:scale-95"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
-                <span>Canal Oficial no YouTube</span>
+                <span>Canal Oficial no YouTube (@direitoearte_podcast)</span>
               </a>
               <span className="text-xs text-evi-text-muted bg-white border border-evi-border px-3 py-2 rounded-full inline-flex items-center gap-1.5 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Feed ao vivo sincronizado
+                Últimos 11 episódios completos sincronizados
               </span>
             </div>
           </div>
@@ -83,15 +90,22 @@ export default async function PodcastPage() {
                     </div>
 
                     <div className="p-6">
-                      <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-evi-accent bg-evi-soft px-3 py-1 rounded-full border border-evi-border inline-block">
                           {ep.category}
                         </span>
-                        {formattedDate && (
-                          <span className="text-[11px] text-evi-text-muted font-medium">
-                            {formattedDate}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {ep.duration && (
+                            <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                              ⏱ {ep.duration}
+                            </span>
+                          )}
+                          {formattedDate && (
+                            <span className="text-[11px] text-evi-text-muted font-medium">
+                              {formattedDate}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <h2 className="text-xl font-serif font-bold text-evi-deep mb-3 leading-snug group-hover:text-evi-accent transition-colors line-clamp-2">
@@ -106,9 +120,9 @@ export default async function PodcastPage() {
 
                   <div className="px-6 pb-6 pt-2">
                     <div className="pt-4 border-t border-evi-border/60 flex items-center justify-between text-xs">
-                      <span className="text-evi-text-muted">EVI Podcast & Debates</span>
+                      <span className="text-evi-text-muted">Podcast Direito e Arte</span>
                       <a
-                        href={`https://youtu.be/${ep.videoId}`}
+                        href={`https://www.youtube.com/watch?v=${ep.videoId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-bold text-evi-deep hover:text-evi-accent"
