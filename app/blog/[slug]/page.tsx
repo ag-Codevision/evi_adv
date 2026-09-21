@@ -7,6 +7,8 @@ import { getBlogArticleBySlug, getRelatedBlogArticles, getAllBlogArticles, BlogA
 import { Post } from '@/lib/types';
 import EditableText from '@/components/admin/EditableText';
 import EditableMedia from '@/components/admin/EditableMedia';
+import { Clock } from 'lucide-react';
+import { formatFullDateWithTime } from '@/lib/date-utils';
 
 interface PageProps {
   params: {
@@ -82,7 +84,8 @@ export default async function BlogPostPage({ params }: PageProps) {
   const isDb = Boolean(dbPost);
   const title = isDb ? dbPost!.title : localArticle!.title;
   const category = isDb ? (dbPost!.category?.name || 'Direito Empresarial') : localArticle!.category;
-  const date = isDb ? new Date(dbPost!.published_at).toLocaleDateString('pt-BR') : localArticle!.date;
+  const rawDate = isDb ? dbPost!.published_at : (localArticle?.publishedAt || localArticle?.date || '');
+  const formattedDate = formatFullDateWithTime(rawDate);
   const readingTime = isDb ? (dbPost!.reading_time || 6) : localArticle!.readingTime;
   const excerpt = isDb ? dbPost!.excerpt : localArticle!.excerpt;
   const coverImage = isDb
@@ -115,8 +118,9 @@ export default async function BlogPostPage({ params }: PageProps) {
               <span className="text-xs font-semibold text-evi-accent bg-white border border-evi-border px-3 py-1 rounded-full">
                 {readingTime} min de leitura
               </span>
-              <span className="text-xs text-evi-text-muted">
-                {date}
+              <span className="text-xs text-evi-text-muted flex items-center gap-1.5 bg-white border border-evi-border px-3.5 py-1 rounded-full font-medium">
+                <Clock className="w-3.5 h-3.5 text-evi-accent" />
+                <span>Publicado em {formattedDate}</span>
               </span>
             </div>
 

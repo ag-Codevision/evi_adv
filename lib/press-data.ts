@@ -4,6 +4,7 @@ export interface PressArticle {
   outlet: string;
   category: string;
   date: string;
+  publishedAt?: string;
   featuredImage: string;
   youtubeId?: string | null;
   paragraphs: string[];

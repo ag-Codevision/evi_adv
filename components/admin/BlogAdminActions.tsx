@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
 import { upsertPostAction } from '../../lib/posts-actions';
 import { uploadSiteMedia } from '../../lib/site-content';
-import { PlusCircle, X, Check, Upload, Sparkles, Loader2, BookOpen, CheckCircle2, Bot } from 'lucide-react';
+import { PlusCircle, X, Check, Upload, Sparkles, Loader2, BookOpen, CheckCircle2, Bot, Calendar, Clock } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import BlogAiAssistantModal from './BlogAiAssistantModal';
+import { formatForDateTimeInput } from '../../lib/date-utils';
 
 function generateSlug(text: string): string {
   return text
@@ -32,6 +33,7 @@ export default function BlogAdminActions() {
   const [content, setContent] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [readingTime, setReadingTime] = useState(5);
+  const [publishedDateTime, setPublishedDateTime] = useState(() => formatForDateTimeInput(new Date().toISOString()));
   const [isFeatured, setIsFeatured] = useState(false);
 
   if (!isAdmin || !isEditing) {
@@ -83,6 +85,7 @@ export default function BlogAdminActions() {
       cover_image: coverImage || '/img/imprensa/nani-venancio.jpg',
       reading_time: Number(readingTime) || 5,
       is_featured: isFeatured,
+      published_at: publishedDateTime ? new Date(publishedDateTime).toISOString() : new Date().toISOString(),
     });
 
     setIsSubmitting(false);
@@ -188,9 +191,9 @@ export default function BlogAdminActions() {
                     />
                   </div>
 
-                  <div className="md:col-span-12 space-y-1.5">
+                  <div className="md:col-span-6 space-y-1.5">
                     <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                      Slug da URL <span className="text-slate-500 font-normal">(gerado automaticamente)</span>
+                      Slug da URL <span className="text-slate-500 font-normal">(automático)</span>
                     </label>
                     <input
                       type="text"
@@ -198,6 +201,19 @@ export default function BlogAdminActions() {
                       value={slug}
                       onChange={(e) => setSlug(e.target.value)}
                       className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-300 font-mono focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="md:col-span-6 space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Data e Horário de Publicação</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={publishedDateTime}
+                      onChange={(e) => setPublishedDateTime(e.target.value)}
+                      className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-white focus:outline-none focus:border-emerald-500 [color-scheme:dark]"
                     />
                   </div>
                 </div>

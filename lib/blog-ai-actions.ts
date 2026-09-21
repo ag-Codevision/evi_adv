@@ -156,7 +156,7 @@ function parseJsonFromAi(raw: string): any {
   } catch (e1) {
     // Tentativa 2: Sanitização de quebras de linha e caracteres de controle literais dentro de strings
     try {
-      const sanitized = jsonStr.replace(/"((?:[^"\\]|\\.)*)"/gs, (_, strContent) => {
+      const sanitized = jsonStr.replace(/"((?:[^"\\]|\\[\s\S])*)"/g, (_, strContent) => {
         const fixed = strContent
           .replace(/\r\n/g, '\\n')
           .replace(/\n/g, '\\n')
@@ -168,7 +168,7 @@ function parseJsonFromAi(raw: string): any {
     } catch (e2) {
       // Tentativa 3: Extração individual de campos por Regex caso o JSON esteja truncado
       const getField = (field: string) => {
-        const fieldRegex = new RegExp(`"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`, 's');
+        const fieldRegex = new RegExp(`"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\[\\s\\S])*)"`);
         const m = jsonStr.match(fieldRegex);
         if (m) {
           return m[1]
@@ -176,7 +176,7 @@ function parseJsonFromAi(raw: string): any {
             .replace(/\\"/g, '"')
             .replace(/\\\\/g, '\\');
         }
-        const looseRegex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)(?="\\s*,\\s*"|"[\\s\\S]*?\\}\\s*$)`, 's');
+        const looseRegex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)(?="\\s*,\\s*"|"[\\s\\S]*?\\}\\s*$)`);
         const m2 = jsonStr.match(looseRegex);
         return m2 ? m2[1] : '';
       };
@@ -291,7 +291,7 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
       'meta/llama-3.2-90b-vision-instruct',
     ].filter(Boolean);
 
-    const uniqueModels = [...new Set(modelCandidates)];
+    const uniqueModels = modelCandidates.filter((item, pos, self) => self.indexOf(item) === pos);
     let generated: any = null;
     let successfulModel = '';
     const failureLog: string[] = [];

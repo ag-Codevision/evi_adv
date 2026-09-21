@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
 import { uploadSiteMedia, saveSiteContent } from '../../lib/site-content';
-import { PlusCircle, X, Upload, Loader2, Image as ImageIcon, Video, Sparkles, FileText, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, X, Upload, Loader2, Image as ImageIcon, Video, Sparkles, FileText, CheckCircle2, Calendar, Clock } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
+import { formatForDateTimeInput, formatCardDate } from '../../lib/date-utils';
 
 function generateSlug(text: string): string {
   return text
@@ -28,7 +29,8 @@ export default function PressAdminActions({ onArticleAdded }: { onArticleAdded?:
   const [outlet, setOutlet] = useState('');
   const [category, setCategory] = useState('TV & Vídeos');
   const [customCategory, setCustomCategory] = useState('');
-  const [date, setDate] = useState(() => new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }));
+  const [publishedDateTime, setPublishedDateTime] = useState(() => formatForDateTimeInput(new Date().toISOString()));
+  const [date, setDate] = useState(() => formatCardDate(new Date().toISOString()));
   const [featuredImage, setFeaturedImage] = useState('');
   const [mediaType, setMediaType] = useState<'image' | 'youtube' | 'video'>('image');
   const [youtubeId, setYoutubeId] = useState('');
@@ -83,6 +85,8 @@ export default function PressAdminActions({ onArticleAdded }: { onArticleAdded?:
     setStatusMessage('Salvando nova matéria de imprensa...');
 
     const finalCategory = category === 'Outra' && customCategory.trim() ? customCategory.trim() : category;
+    const isoPublishedAt = publishedDateTime ? new Date(publishedDateTime).toISOString() : new Date().toISOString();
+    const formattedCardDate = formatCardDate(isoPublishedAt);
 
     // Se o usuário escreveu no RichTextEditor, encapsulamos como array de 1 item HTML ou dividimos
     // Para manter compatibilidade total com o leitor:
@@ -93,7 +97,8 @@ export default function PressAdminActions({ onArticleAdded }: { onArticleAdded?:
       title,
       outlet,
       category: finalCategory,
-      date,
+      date: formattedCardDate,
+      publishedAt: isoPublishedAt,
       featuredImage: featuredImage || '/img/estrutura/fachada.jpg',
       youtubeId: mediaType === 'youtube' && youtubeId.trim() ? youtubeId.trim() : null,
       paragraphs: contentPayload,
@@ -108,7 +113,7 @@ export default function PressAdminActions({ onArticleAdded }: { onArticleAdded?:
       fieldKey: slug,
       value: JSON.stringify(newArticle),
       contentType: 'list',
-      metadata: { slug, title, category: finalCategory, date },
+      metadata: { slug, title, category: finalCategory, date: formattedCardDate, publishedAt: isoPublishedAt },
     });
 
     setIsSubmitting(false);
@@ -255,15 +260,20 @@ export default function PressAdminActions({ onArticleAdded }: { onArticleAdded?:
                   </div>
 
                   <div className="md:col-span-3 space-y-1.5">
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                      Data da Matéria
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Data e Horário</span>
                     </label>
                     <input
-                      type="text"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      placeholder="Ex: 20 de setembro, 2026"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                      type="datetime-local"
+                      value={publishedDateTime}
+                      onChange={(e) => {
+                        setPublishedDateTime(e.target.value);
+                        if (e.target.value) {
+                          setDate(formatCardDate(e.target.value));
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-sky-500 focus:ring-1 focus:ring-sky-500 [color-scheme:dark]"
                     />
                   </div>
                 </div>

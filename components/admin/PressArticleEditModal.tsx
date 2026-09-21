@@ -13,10 +13,13 @@ import {
   FileText,
   Trash2,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Calendar,
+  Clock
 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import ConfirmModal from './ConfirmModal';
+import { formatForDateTimeInput, formatCardDate } from '../../lib/date-utils';
 
 interface PressArticleEditModalProps {
   article: PressArticle;
@@ -38,6 +41,9 @@ export default function PressArticleEditModal({
   const [category, setCategory] = useState(article.category || 'TV & Vídeos');
   const [customCategory, setCustomCategory] = useState('');
   const [date, setDate] = useState(article.date || '');
+  const [publishedDateTime, setPublishedDateTime] = useState(() =>
+    formatForDateTimeInput(article.publishedAt || article.date)
+  );
   const [featuredImage, setFeaturedImage] = useState(article.featuredImage || '');
   const [mediaType, setMediaType] = useState<'image' | 'youtube'>(
     article.youtubeId ? 'youtube' : 'image'
@@ -93,13 +99,16 @@ export default function PressArticleEditModal({
 
     const finalCategory = category === 'Outra' && customCategory.trim() ? customCategory.trim() : category;
     const contentPayload = richContent.trim() ? [richContent.trim()] : [excerpt || title];
+    const isoPublishedAt = publishedDateTime ? new Date(publishedDateTime).toISOString() : (article.publishedAt || new Date().toISOString());
+    const formattedCardDate = formatCardDate(isoPublishedAt);
 
     const updatedArticle: PressArticle = {
       ...article,
       title,
       outlet,
       category: finalCategory,
-      date,
+      date: formattedCardDate,
+      publishedAt: isoPublishedAt,
       featuredImage: featuredImage || article.featuredImage || '/img/estrutura/fachada.jpg',
       youtubeId: mediaType === 'youtube' && youtubeId.trim() ? youtubeId.trim() : null,
       paragraphs: contentPayload,
@@ -114,7 +123,7 @@ export default function PressArticleEditModal({
       fieldKey: article.slug,
       value: JSON.stringify(updatedArticle),
       contentType: 'list',
-      metadata: { slug: article.slug, title, category: finalCategory, date },
+      metadata: { slug: article.slug, title, category: finalCategory, date: formattedCardDate, publishedAt: isoPublishedAt },
     });
 
     setIsSubmitting(false);
@@ -246,14 +255,20 @@ export default function PressArticleEditModal({
               </div>
 
               <div className="md:col-span-6 space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Data da Matéria
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Data e Horário de Publicação</span>
                 </label>
                 <input
-                  type="text"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-sky-500"
+                  type="datetime-local"
+                  value={publishedDateTime}
+                  onChange={(e) => {
+                    setPublishedDateTime(e.target.value);
+                    if (e.target.value) {
+                      setDate(formatCardDate(e.target.value));
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-sky-500 [color-scheme:dark]"
                 />
               </div>
             </div>

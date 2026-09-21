@@ -15,11 +15,13 @@ import {
   Check,
   Tag,
   Clock,
+  Calendar,
   Globe,
   Sparkles
 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import ConfirmModal from './ConfirmModal';
+import { formatForDateTimeInput, formatCardDate } from '../../lib/date-utils';
 
 interface BlogPostEditModalProps {
   article: BlogArticle | null;
@@ -59,6 +61,7 @@ export default function BlogPostEditModal({
   const [coverImage, setCoverImage] = useState('');
   const [content, setContent] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [publishedDateTime, setPublishedDateTime] = useState('');
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +78,7 @@ export default function BlogPostEditModal({
     setExcerpt(article.excerpt || '');
     setCoverImage(article.featuredImage || '');
     setIsFeatured(Boolean(article.isFeatured));
+    setPublishedDateTime(formatForDateTimeInput(article.publishedAt || article.date));
 
     if (standardCategories.includes(article.category)) {
       setCategory(article.category);
@@ -141,6 +145,8 @@ export default function BlogPostEditModal({
     setStatusMessage('Salvando alterações do artigo no Supabase...');
 
     const finalCategory = category === 'Outra' && customCategory.trim() ? customCategory.trim() : category;
+    const isoPublishedAt = publishedDateTime ? new Date(publishedDateTime).toISOString() : (article.publishedAt || new Date().toISOString());
+    const formattedCardDate = formatCardDate(isoPublishedAt);
 
     // Atualiza ou insere na tabela posts do Supabase
     const res = await upsertPostAction({
@@ -152,6 +158,7 @@ export default function BlogPostEditModal({
       cover_image: coverImage || article.featuredImage || '/img/imprensa/nani-venancio.jpg',
       reading_time: Number(readingTime) || 5,
       is_featured: isFeatured,
+      published_at: isoPublishedAt,
       seo_title: title.trim(),
       seo_description: excerpt.trim() || title.trim(),
     });
@@ -173,6 +180,8 @@ export default function BlogPostEditModal({
         excerpt: excerpt.trim() || title.trim(),
         content: content.trim(),
         isFeatured,
+        publishedAt: isoPublishedAt,
+        date: formattedCardDate,
       }),
       contentType: 'list',
       metadata: { slug: slug.trim(), title: title.trim(), category: finalCategory },
@@ -196,6 +205,8 @@ export default function BlogPostEditModal({
         excerpt: excerpt.trim() || title.trim(),
         content: content.trim(),
         isFeatured,
+        publishedAt: isoPublishedAt,
+        date: formattedCardDate,
       };
 
       onSave(updatedArticle);
@@ -312,7 +323,7 @@ export default function BlogPostEditModal({
                 </div>
 
                 {/* Slug da URL */}
-                <div className="md:col-span-6 space-y-1.5">
+                <div className="md:col-span-4 space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-slate-400" />
                     <span>Slug da URL</span>
@@ -327,7 +338,7 @@ export default function BlogPostEditModal({
                 </div>
 
                 {/* Categoria */}
-                <div className="md:col-span-6 space-y-1.5">
+                <div className="md:col-span-4 space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Tag className="w-3.5 h-3.5 text-slate-400" />
                     <span>Categoria Jurídica</span>
@@ -344,6 +355,20 @@ export default function BlogPostEditModal({
                     ))}
                     <option value="Outra">+ Outra Categoria Personalizada</option>
                   </select>
+                </div>
+
+                {/* Data e Horário de Publicação */}
+                <div className="md:col-span-4 space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Data e Horário</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={publishedDateTime}
+                    onChange={(e) => setPublishedDateTime(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-white focus:outline-none focus:border-sky-500 [color-scheme:dark]"
+                  />
                 </div>
 
                 {/* Campo Categoria Personalizada se selecionado "Outra" */}

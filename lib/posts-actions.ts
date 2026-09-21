@@ -14,6 +14,7 @@ export interface UpsertPostInput {
   cover_image?: string;
   reading_time?: number;
   is_featured?: boolean;
+  published_at?: string;
   seo_title?: string;
   seo_description?: string;
 }
@@ -31,7 +32,7 @@ export async function upsertPostAction(input: UpsertPostInput): Promise<{ succes
       return { success: false, error: 'Acesso negado. Faça login como administrador.' };
     }
 
-    const postPayload = {
+    const postPayload: Record<string, any> = {
       title: input.title,
       slug: input.slug,
       excerpt: input.excerpt,
@@ -46,6 +47,10 @@ export async function upsertPostAction(input: UpsertPostInput): Promise<{ succes
       updated_at: new Date().toISOString(),
     };
 
+    if (input.published_at) {
+      postPayload.published_at = input.published_at;
+    }
+
     let result;
     if (input.id) {
       result = await supabase
@@ -59,7 +64,7 @@ export async function upsertPostAction(input: UpsertPostInput): Promise<{ succes
         .from('posts')
         .insert({
           ...postPayload,
-          published_at: new Date().toISOString(),
+          published_at: input.published_at || new Date().toISOString(),
         })
         .select('id')
         .single();

@@ -9,9 +9,10 @@ import PressAdminActions from '@/components/admin/PressAdminActions';
 import PressArticleEditModal from '@/components/admin/PressArticleEditModal';
 import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
 import { createClient } from '@/lib/supabase/client';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Clock, Calendar, ArrowUpDown, RotateCcw, Filter } from 'lucide-react';
 import { deleteSiteContent } from '@/lib/site-content';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import { formatCardDate, getTimestamp } from '@/lib/date-utils';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -20,6 +21,13 @@ export default function ImprensaPage() {
   const [customArticles, setCustomArticles] = useState<PressArticle[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('Todas');
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Estados de Filtro de Data e Ordenação
+  const [dateRange, setDateRange] = useState<'all' | '7days' | '30days' | '90days' | 'year' | 'custom'>('all');
+  const [customStartDate, setCustomStartDate] = useState<string>('');
+  const [customEndDate, setCustomEndDate] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+
   const [editingArticle, setEditingArticle] = useState<PressArticle | null>(null);
   const [itemToDelete, setItemToDelete] = useState<PressArticle | null>(null);
   const [isDeletingDirect, setIsDeletingDirect] = useState(false);
@@ -134,28 +142,78 @@ export default function ImprensaPage() {
     }
   };
 
-  const filteredArticles = allArticles.filter((item) => {
-    if (activeCategory === 'Todas') return true;
-    if (activeCategory === 'TV & Vídeos') {
-      return item.youtubeId || (item.category && item.category.includes('TV'));
-    }
-    if (activeCategory === 'Jornais & Imprensa') {
-      return (item.outlet && item.outlet.includes('Jornal')) || (item.category && item.category.includes('Jornais'));
-    }
-    if (activeCategory === 'Revistas & Publicações') {
-      return (
-        (item.outlet && (item.outlet.includes('Magazine') || item.outlet.includes('Revista') || item.outlet.includes('IBI'))) ||
-        (item.category && item.category.includes('Revistas'))
-      );
-    }
-    if (activeCategory === 'Premiações & Homenagens') {
-      return (
-        (item.category && item.category.includes('Premiações')) ||
-        (item.title && (item.title.includes('Troféu') || item.title.includes('Prêmio')))
-      );
-    }
-    return true;
-  });
+  const handleResetFilters = () => {
+    setActiveCategory('Todas');
+    setDateRange('all');
+    setCustomStartDate('');
+    setCustomEndDate('');
+    setSortOrder('desc');
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters =
+    activeCategory !== 'Todas' ||
+    dateRange !== 'all' ||
+    customStartDate !== '' ||
+    customEndDate !== '' ||
+    sortOrder !== 'desc';
+
+  const filteredArticles = allArticles
+    .filter((item) => {
+      // 1. Filtro por Categoria
+      let matchesCategory = true;
+      if (activeCategory === 'TV & Vídeos') {
+        matchesCategory = Boolean(item.youtubeId || (item.category && item.category.includes('TV')));
+      } else if (activeCategory === 'Jornais & Imprensa') {
+        matchesCategory = Boolean((item.outlet && item.outlet.includes('Jornal')) || (item.category && item.category.includes('Jornais')));
+      } else if (activeCategory === 'Revistas & Publicações') {
+        matchesCategory = Boolean(
+          (item.outlet && (item.outlet.includes('Magazine') || item.outlet.includes('Revista') || item.outlet.includes('IBI'))) ||
+          (item.category && item.category.includes('Revistas'))
+        );
+      } else if (activeCategory === 'Premiações & Homenagens') {
+        matchesCategory = Boolean(
+          (item.category && item.category.includes('Premiações')) ||
+          (item.title && (item.title.includes('Troféu') || item.title.includes('Prêmio')))
+        );
+      }
+      if (!matchesCategory) return false;
+
+      // 2. Filtro por Data
+      if (dateRange !== 'all') {
+        const itemTs = getTimestamp(item.publishedAt || item.date);
+        const now = Date.now();
+        if (dateRange === '7days') {
+          const limit = now - 7 * 24 * 60 * 60 * 1000;
+          if (itemTs < limit) return false;
+        } else if (dateRange === '30days') {
+          const limit = now - 30 * 24 * 60 * 60 * 1000;
+          if (itemTs < limit) return false;
+        } else if (dateRange === '90days') {
+          const limit = now - 90 * 24 * 60 * 60 * 1000;
+          if (itemTs < limit) return false;
+        } else if (dateRange === 'year') {
+          const limit = now - 365 * 24 * 60 * 60 * 1000;
+          if (itemTs < limit) return false;
+        } else if (dateRange === 'custom') {
+          if (customStartDate) {
+            const startTs = new Date(`${customStartDate}T00:00:00`).getTime();
+            if (itemTs < startTs) return false;
+          }
+          if (customEndDate) {
+            const endTs = new Date(`${customEndDate}T23:59:59`).getTime();
+            if (itemTs > endTs) return false;
+          }
+        }
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      const tsA = getTimestamp(a.publishedAt || a.date);
+      const tsB = getTimestamp(b.publishedAt || b.date);
+      return sortOrder === 'desc' ? tsB - tsA : tsA - tsB;
+    });
 
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE) || 1;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -199,22 +257,146 @@ export default function ImprensaPage() {
           {/* Botão de Adicionar Novo Artigo de Imprensa (Visível no modo edição) */}
           <PressAdminActions onArticleAdded={handleArticleAdded} />
 
-          {/* Filtros por Categoria */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => handleCategoryChange(cat)}
-                className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
-                  activeCategory === cat
-                    ? 'bg-evi-deep text-white shadow-md'
-                    : 'bg-white text-evi-text-muted hover:text-evi-deep border border-evi-border hover:border-evi-accent'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Painel Avançado de Filtros: Categorias + Datas + Ordenação */}
+          <div className="bg-white rounded-3xl border border-evi-border shadow-sm p-4 md:p-6 mb-8">
+            {/* Linha 1: Categorias Principais */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pb-4 border-b border-slate-100">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => handleCategoryChange(cat)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                    activeCategory === cat
+                      ? 'bg-evi-deep text-white shadow-md'
+                      : 'bg-[#f4f7f9] text-evi-text-muted hover:text-evi-deep border border-transparent hover:border-evi-accent'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Linha 2: Filtros por Data, Período e Ordenação */}
+            <div className="pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
+              {/* Seletores de Período */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1 text-slate-500 font-semibold mr-1">
+                  <Calendar className="w-3.5 h-3.5 text-evi-accent" />
+                  <span>Filtrar por data:</span>
+                </div>
+
+                <div className="flex items-center bg-[#f4f7f9] p-1 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => { setDateRange('all'); setCurrentPage(1); }}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                      dateRange === 'all' ? 'bg-white text-evi-deep shadow-xs font-bold' : 'text-slate-500 hover:text-evi-deep'
+                    }`}
+                  >
+                    Todas
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setDateRange('7days'); setCurrentPage(1); }}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                      dateRange === '7days' ? 'bg-white text-evi-deep shadow-xs font-bold' : 'text-slate-500 hover:text-evi-deep'
+                    }`}
+                  >
+                    7 dias
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setDateRange('30days'); setCurrentPage(1); }}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                      dateRange === '30days' ? 'bg-white text-evi-deep shadow-xs font-bold' : 'text-slate-500 hover:text-evi-deep'
+                    }`}
+                  >
+                    30 dias
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setDateRange('90days'); setCurrentPage(1); }}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                      dateRange === '90days' ? 'bg-white text-evi-deep shadow-xs font-bold' : 'text-slate-500 hover:text-evi-deep'
+                    }`}
+                  >
+                    90 dias
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setDateRange('year'); setCurrentPage(1); }}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                      dateRange === 'year' ? 'bg-white text-evi-deep shadow-xs font-bold' : 'text-slate-500 hover:text-evi-deep'
+                    }`}
+                  >
+                    Este ano
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setDateRange('custom'); setCurrentPage(1); }}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                      dateRange === 'custom' ? 'bg-white text-evi-deep shadow-xs font-bold' : 'text-slate-500 hover:text-evi-deep'
+                    }`}
+                  >
+                    Personalizado
+                  </button>
+                </div>
+
+                {/* Inputs de Data Personalizada */}
+                {dateRange === 'custom' && (
+                  <div className="flex items-center gap-1.5 bg-[#f4f7f9] p-1 rounded-xl border border-slate-200 animate-fade-in">
+                    <span className="text-slate-400 pl-1">De:</span>
+                    <input
+                      type="date"
+                      value={customStartDate}
+                      onChange={(e) => {
+                        setCustomStartDate(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs text-evi-deep"
+                    />
+                    <span className="text-slate-400">Até:</span>
+                    <input
+                      type="date"
+                      value={customEndDate}
+                      onChange={(e) => {
+                        setCustomEndDate(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs text-evi-deep"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Ordenação e Limpeza */}
+              <div className="flex items-center gap-3 ml-auto">
+                <div className="flex items-center gap-1.5">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as any)}
+                    className="px-3 py-2 bg-[#f4f7f9] border border-slate-200 rounded-xl text-xs font-semibold text-evi-deep focus:outline-none focus:border-evi-accent"
+                  >
+                    <option value="desc">Mais recentes primeiro</option>
+                    <option value="asc">Mais antigas primeiro</option>
+                  </select>
+                </div>
+
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+                    title="Limpar todos os filtros aplicados"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Limpar Filtros</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Contador de Resultados */}
@@ -280,8 +462,9 @@ export default function ImprensaPage() {
                         <span>▶ Vídeo</span>
                       </div>
                     )}
-                    <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md text-evi-deep text-[10px] font-semibold px-2 py-0.5 rounded border border-evi-border">
-                      {item.date}
+                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-evi-deep text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-evi-border shadow-sm flex items-center gap-1.5">
+                      <Clock className="w-3 h-3 text-evi-accent" />
+                      <span>{formatCardDate(item.publishedAt || item.date)}</span>
                     </div>
                   </Link>
 

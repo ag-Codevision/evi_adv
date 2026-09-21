@@ -10,8 +10,9 @@ import EditableMedia from '@/components/admin/EditableMedia';
 import { createClient } from '@/lib/supabase/client';
 import PressArticleEditModal from '@/components/admin/PressArticleEditModal';
 import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { formatFullDateWithTime } from '@/lib/date-utils';
 
 interface PressDetailPageProps {
   params: {
@@ -143,8 +144,9 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
               <span className="text-xs font-semibold text-evi-accent bg-white border border-evi-border px-3 py-1 rounded-full">
                 {article.category}
               </span>
-              <span className="text-xs text-evi-text-muted">
-                {article.date}
+              <span className="text-xs text-evi-text-muted flex items-center gap-1.5 bg-white border border-evi-border px-3.5 py-1 rounded-full font-medium">
+                <Clock className="w-3.5 h-3.5 text-evi-accent" />
+                <span>Publicado em {formatFullDateWithTime(article.publishedAt || article.date)}</span>
               </span>
             </div>
 
