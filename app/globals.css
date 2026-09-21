@@ -879,7 +879,7 @@ button {
 }
 
 .hero-logo-box {
-  margin: 0 auto;
+  margin: 0 auto 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -887,16 +887,28 @@ button {
 }
 
 .hero-logo-25 {
-  display: block;
-  width: 100%;
-  max-width: min(420px, 92vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: min(240px, 75vw);
   height: auto;
-  max-height: 310px;
-  object-fit: contain;
-  object-position: center center;
+  max-height: 175px;
   margin: 0 auto;
   filter: drop-shadow(0 8px 20px rgba(24, 40, 58, 0.38)) drop-shadow(0 2px 6px rgba(24, 40, 58, 0.25));
 }
+
+.hero-logo-25 img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 175px;
+  height: auto;
+  object-fit: contain;
+  object-position: center center;
+  margin: 0 auto;
+}
+
 
 /* BOTÕES DE NAVEGAÇÃO LATERAL (AEROSPACE FROSTED GLASS) */
 .hero-arrow-btn {
@@ -1139,9 +1151,13 @@ button {
     padding: 0 4px;
     color: #d2dde6;
   }
-  .hero-logo-25 {
-    max-width: min(240px, 70vw);
-    max-height: 170px;
+  .hero-logo-box {
+    margin-bottom: 20px;
+  }
+  .hero-logo-25,
+  .hero-logo-25 img {
+    max-width: min(180px, 65vw);
+    max-height: 135px;
   }
 }
 

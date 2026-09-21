@@ -376,14 +376,15 @@ export default function HeroSlider() {
           >
             <div className="hero-copy">
               {/* Logomarca de 25 Anos com Revelação e Efeito de Luz */}
-              <div className="hero-logo-box">
+              <div className="hero-logo-box mb-6 md:mb-8">
                 <EditableMedia
                   page="home"
                   section="hero"
                   fieldKey="logo_25"
                   defaultSrc="/assets/logo_25_anos.webp"
                   alt="25 Anos EVI Sociedade de Advogados"
-                  className="hero-logo-25 max-w-[420px] h-auto"
+                  className="hero-logo-25 max-w-[240px] md:max-w-[260px] h-auto"
+                  imgClassName="w-auto h-auto max-h-[175px] max-w-[240px] md:max-h-[190px] md:max-w-[260px] object-contain mx-auto"
                 />
               </div>
 

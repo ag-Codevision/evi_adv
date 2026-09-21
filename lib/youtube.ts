@@ -33,14 +33,6 @@ export const fallbackEpisodes: PodcastEpisode[] = [
     publishedAt: 'há 1 mês',
   },
   {
-    videoId: 'vnLazcQC5Sw',
-    title: 'ELIANA PASSARELLI: AS PROVAS CLÁSSICAS ESTÃO PERDENDO ESPAÇO PARA AS PROVAS DIGITAIS?',
-    category: 'Direito Digital & Provas',
-    desc: 'A renomada jurista Eliana Passarelli analisa o impacto revolucionário da tecnologia e das evidências digitais nos tribunais modernos.',
-    duration: '3:11',
-    publishedAt: 'há 2 meses',
-  },
-  {
     videoId: '8zbAetG8z6Y',
     title: 'ELIANA PASSARELLI: JUSTIÇA, DIREITOS E CIDADANIA',
     category: 'Justiça & Cidadania',
@@ -130,6 +122,35 @@ function sanitizeDescription(rawTitle: string, rawDesc?: string): string {
   return `Acompanhe este debate exclusivo do Podcast Direito e Arte sob a perspectiva e liderança jurídica do Dr. Eduardo Veríssimo Inocente.`;
 }
 
+const BLOCKED_SHORT_IDS = new Set([
+  'vnLazcQC5Sw', // Short da Eliana Passarelli (3:11)
+]);
+
+/**
+ * Filtra e rejeita Shorts do YouTube, clipes e vídeos menores que 5 minutos.
+ * Apenas episódios completos de podcast são aceitos.
+ */
+export function isShortOrClip(videoId: string, title?: string, duration?: string): boolean {
+  if (BLOCKED_SHORT_IDS.has(videoId)) return true;
+
+  const t = (title || '').toLowerCase();
+  if (t.includes('#shorts') || t.includes('#short') || t.includes('/shorts/')) {
+    return true;
+  }
+
+  if (duration) {
+    const parts = duration.split(':').map((p) => parseInt(p.trim(), 10));
+    if (parts.length === 2) {
+      const [minutes] = parts;
+      if (!isNaN(minutes) && minutes < 5) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 /**
  * Puxa dinamicamente da aba 'videos' oficial do canal @direitoearte_podcast no YouTube.
  * A aba /videos contém apenas os episódios completos/longos (vídeos regulares), excluindo Shorts.
@@ -140,6 +161,7 @@ export async function getLatestPodcastEpisodes(maxItems: number = 11): Promise<P
   try {
     const res = await fetch(channelVideosUrl, {
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(3500),
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -210,6 +232,10 @@ export async function getLatestPodcastEpisodes(maxItems: number = 11): Promise<P
         }
 
         if (videoId && title) {
+          if (isShortOrClip(videoId, title, duration)) {
+            continue;
+          }
+
           // Garante fallback de descrição detalhada se o YouTube retornar descrição vazia
           const matchingFallback = fallbackEpisodes.find((f) => f.videoId === videoId);
           const desc = matchingFallback?.desc || sanitizeDescription(title, rawDesc);
@@ -234,6 +260,10 @@ export async function getLatestPodcastEpisodes(maxItems: number = 11): Promise<P
         const duration = item.lengthText?.simpleText;
 
         if (videoId && title) {
+          if (isShortOrClip(videoId, title, duration)) {
+            continue;
+          }
+
           const matchingFallback = fallbackEpisodes.find((f) => f.videoId === videoId);
           const desc = matchingFallback?.desc || sanitizeDescription(title, rawDesc);
           const category = matchingFallback?.category || categorizeTitle(title);

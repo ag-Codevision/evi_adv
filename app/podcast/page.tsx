@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import { getLatestPodcastEpisodes, PodcastEpisode } from '@/lib/youtube';
 import EditableText from '@/components/admin/EditableText';
 import EditableLink from '@/components/admin/EditableLink';
+import PodcastVideoCard from '@/components/PodcastVideoCard';
 
 export const metadata: Metadata = {
   title: 'Podcast Direito e Arte | EVI Advogados',
@@ -82,71 +83,17 @@ export default async function PodcastPage() {
             </div>
           </div>
 
-          {/* Grid de Episódios */}
+          {/* Grid de Episódios Otimizado com Carregamento Instantâneo & Facade */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {episodes.map((ep, idx) => {
               const formattedDate = formatPublishDate(ep.publishedAt);
               return (
-                <article
+                <PodcastVideoCard
                   key={ep.videoId || idx}
-                  className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group"
-                >
-                  <div>
-                    {/* Iframe de Vídeo Responsivo */}
-                    <div className="relative aspect-video w-full bg-black">
-                      <iframe
-                        className="w-full h-full"
-                        src={`https://www.youtube-nocookie.com/embed/${ep.videoId}`}
-                        title={ep.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      ></iframe>
-                    </div>
-
-                    <div className="p-6">
-                      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-evi-accent bg-evi-soft px-3 py-1 rounded-full border border-evi-border inline-block">
-                          {ep.category}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          {ep.duration && (
-                            <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
-                              ⏱ {ep.duration}
-                            </span>
-                          )}
-                          {formattedDate && (
-                            <span className="text-[11px] text-evi-text-muted font-medium">
-                              {formattedDate}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <h2 className="text-xl font-serif font-bold text-evi-deep mb-3 leading-snug group-hover:text-evi-accent transition-colors line-clamp-2">
-                        {ep.title}
-                      </h2>
-
-                      <p className="text-sm text-evi-text-light leading-relaxed line-clamp-3">
-                        {ep.desc}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="px-6 pb-6 pt-2">
-                    <div className="pt-4 border-t border-evi-border/60 flex items-center justify-between text-xs">
-                      <span className="text-evi-text-muted">Podcast Direito e Arte</span>
-                      <a
-                        href={`https://www.youtube.com/watch?v=${ep.videoId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-bold text-evi-deep hover:text-evi-accent"
-                      >
-                        Abrir no YouTube ↗
-                      </a>
-                    </div>
-                  </div>
-                </article>
+                  episode={ep}
+                  formattedDate={formattedDate}
+                  priority={idx < 3}
+                />
               );
             })}
           </div>
