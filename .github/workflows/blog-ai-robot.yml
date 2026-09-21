@@ -1,0 +1,35 @@
+name: Robô Editorial de IA - EVI Advogados
+
+on:
+  schedule:
+    # Executa a cada hora para checar se é o horário agendado de publicação
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    # Permite disparar manualmente pelo painel do GitHub Actions
+
+jobs:
+  publish-ai-article:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Executar Motor Editorial com Assistente de IA
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SECRET_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          NVIDIA_MODEL: 'meta/llama-3.2-90b-vision-instruct'
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY || secrets.UNSPLASH_Access_Key }}
+        run: node scripts/generate-article.mjs

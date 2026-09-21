@@ -2,11 +2,18 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { useAdminEditor } from './admin/AdminAuthProvider';
+import { Pause, Play } from 'lucide-react';
+import EditableText from './admin/EditableText';
+import EditableMedia from './admin/EditableMedia';
+import EditableLink from './admin/EditableLink';
 
 export default function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
   const [spotlightPos, setSpotlightPos] = useState({ x: 50, y: 50 });
+  const [isPaused, setIsPaused] = useState(false);
+  const { isAdmin, isEditing } = useAdminEditor();
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
@@ -73,14 +80,20 @@ export default function HeroSlider() {
     touchStartXRef.current = null;
   };
 
-  // Iniciar timer do slider contínuo com respeito à visibilidade da aba
+  // Iniciar timer do slider contínuo com respeito à visibilidade da aba e modo pausa
   useEffect(() => {
+    // Se está pausado pelo admin, não inicia o timer
+    if (isPaused) {
+      stopTimer();
+      return;
+    }
+
     startTimer();
 
     const handleVisibility = () => {
       if (document.hidden) {
         stopTimer();
-      } else {
+      } else if (!isPaused) {
         startTimer();
       }
     };
@@ -91,7 +104,7 @@ export default function HeroSlider() {
       stopTimer();
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [startTimer, stopTimer]);
+  }, [startTimer, stopTimer, isPaused]);
 
   // Listener de mouse para Parallax 2.5D e Spotlight dinâmico
   useEffect(() => {
@@ -262,6 +275,18 @@ export default function HeroSlider() {
       ref={heroRef}
       aria-label="Apresentação institucional EVI Advogados"
     >
+      {/* BOTÃO DE PAUSA DO SLIDER — Visível apenas para admin no modo edição */}
+      {isAdmin && isEditing && (
+        <button
+          onClick={() => setIsPaused(!isPaused)}
+          className="absolute top-20 right-4 z-[60] flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-600/90 hover:bg-sky-700 text-white text-xs font-medium shadow-lg backdrop-blur-sm transition-all"
+          title={isPaused ? 'Retomar auto-rotação do slider' : 'Pausar slider para editar'}
+        >
+          {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+          {isPaused ? 'Retomar Slider' : 'Pausar Slider'}
+        </button>
+      )}
+
       {/* CAMADA 1: BACKGROUND CINEMATOGRÁFICO DE ALTA DEFINIÇÃO */}
       <div className="hero-cinematic-stage" aria-hidden="true">
         {/* Imagem de Fundo com Parallax e Escala Lenta */}
@@ -352,27 +377,37 @@ export default function HeroSlider() {
             <div className="hero-copy">
               {/* Logomarca de 25 Anos com Revelação e Efeito de Luz */}
               <div className="hero-logo-box">
-                <img
-                  src="/assets/logo_25_anos.webp"
+                <EditableMedia
+                  page="home"
+                  section="hero"
+                  fieldKey="logo_25"
+                  defaultSrc="/assets/logo_25_anos.webp"
                   alt="25 Anos EVI Sociedade de Advogados"
-                  className="hero-logo-25"
-                  width={420}
-                  height={310}
+                  className="hero-logo-25 max-w-[420px] h-auto"
                 />
               </div>
 
               {/* Texto de Apoio Intacto */}
-              <p>
-                Sob a liderança do <strong>Dr. Eduardo Veríssimo Inocente</strong>, há mais de duas décadas construímos estratégias jurídicas de alta precisão para proteger negócios, preservar patrimônios e vencer disputas complexas em todo o Brasil.
-              </p>
+              <EditableText
+                page="home"
+                section="hero"
+                fieldKey="s0_desc"
+                defaultContent="Sob a liderança do Dr. Eduardo Veríssimo Inocente, há mais de duas décadas construímos estratégias jurídicas de alta precisão para proteger negócios, preservar patrimônios e vencer disputas complexas em todo o Brasil."
+                as="p"
+                multiline
+              />
 
               {/* Ações e Botões com Microinterações e Shimmer Metálico */}
               <div className="hero-actions">
-                <a
-                  className="btn btn-wa btn-shine-effect"
-                  href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica%20com%20o%20Dr.%20Eduardo."
+                <EditableLink
+                  page="home"
+                  section="hero"
+                  fieldKey="s0_cta1"
+                  defaultLabel="Agende uma Consulta"
+                  defaultHref="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica%20com%20o%20Dr.%20Eduardo."
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="btn btn-wa btn-shine-effect"
                 >
                   <svg className="wa-icon" viewBox="0 0 16 16" aria-hidden="true">
                     <path
@@ -380,11 +415,15 @@ export default function HeroSlider() {
                       d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z"
                     />
                   </svg>
-                  <span>Agende uma Consulta</span>
-                </a>
-                <a className="btn btn-outline btn-glass-hover" href="#autoridade">
-                  Ver Reconhecimento na Mídia
-                </a>
+                </EditableLink>
+                <EditableLink
+                  page="home"
+                  section="hero"
+                  fieldKey="s0_cta2"
+                  defaultLabel="Ver Reconhecimento na Mídia"
+                  defaultHref="#autoridade"
+                  className="btn btn-outline btn-glass-hover"
+                />
               </div>
             </div>
           </div>
@@ -396,20 +435,41 @@ export default function HeroSlider() {
           >
             <div className="hero-copy">
               <div className="hero-heading-group">
-                <span className="eyebrow">Autoridade Jurídica na Mídia Nacional</span>
-                <h1 className="hero-cinematic-title">
-                  A assessoria jurídica que a grande mídia respeita, ao lado da sua empresa!
-                </h1>
+                <EditableText
+                  page="home"
+                  section="hero"
+                  fieldKey="s1_eyebrow"
+                  defaultContent="Autoridade Jurídica na Mídia Nacional"
+                  as="span"
+                  className="eyebrow"
+                />
+                <EditableText
+                  page="home"
+                  section="hero"
+                  fieldKey="s1_title"
+                  defaultContent="A assessoria jurídica que a grande mídia respeita, ao lado da sua empresa!"
+                  as="h1"
+                  className="hero-cinematic-title"
+                />
               </div>
-              <p>
-                O Dr. Eduardo Veríssimo Inocente foi destaque na <strong>Band News</strong>, <strong>SBT</strong>, <strong>Rede Brasil</strong>, <strong>CNN</strong>, <strong>Globo Repórter</strong>, <strong>Estadão</strong>, <strong>Veja</strong>, capa da <strong>International Business Magazine</strong> e capa da <strong>Revista Prospere</strong>. Conduzimos todos os casos com segurança, ética e eficácia comprovada.
-              </p>
+              <EditableText
+                page="home"
+                section="hero"
+                fieldKey="s1_desc"
+                defaultContent="O Dr. Eduardo Veríssimo Inocente foi destaque na Band News, SBT, Rede Brasil, CNN, Globo Repórter, Estadão, Veja, capa da International Business Magazine e capa da Revista Prospere. Conduzimos todos os casos com segurança, ética e eficácia comprovada."
+                as="p"
+                multiline
+              />
               <div className="hero-actions">
-                <a
-                  className="btn btn-wa btn-shine-effect"
-                  href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20vi%20a%20atua%C3%A7%C3%A3o%20da%20EVI%20e%20gostaria%20de%20uma%20consulta%20estrat%C3%A9gica."
+                <EditableLink
+                  page="home"
+                  section="hero"
+                  fieldKey="s1_cta1"
+                  defaultLabel="Agende uma Consulta"
+                  defaultHref="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20vi%20a%20atua%C3%A7%C3%A3o%20da%20EVI%20e%20gostaria%20de%20uma%20consulta%20estrat%C3%A9gica."
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="btn btn-wa btn-shine-effect"
                 >
                   <svg className="wa-icon" viewBox="0 0 16 16" aria-hidden="true">
                     <path
@@ -417,11 +477,15 @@ export default function HeroSlider() {
                       d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z"
                     />
                   </svg>
-                  <span>Agende uma Consulta</span>
-                </a>
-                <Link className="btn btn-outline btn-glass-hover" href="/quem-somos#dr-eduardo">
-                  Conhecer o Dr. Eduardo Veríssimo Inocente
-                </Link>
+                </EditableLink>
+                <EditableLink
+                  page="home"
+                  section="hero"
+                  fieldKey="s1_cta2"
+                  defaultLabel="Conhecer o Dr. Eduardo Veríssimo Inocente"
+                  defaultHref="/quem-somos#dr-eduardo"
+                  className="btn btn-outline btn-glass-hover"
+                />
               </div>
             </div>
           </div>

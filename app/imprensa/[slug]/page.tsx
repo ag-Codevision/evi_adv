@@ -1,10 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPressArticleBySlug, getRelatedPressArticles, getAllPressArticles } from '@/lib/press-data';
+import { getPressArticleBySlug, getRelatedPressArticles, PressArticle } from '@/lib/press-data';
+import EditableText from '@/components/admin/EditableText';
+import EditableMedia from '@/components/admin/EditableMedia';
+import { createClient } from '@/lib/supabase/client';
+import PressArticleEditModal from '@/components/admin/PressArticleEditModal';
+import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
+import { Edit2, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface PressDetailPageProps {
   params: {
@@ -13,9 +20,67 @@ interface PressDetailPageProps {
 }
 
 export default function PressDetailPage({ params }: PressDetailPageProps) {
-  const article = getPressArticleBySlug(params.slug);
+  const router = useRouter();
+  const { isAdmin, isEditing } = useAdminEditor();
+  const [customArticles, setCustomArticles] = useState<PressArticle[]>([]);
+  const [currentArticle, setCurrentArticle] = useState<PressArticle | null | undefined>(undefined);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  if (!article) {
+  // Carrega matérias salvas no Supabase
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('site_contents')
+          .select('field_key, content_value')
+          .eq('page', 'imprensa')
+          .eq('section', 'custom_articles');
+
+        const parsedList: PressArticle[] = [];
+        if (!error && data) {
+          data.forEach((row) => {
+            try {
+              if (row.content_value) {
+                const item = JSON.parse(row.content_value);
+                if (item && item.slug) {
+                  parsedList.push(item);
+                }
+              }
+            } catch (e) {
+              console.error('Erro ao analisar JSON:', e);
+            }
+          });
+        }
+        setCustomArticles(parsedList);
+
+        // Busca o artigo atual com os dados mesclados
+        const found = getPressArticleBySlug(params.slug, parsedList);
+        setCurrentArticle(found || null);
+      } catch (err) {
+        console.error('Erro ao carregar artigo:', err);
+        const fallback = getPressArticleBySlug(params.slug, []);
+        setCurrentArticle(fallback || null);
+      }
+    };
+
+    fetchArticles();
+  }, [params.slug]);
+
+  // Se ainda estiver carregando
+  if (currentArticle === undefined) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-[60vh] flex items-center justify-center bg-[#f8fafb]">
+          <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
+        </main>
+      </>
+    );
+  }
+
+  // Se não encontrou a matéria
+  if (currentArticle === null) {
     return (
       <>
         <Header />
@@ -30,7 +95,8 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
     );
   }
 
-  const related = getRelatedPressArticles(article.slug, 3);
+  const article = currentArticle;
+  const related = getRelatedPressArticles(article.slug, 3, customArticles);
 
   return (
     <>
@@ -38,6 +104,27 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
 
       <main className="bg-[#f8fafb] min-h-screen pb-20 pt-8">
         <div className="container max-w-5xl">
+          {/* Barra de Ações Rápidas de Admin no Artigo */}
+          {isAdmin && isEditing && (
+            <div className="mb-6 p-4 bg-slate-900 text-white rounded-2xl border border-slate-700 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-semibold text-slate-200">Modo de Edição CRUD Ativo:</span>
+                <span className="text-slate-400 font-mono text-[11px]">{article.slug}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                  <span>Editar Matéria Completa (Word / Mídias)</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Breadcrumb de navegação */}
           <nav className="flex items-center gap-2 text-xs text-evi-text-muted mb-8 overflow-x-auto pb-2" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-evi-accent whitespace-nowrap">Início</Link>
@@ -61,13 +148,24 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6">
-              {article.title}
-            </h1>
+            <EditableText
+              page="imprensa_detail"
+              section={params.slug}
+              fieldKey="title"
+              defaultContent={article.title}
+              as="h1"
+              className="text-3xl md:text-4xl lg:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6"
+            />
 
-            <p className="text-lg md:text-xl text-evi-text-light leading-relaxed border-l-4 border-evi-accent pl-4 py-1 italic bg-white/60 rounded-r-xl">
-              {article.excerpt}
-            </p>
+            <EditableText
+              page="imprensa_detail"
+              section={params.slug}
+              fieldKey="excerpt"
+              defaultContent={article.excerpt}
+              as="p"
+              className="text-lg md:text-xl text-evi-text-light leading-relaxed border-l-4 border-evi-accent pl-4 py-1 italic bg-white/60 rounded-r-xl"
+              multiline
+            />
           </header>
 
           {/* Mídia Principal: Vídeo do YouTube OU Imagem em Alta Resolução */}
@@ -85,10 +183,13 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
               </div>
             ) : (
               <div className="relative aspect-[16/9] w-full bg-slate-900 flex items-center justify-center overflow-hidden">
-                <img
-                  src={article.featuredImage}
+                <EditableMedia
+                  page="imprensa_detail"
+                  section={params.slug}
+                  fieldKey="featured_image"
+                  defaultSrc={article.featuredImage}
                   alt={article.title}
-                  className="w-full h-full object-contain md:object-cover"
+                  imgClassName="w-full h-full object-contain md:object-cover"
                 />
               </div>
             )}
@@ -99,11 +200,30 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
             {/* Coluna Principal: Texto Completo e Recortes */}
             <div className="lg:col-span-8 bg-white p-8 md:p-12 rounded-3xl border border-evi-border shadow-evi-card space-y-6">
               <div className="prose prose-slate max-w-none text-evi-text leading-relaxed text-base md:text-lg space-y-5">
-                {article.paragraphs.map((para, idx) => (
-                  <p key={idx} className="text-justify md:text-left">
-                    {para}
-                  </p>
-                ))}
+                {article.paragraphs.map((para, idx) => {
+                  const isHtml = /<[a-z][\s\S]*>/i.test(para);
+                  if (isHtml) {
+                    return (
+                      <div
+                        key={idx}
+                        className="prose prose-slate max-w-none text-evi-text leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: para }}
+                      />
+                    );
+                  }
+                  return (
+                    <EditableText
+                      key={idx}
+                      page="imprensa_detail"
+                      section={params.slug}
+                      fieldKey={`paragraph_${idx}`}
+                      defaultContent={para}
+                      as="p"
+                      className="text-justify md:text-left"
+                      multiline
+                    />
+                  );
+                })}
               </div>
 
               {/* Imagens de Recortes de Jornais / Documentos se houver */}
@@ -241,6 +361,21 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
           )}
         </div>
       </main>
+
+      {/* Modal de Edição Direta no Detalhe */}
+      {isEditModalOpen && (
+        <PressArticleEditModal
+          article={article}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={(updated) => {
+            setCurrentArticle(updated);
+            setCustomArticles((prev) => [updated, ...prev.filter((a) => a.slug !== updated.slug)]);
+          }}
+          onDelete={() => {
+            router.push('/imprensa');
+          }}
+        />
+      )}
     </>
   );
 }

@@ -1,8 +1,14 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import EditableText from './admin/EditableText';
+import EditableMedia from './admin/EditableMedia';
+import EditableLink from './admin/EditableLink';
 
 const mediaHighlights = [
   {
+    id: 'nani_venancio',
     outlet: 'Rede Brasil de Televisão',
     tag: 'Programa Tarde Top com Nani Venâncio',
     title: 'Análise Jurídica com a Apresentadora Nani Venâncio',
@@ -12,6 +18,7 @@ const mediaHighlights = [
     isExternal: false,
   },
   {
+    id: 'band_news',
     outlet: 'Band News TV',
     tag: 'Empresários de Sucesso',
     title: 'Modelo Inovador de Assessoria Jurídica na Band News',
@@ -21,6 +28,7 @@ const mediaHighlights = [
     isExternal: false,
   },
   {
+    id: 'ib_magazine',
     outlet: 'International Business Magazine',
     tag: 'Destaque de Capa Internacional',
     title: '“Assessoria Jurídica Moderna e Inovadora é a Marca da EVI”',
@@ -30,6 +38,7 @@ const mediaHighlights = [
     isExternal: false,
   },
   {
+    id: 'sbt_sinistros',
     outlet: 'SBT - Sistema Brasileiro de Televisão',
     tag: 'Jornal do SBT - SP',
     title: 'Entrevista SBT: Responsabilidade Civil e Perícias em Sinistros',
@@ -39,6 +48,7 @@ const mediaHighlights = [
     isExternal: false,
   },
   {
+    id: 'premio_quality',
     outlet: 'Prêmio QUALITY JUSTIÇA',
     tag: 'Excelência & Ética',
     title: 'Comenda Oficial de Responsabilidade Social e Justiça',
@@ -48,6 +58,7 @@ const mediaHighlights = [
     isExternal: false,
   },
   {
+    id: 'ibi_membership',
     outlet: 'International Business Institute (IBI)',
     tag: 'Chancela Global',
     title: 'Membership Internacional em Governança Jurídica',
@@ -63,29 +74,52 @@ export default function MediaAuthoritySection() {
     <section className="section bg-[#f8fafb] border-y border-evi-border/80" id="autoridade">
       <div className="container">
         <div className="section-head section-head-center motion-item" data-motion="up">
-          <span className="eyebrow">Autoridade Consagrada · Presença Nacional</span>
-          <h2>Reconhecimento, Mídia e Solidez Comprovada.</h2>
-          <p className="max-w-3xl mx-auto text-evi-text-light text-base md:text-lg">
-            A liderança estratégica do <strong>Dr. Eduardo Veríssimo Inocente</strong> e da <strong>EVI Advogados</strong> em evidência nas principais emissoras de televisão, publicações internacionais e prêmios de excelência.
-          </p>
+          <EditableText
+            page="home"
+            section="autoridade"
+            fieldKey="eyebrow"
+            defaultContent="Autoridade Consagrada · Presença Nacional"
+            as="span"
+            className="eyebrow inline-block justify-center"
+          />
+
+          <EditableText
+            page="home"
+            section="autoridade"
+            fieldKey="heading"
+            defaultContent="Reconhecimento, Mídia e Solidez Comprovada."
+            as="h2"
+          />
+
+          <EditableText
+            page="home"
+            section="autoridade"
+            fieldKey="subheading"
+            defaultContent="A liderança estratégica do Dr. Eduardo Veríssimo Inocente e da EVI Advogados em evidência nas principais emissoras de televisão, publicações internacionais e prêmios de excelência."
+            as="p"
+            className="max-w-3xl mx-auto text-evi-text-light text-base md:text-lg"
+            multiline
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-          {mediaHighlights.map((item, idx) => (
+          {mediaHighlights.map((item) => (
             <div
-              key={idx}
+              key={item.id}
               className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between group motion-item"
               data-motion="up"
             >
               <div>
                 <div className="aspect-[16/10] w-full overflow-hidden bg-slate-100 relative border-b border-evi-border">
-                  <img
-                    src={item.image}
+                  <EditableMedia
+                    page="home"
+                    section="autoridade"
+                    fieldKey={`media_img_${item.id}`}
+                    defaultSrc={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
+                    imgClassName="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute top-3 left-3 bg-evi-deep/90 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  <div className="absolute top-3 left-3 bg-evi-deep/90 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider pointer-events-none z-10">
                     {item.outlet}
                   </div>
                 </div>
@@ -94,36 +128,38 @@ export default function MediaAuthoritySection() {
                   <span className="text-[11px] font-semibold text-evi-accent uppercase tracking-wider block mb-2">
                     {item.tag}
                   </span>
-                  <h3 className="text-xl font-serif font-bold text-evi-deep mb-3 leading-snug group-hover:text-evi-accent transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-evi-text-light leading-relaxed">
-                    {item.desc}
-                  </p>
+                  <EditableText
+                    page="home"
+                    section="autoridade"
+                    fieldKey={`media_title_${item.id}`}
+                    defaultContent={item.title}
+                    as="h3"
+                    className="text-xl font-serif font-bold text-evi-deep mb-3 leading-snug group-hover:text-evi-accent transition-colors"
+                  />
+                  <EditableText
+                    page="home"
+                    section="autoridade"
+                    fieldKey={`media_desc_${item.id}`}
+                    defaultContent={item.desc}
+                    as="p"
+                    className="text-sm text-evi-text-light leading-relaxed"
+                    multiline
+                  />
                 </div>
               </div>
 
               <div className="px-6 pb-6 pt-2">
                 <div className="pt-4 border-t border-evi-border/60 flex items-center justify-between">
-                  {item.isExternal ? (
-                    <a
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-bold text-evi-deep group-hover:text-evi-accent flex items-center gap-1.5 uppercase tracking-wider"
-                    >
-                      <span>Assistir reportagem</span>
-                      <span>↗</span>
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.link}
-                      className="text-xs font-bold text-evi-deep group-hover:text-evi-accent flex items-center gap-1.5 uppercase tracking-wider"
-                    >
-                      <span>Ver cobertura</span>
-                      <span>→</span>
-                    </Link>
-                  )}
+                  <EditableLink
+                    page="home"
+                    section="autoridade"
+                    fieldKey={`media_link_${item.id}`}
+                    defaultLabel={item.isExternal ? 'Assistir reportagem ↗' : 'Ver cobertura →'}
+                    defaultHref={item.link}
+                    target={item.isExternal ? '_blank' : undefined}
+                    rel={item.isExternal ? 'noopener noreferrer' : undefined}
+                    className="text-xs font-bold text-evi-deep group-hover:text-evi-accent flex items-center gap-1.5 uppercase tracking-wider"
+                  />
                 </div>
               </div>
             </div>
@@ -131,9 +167,14 @@ export default function MediaAuthoritySection() {
         </div>
 
         <div className="mt-12 text-center">
-          <Link href="/imprensa" className="btn btn-outline">
-            Ver Todas as Aparições na Mídia →
-          </Link>
+          <EditableLink
+            page="home"
+            section="autoridade"
+            fieldKey="cta"
+            defaultLabel="Ver Todas as Aparições na Mídia →"
+            defaultHref="/imprensa"
+            className="btn btn-outline"
+          />
         </div>
       </div>
     </section>

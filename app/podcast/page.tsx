@@ -3,6 +3,8 @@ import Header from '@/components/Header';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getLatestPodcastEpisodes, PodcastEpisode } from '@/lib/youtube';
+import EditableText from '@/components/admin/EditableText';
+import EditableLink from '@/components/admin/EditableLink';
 
 export const metadata: Metadata = {
   title: 'Podcast Direito e Arte | EVI Advogados',
@@ -41,25 +43,42 @@ export default async function PodcastPage() {
         <div className="container max-w-6xl">
           {/* Header da Página */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="eyebrow justify-center mb-3">Conteúdo Audiovisual Exclusivo</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6">
-              Podcast Direito e Arte
-            </h1>
-            <p className="text-evi-text-light text-lg md:text-xl leading-relaxed">
-              O direito explicado com inteligência, clareza e sensibilidade cultural. Acompanhe os episódios completos e debates jurídicos e culturais sob a liderança do Dr. Eduardo Veríssimo Inocente e convidados especiais.
-            </p>
+            <EditableText
+              page="podcast"
+              section="header"
+              fieldKey="eyebrow"
+              defaultContent="Conteúdo Audiovisual Exclusivo"
+              as="span"
+              className="eyebrow justify-center mb-3"
+            />
+            <EditableText
+              page="podcast"
+              section="header"
+              fieldKey="title"
+              defaultContent="Podcast Direito e Arte"
+              as="h1"
+              className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6"
+            />
+            <EditableText
+              page="podcast"
+              section="header"
+              fieldKey="desc"
+              defaultContent="O direito explicado com inteligência, clareza e sensibilidade cultural. Acompanhe os episódios completos e debates jurídicos e culturais sob a liderança do Dr. Eduardo Veríssimo Inocente e convidados especiais."
+              as="p"
+              className="text-evi-text-light text-lg md:text-xl leading-relaxed"
+              multiline
+            />
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="https://www.youtube.com/@direitoearte_podcast"
+              <EditableLink
+                page="podcast"
+                section="header"
+                fieldKey="youtube_channel_btn"
+                defaultLabel="Canal Oficial no YouTube (@direitoearte_podcast)"
+                defaultHref="https://www.youtube.com/@direitoearte_podcast"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline border-red-600 text-red-600 hover:bg-red-600 hover:text-white inline-flex items-center gap-2 font-bold shadow-sm transition-all active:scale-95"
-              >
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-                <span>Canal Oficial no YouTube (@direitoearte_podcast)</span>
-              </a>
+              />
             </div>
           </div>
 
@@ -134,20 +153,33 @@ export default async function PodcastPage() {
 
           {/* Banner de Chamada */}
           <div className="bg-evi-deep text-white rounded-3xl p-8 md:p-14 text-center max-w-4xl mx-auto shadow-evi-card">
-            <h3 className="text-3xl font-serif font-bold mb-4">
-              Quer sugerir um tema ou tirar dúvidas sobre algum episódio?
-            </h3>
-            <p className="text-slate-300 max-w-2xl mx-auto mb-8 text-base">
-              Nossa equipe jurídica está sempre conectada e pronta para orientar você.
-            </p>
-            <a
-              href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20assisti%20ao%20podcast%20da%20EVI%20e%20gostaria%20de%20conversar%20sobre%20meu%20caso."
+            <EditableText
+              page="podcast"
+              section="cta_banner"
+              fieldKey="title"
+              defaultContent="Quer sugerir um tema ou tirar dúvidas sobre algum episódio?"
+              as="h3"
+              className="text-3xl font-serif font-bold mb-4"
+            />
+            <EditableText
+              page="podcast"
+              section="cta_banner"
+              fieldKey="desc"
+              defaultContent="Nossa equipe jurídica está sempre conectada e pronta para orientar você."
+              as="p"
+              className="text-slate-300 max-w-2xl mx-auto mb-8 text-base"
+              multiline
+            />
+            <EditableLink
+              page="podcast"
+              section="cta_banner"
+              fieldKey="cta_btn"
+              defaultLabel="Conversar com Nossos Advogados"
+              defaultHref="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20assisti%20ao%20podcast%20da%20EVI%20e%20gostaria%20de%20conversar%20sobre%20meu%20caso."
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-wa text-base px-8 py-4"
-            >
-              Conversar com Nossos Advogados
-            </a>
+              className="btn btn-wa text-base px-8 py-4 inline-block"
+            />
           </div>
         </div>
       </main>

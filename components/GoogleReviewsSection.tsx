@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import EditableText from './admin/EditableText';
+import EditableLink from './admin/EditableLink';
 
 interface ReviewItem {
   id: string;
@@ -268,9 +270,14 @@ export default function GoogleReviewsSection() {
               {/* Informações de Avaliação */}
               <div>
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <span className="font-serif text-3xl sm:text-4xl font-bold text-evi-deep tracking-tight">
-                    5.0
-                  </span>
+                  <EditableText
+                    page="home"
+                    section="reviews"
+                    fieldKey="rating"
+                    defaultContent="5.0"
+                    as="span"
+                    className="font-serif text-3xl sm:text-4xl font-bold text-evi-deep tracking-tight"
+                  />
                   {/* 5 Estrelas Douradas */}
                   <div className="flex items-center text-[#F4B400] gap-1 text-xl" aria-label="5 de 5 estrelas">
                     {[0, 1, 2, 3, 4].map((i) => (
@@ -284,54 +291,69 @@ export default function GoogleReviewsSection() {
                       </svg>
                     ))}
                   </div>
-                  <span className="font-sans bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200/80">
-                    Classificação Máxima
-                  </span>
+                  <EditableText
+                    page="home"
+                    section="reviews"
+                    fieldKey="rating_label"
+                    defaultContent="Classificação Máxima"
+                    as="span"
+                    className="font-sans bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200/80"
+                  />
                 </div>
 
-                <h2
-                  id="google-reviews-title"
-                  className="font-serif text-xl sm:text-2xl font-medium text-evi-deep flex items-center gap-2.5 flex-wrap"
-                >
-                  <span>Avaliações no Google Meu Negócio</span>
-                  <span className="font-sans text-[11px] uppercase tracking-[0.14em] bg-slate-100 text-evi-text-muted font-bold px-2.5 py-0.5 rounded-full border border-slate-200/80">
-                    Perfil Verificado
-                  </span>
-                </h2>
-                <p className="font-sans text-evi-text-muted text-sm sm:text-base mt-1 leading-relaxed">
-                  Baseado em <strong className="text-evi-deep font-semibold">+145 avaliações</strong> e depoimentos de clientes reais atendidos pela <strong className="text-evi-deep font-semibold">EVI Sociedade de Advogados</strong>.
-                </p>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <EditableText
+                    page="home"
+                    section="reviews"
+                    fieldKey="heading"
+                    defaultContent="Avaliações no Google Meu Negócio"
+                    as="h2"
+                    className="font-serif text-xl sm:text-2xl font-medium text-evi-deep"
+                  />
+                  <EditableText
+                    page="home"
+                    section="reviews"
+                    fieldKey="verified_badge"
+                    defaultContent="Perfil Verificado"
+                    as="span"
+                    className="font-sans text-[11px] uppercase tracking-[0.14em] bg-slate-100 text-evi-text-muted font-bold px-2.5 py-0.5 rounded-full border border-slate-200/80"
+                  />
+                </div>
+                <EditableText
+                  page="home"
+                  section="reviews"
+                  fieldKey="desc"
+                  defaultContent="Baseado em +145 avaliações e depoimentos de clientes reais atendidos pela EVI Sociedade de Advogados."
+                  as="p"
+                  className="font-sans text-evi-text-muted text-sm sm:text-base mt-1 leading-relaxed"
+                  multiline
+                />
               </div>
             </div>
 
             {/* Ações e Links Oficiais */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-              <a
-                href={GOOGLE_MAPS_URL}
+              <EditableLink
+                page="home"
+                section="reviews"
+                fieldKey="cta_all"
+                defaultLabel="Ver Todas no Google Maps"
+                defaultHref={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 font-sans text-sm font-semibold bg-evi-deep hover:bg-[#1f334a] text-white px-6 py-3 rounded-full shadow-sm transition-all duration-200 active:scale-[0.98]"
-              >
-                <span>Ver Todas no Google Maps</span>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <polyline points="15 3 21 3 21 9" />
-                  <line x1="10" y1="14" x2="21" y2="3" />
-                </svg>
-              </a>
+              />
 
-              <a
-                href={GOOGLE_MAPS_URL}
+              <EditableLink
+                page="home"
+                section="reviews"
+                fieldKey="cta_write"
+                defaultLabel="Escrever Avaliação"
+                defaultHref={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 font-sans text-sm font-semibold text-evi-deep hover:text-evi-navy bg-slate-100 hover:bg-slate-200 px-5 py-3 rounded-full transition-colors border border-slate-200/60"
-              >
-                <span>Escrever Avaliação</span>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-              </a>
+              />
             </div>
           </div>
         </div>
@@ -340,8 +362,22 @@ export default function GoogleReviewsSection() {
       {/* Subtítulo e Controles do Carrossel */}
       <div className="container mb-5 flex items-center justify-between gap-4">
         <div>
-          <span className="font-sans text-xs uppercase tracking-[0.14em] font-extrabold text-evi-accent">Depoimentos Públicos Reais</span>
-          <p className="font-serif text-lg sm:text-xl font-medium text-evi-deep mt-0.5">O que nossos clientes dizem sobre nossa atuação</p>
+          <EditableText
+            page="home"
+            section="reviews"
+            fieldKey="eyebrow"
+            defaultContent="Depoimentos Públicos Reais"
+            as="span"
+            className="font-sans text-xs uppercase tracking-[0.14em] font-extrabold text-evi-accent"
+          />
+          <EditableText
+            page="home"
+            section="reviews"
+            fieldKey="subtitle"
+            defaultContent="O que nossos clientes dizem sobre nossa atuação"
+            as="p"
+            className="font-serif text-lg sm:text-xl font-medium text-evi-deep mt-0.5"
+          />
         </div>
 
         <div className="flex items-center gap-3">

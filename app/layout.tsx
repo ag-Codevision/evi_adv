@@ -5,6 +5,7 @@ import Topbar from '@/components/Topbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import ScrollMotionManager from '@/components/ScrollMotionManager';
+import AdminAuthProvider from '@/components/admin/AdminAuthProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -57,6 +58,8 @@ export const metadata: Metadata = {
   },
 };
 
+import ClientLayoutWrapper from '@/components/ClientLayoutWrapper';
+
 export default function RootLayout({
   children,
 }: {
@@ -65,11 +68,16 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable}`}>
       <body>
-        <Topbar />
-        <ScrollMotionManager />
-        {children}
-        <Footer />
-        <WhatsAppFloat />
+        <AdminAuthProvider>
+          <ClientLayoutWrapper
+            topbar={<Topbar />}
+            motion={<ScrollMotionManager />}
+            footer={<Footer />}
+            whatsapp={<WhatsAppFloat />}
+          >
+            {children}
+          </ClientLayoutWrapper>
+        </AdminAuthProvider>
       </body>
     </html>
   );

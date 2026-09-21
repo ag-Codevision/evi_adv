@@ -27,20 +27,14 @@ function injectBodyImages(htmlContent, body1, body2) {
 </figure>
 `;
 
-  // Divide o conteúdo procurando ocorrências de <h2> para distribuir harmonicamente
   const parts = htmlContent.split(/(<h2[^>]*>)/gi);
-
   if (parts.length >= 5) {
-    // Temos ao menos 2 tags h2 (parts[0], h2_1, content_1, h2_2, content_2...)
-    // Injeta a primeira imagem após a primeira seção h2
     parts[2] = parts[2] + '\n' + fig1;
-    // Injeta a segunda imagem mais à frente
     const targetIdx = parts.length > 6 ? 4 : parts.length - 1;
     parts[targetIdx] = parts[targetIdx] + '\n' + fig2;
     return parts.join('');
   }
 
-  // Fallback se não tiver tags h2 suficientes: divide por parágrafos
   const paragraphs = htmlContent.split('</p>');
   if (paragraphs.length >= 4) {
     const p1 = Math.floor(paragraphs.length / 3);
@@ -50,7 +44,6 @@ function injectBodyImages(htmlContent, body1, body2) {
     return paragraphs.join('</p>');
   }
 
-  // Caso seja um bloco simples
   return htmlContent + '\n' + fig1 + '\n' + fig2;
 }
 
@@ -68,11 +61,11 @@ DIRETRIZES FUNDAMENTAIS:
 6. O texto deve ter densidade técnica real.`;
 
   const userPrompt = `Redija um artigo jurídico aprofundado com o seguinte escopo:
-Título Proposto: "${topic.title}"
-Área/Eixo: "${topic.categoryName}"
-Público-Alvo: ${topic.targetAudience}
-Palavras-chave a incorporar: ${topic.keywords.join(', ')}
-Resumo/Ponto de partida: "${topic.excerpt}"
+Título Proposto ou Diretriz: "${topic.title}"
+Área/Eixo: "${topic.categoryName || topic.categorySlug}"
+Público-Alvo: ${topic.targetAudience || 'Empresários e Diretores'}
+Palavras-chave a incorporar: ${(topic.keywords || []).join(', ')}
+Resumo/Ponto de partida: "${topic.excerpt || topic.title}"
 
 Entregue a resposta no formato JSON estrito com a seguinte estrutura (sem markdown codeblocks):
 {
@@ -109,8 +102,6 @@ Entregue a resposta no formato JSON estrito com a seguinte estrutura (sem markdo
 
   const data = await response.json();
   const rawContent = data.choices[0]?.message?.content;
-
-  // Extrai o bloco JSON
   const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error('Falha ao interpretar resposta JSON da NVIDIA API: ' + rawContent);
@@ -124,8 +115,57 @@ async function run() {
     throw new Error('Supabase credentials não configuradas.');
   }
 
-  // 1. Busca autor Dr. Eduardo
-  console.log('Buscando autor Dr. Eduardo no Supabase...');
+  // 1. Busca configurações ativas do robô no Supabase
+  console.log('Consultando configurações ativas de automação no Supabase...');
+  let aiConfig = null;
+  try {
+    const cfgRes = await fetch(
+      `${supabaseUrl}/rest/v1/site_contents?page=eq.blog_ai_config&section=eq.engine&field_key=eq.settings&limit=1`,
+      {
+        headers: {
+          apikey: supabaseSecret,
+          Authorization: `Bearer ${supabaseSecret}`,
+        },
+      }
+    );
+    const cfgData = await cfgRes.json();
+    if (cfgData && cfgData[0]?.content_value) {
+      aiConfig = JSON.parse(cfgData[0].content_value);
+    }
+  } catch (e) {
+    console.warn('Configurações não encontradas, usando padrão.');
+  }
+
+  // Se for execução agendada e não foi passado flag de força via terminal:
+  const isForced = process.argv.includes('--force');
+  if (aiConfig && !isForced) {
+    if (!aiConfig.enabled) {
+      console.log('Automação do Robô Editorial está desativada no painel. Encerrando execução.');
+      return;
+    }
+
+    // Valida dia da semana e horário (Brasília UTC-3)
+    const nowUtc = new Date();
+    // Horário de Brasília = UTC - 3
+    const brDate = new Date(nowUtc.getTime() - 3 * 3600 * 1000);
+    const dayOfWeek = brDate.getUTCDay(); // 0 a 6
+    const hour = brDate.getUTCHours();
+
+    console.log(`Checagem de agendamento: Hoje é dia ${dayOfWeek}, horário de Brasília: ${hour}h`);
+    console.log(`Configuração: Dias [${aiConfig.daysOfWeek.join(', ')}], Horário alvo: ${aiConfig.publishHour}h`);
+
+    if (!aiConfig.daysOfWeek.includes(dayOfWeek)) {
+      console.log(`Hoje (${dayOfWeek}) não é um dia programado para publicação. Aguardando próximo ciclo.`);
+      return;
+    }
+
+    if (hour !== aiConfig.publishHour) {
+      console.log(`Horário atual (${hour}h) não corresponde ao horário agendado (${aiConfig.publishHour}h).`);
+      return;
+    }
+  }
+
+  // 2. Busca autor Dr. Eduardo
   const authorRes = await fetch(`${supabaseUrl}/rest/v1/authors?is_director=eq.true&limit=1`, {
     headers: {
       apikey: supabaseSecret,
@@ -136,16 +176,38 @@ async function run() {
   const author = authors[0];
   console.log('Autor localizado:', author?.name, `(ID: ${author?.id})`);
 
-  // Permite selecionar tópico via argumento de linha de comando: node scripts/generate-article.mjs 1
-  const topicIndex = parseInt(process.argv[2] || '0', 10);
-  const selectedTopic = INITIAL_EDITORIAL_TOPICS[topicIndex] || INITIAL_EDITORIAL_TOPICS[0];
-  console.log(`Pauta selecionada [${topicIndex}]: "${selectedTopic.title}"`);
-  console.log(`Gerando artigo via NVIDIA NIM (${nvidiaModel})...`);
+  // 3. Seleciona pauta (prioriza sugestões do "mini cérebro" configurado no painel)
+  let selectedTopic = null;
 
+  if (aiConfig && aiConfig.customThemes && aiConfig.customThemes.length > 0) {
+    // Sorteia um tema do mini cérebro
+    const randomTheme = aiConfig.customThemes[Math.floor(Math.random() * aiConfig.customThemes.length)];
+    const randomCat = aiConfig.categories[Math.floor(Math.random() * aiConfig.categories.length)] || {
+      slug: 'recuperacao-judicial',
+      name: 'Recuperação Judicial & Falências',
+      keywords: ['empresarial', 'estratégico'],
+    };
+
+    selectedTopic = {
+      title: randomTheme,
+      categorySlug: randomCat.slug,
+      categoryName: randomCat.name,
+      keywords: randomCat.keywords || ['Direito Empresarial', 'EVI Advogados'],
+      targetAudience: randomCat.targetAudience || 'Empresários e CFOs',
+      excerpt: randomTheme,
+    };
+    console.log(`Pauta selecionada do mini cérebro: "${selectedTopic.title}"`);
+  } else {
+    const topicIndex = parseInt(process.argv[2] || '0', 10);
+    selectedTopic = INITIAL_EDITORIAL_TOPICS[topicIndex] || INITIAL_EDITORIAL_TOPICS[0];
+    console.log(`Pauta selecionada do catálogo inicial: "${selectedTopic.title}"`);
+  }
+
+  console.log(`Gerando artigo via NVIDIA NIM (${nvidiaModel})...`);
   const article = await generateLegalArticle(selectedTopic);
   console.log(`Artigo gerado: "${article.title}" (Slug: ${article.slug})`);
 
-  // 3. Obtém imagens de alta resolução do banco de imagens (Capa + 2 de corpo)
+  // 4. Obtém imagens temáticas de alta resolução (Capa + 2 de corpo)
   console.log('Obtendo imagens temáticas de alta resolução (Capa + 2 de corpo)...');
   const images = await fetchTopicImages(selectedTopic.categorySlug, selectedTopic.keywords);
   console.log('Capa selecionada:', images.cover);
@@ -155,7 +217,7 @@ async function run() {
   // Injeta as 2 imagens no HTML do artigo
   const enrichedContent = injectBodyImages(article.content, images.body1, images.body2);
 
-  // 4. Busca categoria no Supabase
+  // 5. Busca categoria no Supabase
   const catRes = await fetch(`${supabaseUrl}/rest/v1/categories?slug=eq.${selectedTopic.categorySlug}&limit=1`, {
     headers: {
       apikey: supabaseSecret,
@@ -165,11 +227,12 @@ async function run() {
   const cats = await catRes.json();
   const category = cats[0];
 
-  // 5. Grava ou atualiza na tabela posts via Upsert
-  console.log('Salvando artigo na tabela posts do Supabase (Upsert)...');
+  // 6. Grava ou atualiza na tabela posts via Upsert
+  const uniqueSlug = `${article.slug}-${Date.now().toString(36).slice(-4)}`;
+  console.log('Salvando artigo na tabela posts do Supabase...');
   const postPayload = {
     title: article.title,
-    slug: article.slug,
+    slug: uniqueSlug,
     excerpt: article.excerpt,
     content: enrichedContent,
     category_id: category?.id || null,
@@ -179,15 +242,16 @@ async function run() {
     seo_title: article.seo_title,
     seo_description: article.seo_description,
     is_featured: true,
+    published_at: new Date().toISOString(),
   };
 
-  const insertRes = await fetch(`${supabaseUrl}/rest/v1/posts?on_conflict=slug`, {
+  const insertRes = await fetch(`${supabaseUrl}/rest/v1/posts`, {
     method: 'POST',
     headers: {
       apikey: supabaseSecret,
       Authorization: `Bearer ${supabaseSecret}`,
       'Content-Type': 'application/json',
-      Prefer: 'resolution=merge-duplicates,return=representation',
+      Prefer: 'return=representation',
     },
     body: JSON.stringify(postPayload),
   });
@@ -202,7 +266,6 @@ async function run() {
   console.log('ID:', createdPost[0]?.id);
   console.log('Título:', createdPost[0]?.title);
   console.log('Slug:', createdPost[0]?.slug);
-  console.log('Capa (Card + Banner Interno):', createdPost[0]?.cover_image);
 }
 
 run().catch((e) => {

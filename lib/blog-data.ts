@@ -1,4 +1,5 @@
 export interface BlogArticle {
+  id?: string;
   slug: string;
   title: string;
   category: string;
@@ -9,6 +10,8 @@ export interface BlogArticle {
   featuredImage: string;
   excerpt: string;
   paragraphs: string[];
+  content?: string;
+  isFeatured?: boolean;
   subsections?: {
     subtitle: string;
     paragraphs: string[];
@@ -20,9 +23,9 @@ export interface BlogArticle {
   author: {
     name: string;
     role: string;
-    oab: string;
+    oab?: string;
     avatar: string;
-    bio: string;
+    bio?: string;
   };
   keywords: string[];
 }
@@ -475,8 +478,39 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   },
 ];
 
-export function getAllBlogArticles(): BlogArticle[] {
-  return BLOG_ARTICLES;
+export function getAllBlogArticles(
+  customArticles?: BlogArticle[],
+  deletedSlugs: string[] = []
+): BlogArticle[] {
+  const deletedSet = new Set(deletedSlugs);
+
+  // Mapeia artigos customizados para override
+  const customMap = new Map<string, BlogArticle>();
+  if (customArticles) {
+    customArticles.forEach((art) => {
+      if (!deletedSet.has(art.slug)) {
+        customMap.set(art.slug, art);
+      }
+    });
+  }
+
+  // Base filtrando excluídos e aplicando overrides
+  const baseArticles = BLOG_ARTICLES
+    .filter((a) => !deletedSet.has(a.slug))
+    .map((a) => (customMap.has(a.slug) ? customMap.get(a.slug)! : a));
+
+  // Artigos novos que não existem na base padrão
+  const baseSlugs = new Set(BLOG_ARTICLES.map((a) => a.slug));
+  const newArticles: BlogArticle[] = [];
+  if (customArticles) {
+    customArticles.forEach((art) => {
+      if (!baseSlugs.has(art.slug) && !deletedSet.has(art.slug)) {
+        newArticles.push(art);
+      }
+    });
+  }
+
+  return [...newArticles, ...baseArticles];
 }
 
 export function getBlogArticleBySlug(slug: string): BlogArticle | undefined {

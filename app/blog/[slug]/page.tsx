@@ -5,6 +5,8 @@ import { Metadata } from 'next';
 import { fetchPostBySlug } from '@/lib/supabase';
 import { getBlogArticleBySlug, getRelatedBlogArticles, getAllBlogArticles, BlogArticle } from '@/lib/blog-data';
 import { Post } from '@/lib/types';
+import EditableText from '@/components/admin/EditableText';
+import EditableMedia from '@/components/admin/EditableMedia';
 
 interface PageProps {
   params: {
@@ -118,22 +120,36 @@ export default async function BlogPostPage({ params }: PageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6">
-              {title}
-            </h1>
+            <EditableText
+              page="blog_detail"
+              section={params.slug}
+              fieldKey="title"
+              defaultContent={title}
+              as="h1"
+              className="text-3xl md:text-4xl lg:text-5xl font-serif text-evi-deep font-bold leading-tight mb-6"
+            />
 
-            <p className="text-lg md:text-xl text-evi-text-light leading-relaxed border-l-4 border-evi-accent pl-4 py-2 italic bg-white/70 rounded-r-xl shadow-sm">
-              {excerpt}
-            </p>
+            <EditableText
+              page="blog_detail"
+              section={params.slug}
+              fieldKey="excerpt"
+              defaultContent={excerpt}
+              as="p"
+              className="text-lg md:text-xl text-evi-text-light leading-relaxed border-l-4 border-evi-accent pl-4 py-2 italic bg-white/70 rounded-r-xl shadow-sm"
+              multiline
+            />
           </header>
 
           {/* Imagem de Capa do Artigo */}
           <div className="mb-12 rounded-3xl overflow-hidden shadow-evi-card border border-evi-border bg-slate-900">
             <div className="relative aspect-[21/9] md:aspect-[2.2/1] w-full overflow-hidden">
-              <img
-                src={coverImage}
+              <EditableMedia
+                page="blog_detail"
+                section={params.slug}
+                fieldKey="cover_image"
+                defaultSrc={coverImage}
                 alt={title}
-                className="w-full h-full object-cover"
+                imgClassName="w-full h-full object-cover"
               />
             </div>
           </div>
@@ -152,9 +168,16 @@ export default async function BlogPostPage({ params }: PageProps) {
                 /* Conteúdo Estruturado Local */
                 <div className="prose prose-slate max-w-none text-evi-text leading-relaxed text-base md:text-lg space-y-6">
                   {localArticle!.paragraphs.map((para, idx) => (
-                    <p key={idx} className="text-justify md:text-left">
-                      {para}
-                    </p>
+                    <EditableText
+                      key={idx}
+                      page="blog_detail"
+                      section={params.slug}
+                      fieldKey={`paragraph_${idx}`}
+                      defaultContent={para}
+                      as="p"
+                      className="text-justify md:text-left"
+                      multiline
+                    />
                   ))}
 
                   {/* 1ª Imagem Ilustrativa / Técnica se houver */}

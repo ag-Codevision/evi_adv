@@ -1,18 +1,136 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { getAllBlogArticles, getBlogCategories, BlogArticle } from '@/lib/blog-data';
+import BlogAdminActions from '@/components/admin/BlogAdminActions';
+import EditableText from '@/components/admin/EditableText';
+import BlogPostEditModal from '@/components/admin/BlogPostEditModal';
+import ConfirmModal from '@/components/admin/ConfirmModal';
+import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
+import { createClient } from '@/lib/supabase/client';
+import { deletePostAction } from '@/lib/posts-actions';
+import { saveSiteContent } from '@/lib/site-content';
+import { Edit2, Trash2 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function BlogPage() {
-  const allArticles: BlogArticle[] = getAllBlogArticles();
-  const categories = getBlogCategories();
+  const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
 
+  const [dbArticles, setDbArticles] = useState<BlogArticle[]>([]);
+  const [deletedSlugs, setDeletedSlugs] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('Todas');
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Estados para CRUD
+  const [editingArticle, setEditingArticle] = useState<BlogArticle | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<BlogArticle | null>(null);
+  const [isDeletingDirect, setIsDeletingDirect] = useState(false);
+
+  // Busca posts do Supabase (tabela posts e custom_articles / deleted_articles)
+  const loadSupabasePosts = async () => {
+    try {
+      const supabase = createClient();
+
+      // 1. Busca os posts da tabela 'posts'
+      const { data: postsData, error: postsError } = await supabase
+        .from('posts')
+        .select('*, category:categories(*), author:authors(*)')
+        .order('published_at', { ascending: false });
+
+      const loadedArticles: BlogArticle[] = [];
+
+      if (!postsError && postsData) {
+        postsData.forEach((row: any) => {
+          if (row.slug) {
+            const pubDate = row.published_at ? new Date(row.published_at) : new Date();
+            const formattedDate = pubDate.toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            });
+
+            loadedArticles.push({
+              id: row.id,
+              slug: row.slug,
+              title: row.title || 'Artigo Jurídico',
+              category: row.category?.name || 'Direito Empresarial',
+              categorySlug: row.category?.slug || 'direito-empresarial',
+              date: formattedDate,
+              publishedAt: row.published_at || new Date().toISOString(),
+              readingTime: row.reading_time || 5,
+              featuredImage: row.cover_image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80',
+              excerpt: row.excerpt || row.title,
+              content: row.content || '',
+              paragraphs: [row.excerpt || row.title],
+              isFeatured: Boolean(row.is_featured),
+              author: {
+                name: row.author?.name || 'Dr. Eduardo Veríssimo Inocente',
+                role: row.author?.role || 'Sócio-Fundador & Diretor Jurídico',
+                oab: row.author?.oab || 'OAB/SP 200.334',
+                avatar: row.author?.avatar_url || '/img/01.png',
+                bio: row.author?.bio || 'Mais de 25 anos de vanguarda no Direito Empresarial.',
+              },
+              keywords: [],
+            });
+          }
+        });
+      }
+
+      // 2. Busca custom_articles em site_contents
+      const { data: contentData } = await supabase
+        .from('site_contents')
+        .select('field_key, content_value')
+        .eq('page', 'blog')
+        .eq('section', 'custom_articles');
+
+      if (contentData) {
+        contentData.forEach((row) => {
+          try {
+            if (row.content_value) {
+              const item = JSON.parse(row.content_value);
+              if (item && item.slug) {
+                // Atualiza ou insere se já não estiver
+                const existingIdx = loadedArticles.findIndex((a) => a.slug === item.slug);
+                if (existingIdx >= 0) {
+                  loadedArticles[existingIdx] = { ...loadedArticles[existingIdx], ...item };
+                } else {
+                  loadedArticles.push(item);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Erro ao analisar JSON de artigo customizado:', e);
+          }
+        });
+      }
+
+      // 3. Busca lista de slugs excluídos
+      const { data: deletedData } = await supabase
+        .from('site_contents')
+        .select('field_key')
+        .eq('page', 'blog')
+        .eq('section', 'deleted_articles');
+
+      if (deletedData) {
+        setDeletedSlugs(deletedData.map((d) => d.field_key));
+      }
+
+      setDbArticles(loadedArticles);
+    } catch (err) {
+      console.error('Erro ao buscar posts do Supabase:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadSupabasePosts();
+  }, []);
+
+  // Lista unificada com posts do banco de dados + artigos locais base (com suporte a exclusão e overrides)
+  const allArticles: BlogArticle[] = getAllBlogArticles(dbArticles, deletedSlugs);
+  const categories = getBlogCategories();
 
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
@@ -27,6 +145,45 @@ export default function BlogPage() {
         gridEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
+  };
+
+  // Handler ao salvar artigo no modal
+  const handleArticleSaved = (updatedArticle: BlogArticle) => {
+    setDbArticles((prev) => {
+      const filtered = prev.filter((a) => a.slug !== updatedArticle.slug);
+      return [updatedArticle, ...filtered];
+    });
+  };
+
+  // Handler ao confirmar exclusão
+  const confirmDeleteAction = async () => {
+    if (!itemToDelete) return;
+
+    setIsDeletingDirect(true);
+    setStatusMessage('Excluindo artigo do blog...');
+
+    // 1. Se tiver ID de banco, remove da tabela 'posts'
+    if (itemToDelete.id) {
+      await deletePostAction(itemToDelete.id);
+    }
+
+    // 2. Salva em site_contents como deletado para esconder mesmo os estáticos
+    await saveSiteContent({
+      page: 'blog',
+      section: 'deleted_articles',
+      fieldKey: itemToDelete.slug,
+      value: JSON.stringify({ slug: itemToDelete.slug, deletedAt: new Date().toISOString() }),
+      contentType: 'text',
+    });
+
+    // 3. Remove do estado local
+    setDeletedSlugs((prev) => [...prev, itemToDelete.slug]);
+    setDbArticles((prev) => prev.filter((a) => a.slug !== itemToDelete.slug));
+
+    setIsDeletingDirect(false);
+    setItemToDelete(null);
+    setStatusMessage('Artigo excluído com sucesso!');
+    setTimeout(() => setStatusMessage(null), 2500);
   };
 
   const filteredArticles = allArticles.filter((item) => {
@@ -46,14 +203,35 @@ export default function BlogPage() {
         <div className="container max-w-6xl">
           {/* Cabeçalho do Blog */}
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="eyebrow justify-center mb-3">Inteligência & Análises Jurídicas</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6 leading-tight">
-              Blog & Artigos Estratégicos
-            </h1>
-            <p className="text-evi-text-light text-lg md:text-xl leading-relaxed">
-              Estudos aprofundados, teses estratégicas e atualizações jurisprudenciais em Recuperação Judicial, Agronegócio, Direito Empresarial e Tributário conduzidos pelo <strong>Dr. Eduardo Veríssimo Inocente</strong> e equipe.
-            </p>
+            <EditableText
+              page="blog"
+              section="header"
+              fieldKey="eyebrow"
+              defaultContent="Inteligência & Análises Jurídicas"
+              as="span"
+              className="eyebrow justify-center mb-3"
+            />
+            <EditableText
+              page="blog"
+              section="header"
+              fieldKey="title"
+              defaultContent="Blog & Artigos Estratégicos"
+              as="h1"
+              className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6 leading-tight"
+            />
+            <EditableText
+              page="blog"
+              section="header"
+              fieldKey="desc"
+              defaultContent="Estudos aprofundados, teses estratégicas e atualizações jurisprudenciais em Recuperação Judicial, Agronegócio, Direito Empresarial e Tributário conduzidos pelo Dr. Eduardo Veríssimo Inocente e equipe."
+              as="p"
+              className="text-evi-text-light text-lg md:text-xl leading-relaxed"
+              multiline
+            />
           </div>
+
+          {/* Botões de Ação do Administrador (Novo Artigo e Robô IA) */}
+          <BlogAdminActions />
 
           {/* Filtros por Categoria */}
           <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
@@ -85,13 +263,44 @@ export default function BlogPage() {
             )}
           </div>
 
-          {/* Grid de Artigos */}
+          {/* Grid de Artigos com CRUD Completo nos Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {paginatedArticles.map((article) => (
               <article
                 key={article.slug}
-                className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1.5"
+                className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1.5 relative"
               >
+                {/* Ações de Edição CRUD quando Admin estiver no modo de edição */}
+                {isAdmin && isEditing && (
+                  <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700 shadow-xl">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setEditingArticle(article);
+                      }}
+                      className="p-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1 shadow-md"
+                      title="Editar Artigo (Título, Resumo, Capa, Conteúdo)"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span className="text-[11px] font-semibold pr-0.5">Editar</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setItemToDelete(article);
+                      }}
+                      className="p-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-lg text-xs transition-colors shadow-md"
+                      title="Excluir Artigo"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 <div>
                   {/* Capa do Artigo */}
                   <Link href={`/blog/${article.slug}`} className="block relative aspect-[16/10] overflow-hidden bg-slate-900 border-b border-evi-border">
@@ -131,7 +340,7 @@ export default function BlogPage() {
                 <div className="px-6 pb-6 pt-0">
                   <div className="pt-3 border-t border-evi-border/60 flex items-center justify-between">
                     <span className="text-[11px] text-evi-text-muted truncate max-w-[150px]">
-                      Por {article.author.name}
+                      Por {article.author?.name || 'Dr. Eduardo Veríssimo'}
                     </span>
                     <Link
                       href={`/blog/${article.slug}`}
@@ -229,6 +438,31 @@ export default function BlogPage() {
           </div>
         </div>
       </main>
+
+      {/* Modal de Edição de Post do Blog (CRUD) */}
+      <BlogPostEditModal
+        article={editingArticle}
+        isOpen={Boolean(editingArticle)}
+        onClose={() => setEditingArticle(null)}
+        onSave={handleArticleSaved}
+        onDelete={(art) => {
+          setItemToDelete(art);
+          setEditingArticle(null);
+        }}
+      />
+
+      {/* Modal de Confirmação de Exclusão (Estética do Site) */}
+      <ConfirmModal
+        isOpen={Boolean(itemToDelete)}
+        title="Excluir Artigo do Blog"
+        message={`Tem certeza que deseja excluir o artigo "${itemToDelete?.title}"? Esta ação removerá o artigo da listagem pública.`}
+        confirmLabel="Sim, Excluir Artigo"
+        cancelLabel="Cancelar"
+        variant="danger"
+        isLoading={isDeletingDirect}
+        onConfirm={confirmDeleteAction}
+        onCancel={() => setItemToDelete(null)}
+      />
     </>
   );
 }

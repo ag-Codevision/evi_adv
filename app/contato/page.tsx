@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
+import EditableText from '@/components/admin/EditableText';
+import EditableLink from '@/components/admin/EditableLink';
 
 export default function ContatoPage() {
   const [formData, setFormData] = useState({
@@ -30,13 +32,31 @@ export default function ContatoPage() {
         <div className="container max-w-6xl">
           {/* Header da Página */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="eyebrow justify-center mb-3">Canais Oficiais de Atendimento</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6">
-              Fale Conosco
-            </h1>
-            <p className="text-evi-text-light text-lg md:text-xl leading-relaxed">
-              Estamos sediados no bairro histórico do Ipiranga, em São Paulo, e prontos para atender você presencialmente ou por videoconferência em todo o Brasil.
-            </p>
+            <EditableText
+              page="contato"
+              section="header"
+              fieldKey="eyebrow"
+              defaultContent="Canais Oficiais de Atendimento"
+              as="span"
+              className="eyebrow justify-center mb-3"
+            />
+            <EditableText
+              page="contato"
+              section="header"
+              fieldKey="title"
+              defaultContent="Fale Conosco"
+              as="h1"
+              className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6"
+            />
+            <EditableText
+              page="contato"
+              section="header"
+              fieldKey="desc"
+              defaultContent="Estamos sediados no bairro histórico do Ipiranga, em São Paulo, e prontos para atender você presencialmente ou por videoconferência em todo o Brasil."
+              as="p"
+              className="text-evi-text-light text-lg md:text-xl leading-relaxed"
+              multiline
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
@@ -44,20 +64,35 @@ export default function ContatoPage() {
             <div className="lg:col-span-5 space-y-8">
               <div className="bg-white rounded-3xl border border-evi-border p-8 shadow-evi-card space-y-6">
                 <div>
-                  <span className="eyebrow mb-2">Sede Principal</span>
-                  <h2 className="text-2xl font-serif font-bold text-evi-deep">
-                    Ipiranga, São Paulo · SP
-                  </h2>
+                  <EditableText
+                    page="contato"
+                    section="sede"
+                    fieldKey="eyebrow"
+                    defaultContent="Sede Principal"
+                    as="span"
+                    className="eyebrow mb-2"
+                  />
+                  <EditableText
+                    page="contato"
+                    section="sede"
+                    fieldKey="title"
+                    defaultContent="Ipiranga, São Paulo · SP"
+                    as="h2"
+                    className="text-2xl font-serif font-bold text-evi-deep"
+                  />
                   <div className="flex items-start gap-3 text-evi-text-light text-sm mt-3 leading-relaxed">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-evi-accent flex-shrink-0 mt-0.5" aria-hidden="true">
                       <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                       <circle cx="12" cy="10" r="3" />
                     </svg>
-                    <div>
-                      Rua Costa Aguiar, nº 2432<br />
-                      Ipiranga, São Paulo – SP<br />
-                      CEP: 04204-002
-                    </div>
+                    <EditableText
+                      page="contato"
+                      section="sede"
+                      fieldKey="address"
+                      defaultContent="Rua Costa Aguiar, nº 2432 — Ipiranga, São Paulo – SP — CEP: 04204-002"
+                      as="div"
+                      multiline
+                    />
                   </div>
                 </div>
 
@@ -66,24 +101,30 @@ export default function ContatoPage() {
                     Telefones Fixos:
                   </h3>
                   <div className="flex flex-col gap-2.5 text-sm text-evi-text">
-                    <a href="tel:+551143623533" className="inline-flex items-center gap-2.5 hover:text-evi-accent font-semibold transition-colors">
-                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-evi-accent flex-shrink-0" aria-hidden="true">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                      </svg>
-                      <span>(11) 4362-3533</span>
-                    </a>
-                    <a href="tel:+551143675850" className="inline-flex items-center gap-2.5 hover:text-evi-accent transition-colors">
-                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 flex-shrink-0" aria-hidden="true">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                      </svg>
-                      <span>(11) 4367-5850</span>
-                    </a>
-                    <a href="tel:+551141773834" className="inline-flex items-center gap-2.5 hover:text-evi-accent transition-colors">
-                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 flex-shrink-0" aria-hidden="true">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                      </svg>
-                      <span>(11) 4177-3834</span>
-                    </a>
+                    <EditableLink
+                      page="contato"
+                      section="telefones"
+                      fieldKey="tel1"
+                      defaultLabel="(11) 4362-3533"
+                      defaultHref="tel:+551143623533"
+                      className="inline-flex items-center gap-2.5 hover:text-evi-accent font-semibold transition-colors"
+                    />
+                    <EditableLink
+                      page="contato"
+                      section="telefones"
+                      fieldKey="tel2"
+                      defaultLabel="(11) 4367-5850"
+                      defaultHref="tel:+551143675850"
+                      className="inline-flex items-center gap-2.5 hover:text-evi-accent transition-colors"
+                    />
+                    <EditableLink
+                      page="contato"
+                      section="telefones"
+                      fieldKey="tel3"
+                      defaultLabel="(11) 4177-3834"
+                      defaultHref="tel:+551141773834"
+                      className="inline-flex items-center gap-2.5 hover:text-evi-accent transition-colors"
+                    />
                   </div>
                 </div>
 
@@ -91,44 +132,60 @@ export default function ContatoPage() {
                   <h3 className="text-xs uppercase tracking-wider font-bold text-evi-deep">
                     WhatsApp Direto:
                   </h3>
-                  <a
-                    href="https://wa.me/5511991390045"
+                  <EditableLink
+                    page="contato"
+                    section="telefones"
+                    fieldKey="whatsapp"
+                    defaultLabel="(11) 99139-0045 →"
+                    defaultHref="https://wa.me/5511991390045"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2.5 text-sm font-bold text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 px-4 py-2.5 rounded-xl border border-green-200 transition-colors"
-                  >
-                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" className="text-green-600 flex-shrink-0" aria-hidden="true">
-                      <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.25a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.591-6.592 6.591zm3.615-4.934c-.197-.1-1.17-.578-1.353-.643-.182-.064-.315-.096-.445.1-.133.197-.514.643-.63.775-.116.133-.232.15-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.17-1.101-1.37-.116-.197-.013-.304.087-.403.09-.089.197-.232.296-.348.1-.116.133-.197.197-.33.064-.133.033-.25-.017-.348-.05-.1-.445-1.075-.61-1.47-.16-.389-.326-.336-.445-.343-.116-.007-.25-.007-.38-.007a.729.729 0 0 0-.527.245c-.182.197-.691.676-.691 1.648s.708 1.912.807 2.045c.1.133 1.394 2.13 3.38 2.99.473.204.84.326 1.129.416.473.15.904.129 1.244.078.38-.058 1.17-.48 1.337-.943.164-.464.164-.86.116-.943-.05-.084-.182-.133-.38-.232z" />
-                    </svg>
-                    <span>(11) 99139-0045</span>
-                    <span className="text-green-600 font-bold">→</span>
-                  </a>
+                  />
                 </div>
 
                 <div className="pt-4 border-t border-evi-border/60 space-y-2">
                   <h3 className="text-xs uppercase tracking-wider font-bold text-evi-deep">
                     E-mail Oficial:
                   </h3>
-                  <a href="mailto:contato@evi.adv.br" className="inline-flex items-center gap-2.5 text-sm font-semibold text-evi-deep hover:text-evi-accent transition-colors">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-evi-accent flex-shrink-0" aria-hidden="true">
-                      <rect width="20" height="16" x="2" y="4" rx="2" />
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                    <span>contato@evi.adv.br</span>
-                  </a>
+                  <EditableLink
+                    page="contato"
+                    section="email"
+                    fieldKey="email"
+                    defaultLabel="contato@evi.adv.br"
+                    defaultHref="mailto:contato@evi.adv.br"
+                    className="inline-flex items-center gap-2.5 text-sm font-semibold text-evi-deep hover:text-evi-accent transition-colors"
+                  />
                 </div>
               </div>
 
               {/* Card de Horários */}
               <div className="bg-evi-deep text-white rounded-3xl p-8 shadow-evi-card">
-                <h3 className="text-xl font-serif font-bold mb-2">Horário de Atendimento</h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                  Segunda a Sexta-feira: 08h30 às 18h00.<br />
-                  Plantão WhatsApp para situações urgentes e medidas cautelares.
-                </p>
-                <div className="text-xs text-evi-silver font-semibold uppercase tracking-wider">
-                  Atendimento com agendamento prévio
-                </div>
+                <EditableText
+                  page="contato"
+                  section="horarios"
+                  fieldKey="title"
+                  defaultContent="Horário de Atendimento"
+                  as="h3"
+                  className="text-xl font-serif font-bold mb-2"
+                />
+                <EditableText
+                  page="contato"
+                  section="horarios"
+                  fieldKey="desc"
+                  defaultContent="Segunda a Sexta-feira: 08h30 às 18h00. Plantão WhatsApp para situações urgentes e medidas cautelares."
+                  as="p"
+                  className="text-slate-300 text-sm leading-relaxed mb-4"
+                  multiline
+                />
+                <EditableText
+                  page="contato"
+                  section="horarios"
+                  fieldKey="notice"
+                  defaultContent="Atendimento com agendamento prévio"
+                  as="div"
+                  className="text-xs text-evi-silver font-semibold uppercase tracking-wider"
+                />
               </div>
             </div>
 

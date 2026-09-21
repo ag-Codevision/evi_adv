@@ -1,16 +1,66 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { getAllPressArticles, PressArticle } from '@/lib/press-data';
+import EditableText from '@/components/admin/EditableText';
+import PressAdminActions from '@/components/admin/PressAdminActions';
+import PressArticleEditModal from '@/components/admin/PressArticleEditModal';
+import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
+import { createClient } from '@/lib/supabase/client';
+import { Edit2, Trash2 } from 'lucide-react';
+import { deleteSiteContent } from '@/lib/site-content';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function ImprensaPage() {
-  const allArticles = getAllPressArticles();
+  const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
+  const [customArticles, setCustomArticles] = useState<PressArticle[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('Todas');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [editingArticle, setEditingArticle] = useState<PressArticle | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<PressArticle | null>(null);
+  const [isDeletingDirect, setIsDeletingDirect] = useState(false);
+
+  // Busca as matérias salvas no Supabase
+  const loadCustomArticles = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('site_contents')
+        .select('field_key, content_value')
+        .eq('page', 'imprensa')
+        .eq('section', 'custom_articles');
+
+      if (!error && data) {
+        const parsed: PressArticle[] = [];
+        data.forEach((row) => {
+          try {
+            if (row.content_value) {
+              const item = JSON.parse(row.content_value);
+              if (item && item.slug) {
+                parsed.push(item);
+              }
+            }
+          } catch (e) {
+            console.error('Erro ao analisar JSON de matéria:', e);
+          }
+        });
+        setCustomArticles(parsed);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar matérias do Supabase:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadCustomArticles();
+  }, []);
+
+  // Lista unificada com override de custom articles
+  const allArticles = getAllPressArticles(customArticles);
 
   const categories = [
     'Todas',
@@ -35,19 +85,74 @@ export default function ImprensaPage() {
     }
   };
 
+  const handleArticleAdded = (newArticle: PressArticle) => {
+    setCustomArticles((prev) => {
+      const filtered = prev.filter((a) => a.slug !== newArticle.slug);
+      return [newArticle, ...filtered];
+    });
+    setCurrentPage(1);
+  };
+
+  const handleArticleUpdated = (updatedArticle: PressArticle) => {
+    setCustomArticles((prev) => {
+      const filtered = prev.filter((a) => a.slug !== updatedArticle.slug);
+      return [updatedArticle, ...filtered];
+    });
+  };
+
+  const handleArticleDeleted = async (slug: string) => {
+    setCustomArticles((prev) => prev.filter((a) => a.slug !== slug));
+  };
+
+  const handleTriggerDelete = (item: PressArticle, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setItemToDelete(item);
+  };
+
+  const confirmDeleteAction = async () => {
+    if (!itemToDelete) return;
+
+    setIsDeletingDirect(true);
+    setStatusMessage('Excluindo matéria do banco de dados...');
+    const res = await deleteSiteContent({
+      page: 'imprensa',
+      section: 'custom_articles',
+      fieldKey: itemToDelete.slug,
+    });
+
+    setIsDeletingDirect(false);
+
+    if (res.success) {
+      setStatusMessage('Matéria excluída com sucesso!');
+      handleArticleDeleted(itemToDelete.slug);
+      setItemToDelete(null);
+      setTimeout(() => setStatusMessage(null), 2500);
+    } else {
+      setStatusMessage(`Erro ao excluir: ${res.error || 'Falha'}`);
+      setTimeout(() => setStatusMessage(null), 3500);
+    }
+  };
+
   const filteredArticles = allArticles.filter((item) => {
     if (activeCategory === 'Todas') return true;
     if (activeCategory === 'TV & Vídeos') {
-      return item.youtubeId || item.category.includes('TV');
+      return item.youtubeId || (item.category && item.category.includes('TV'));
     }
     if (activeCategory === 'Jornais & Imprensa') {
-      return item.outlet.includes('Jornal') || item.category.includes('Jornais');
+      return (item.outlet && item.outlet.includes('Jornal')) || (item.category && item.category.includes('Jornais'));
     }
     if (activeCategory === 'Revistas & Publicações') {
-      return item.outlet.includes('Magazine') || item.outlet.includes('Revista') || item.outlet.includes('IBI');
+      return (
+        (item.outlet && (item.outlet.includes('Magazine') || item.outlet.includes('Revista') || item.outlet.includes('IBI'))) ||
+        (item.category && item.category.includes('Revistas'))
+      );
     }
     if (activeCategory === 'Premiações & Homenagens') {
-      return item.category.includes('Premiações') || item.title.includes('Troféu') || item.title.includes('Prêmio');
+      return (
+        (item.category && item.category.includes('Premiações')) ||
+        (item.title && (item.title.includes('Troféu') || item.title.includes('Prêmio')))
+      );
     }
     return true;
   });
@@ -64,14 +169,35 @@ export default function ImprensaPage() {
         <div className="container max-w-6xl">
           {/* Header da Sala de Imprensa */}
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="eyebrow justify-center mb-3">Comunicação Oficial & Sala de Imprensa</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6 leading-tight">
-              A Voz do Direito nos Principais Veículos do País
-            </h1>
-            <p className="text-evi-text-light text-lg md:text-xl leading-relaxed">
-              Acompanhe a presença constante do <strong>Dr. Eduardo Veríssimo Inocente</strong> e da equipe da <strong>EVI Advogados</strong> em reportagens de TV, jornais de grande circulação, revistas internacionais e premiações jurídicas.
-            </p>
+            <EditableText
+              page="imprensa"
+              section="header"
+              fieldKey="eyebrow"
+              defaultContent="Comunicação Oficial & Sala de Imprensa"
+              as="span"
+              className="eyebrow justify-center mb-3"
+            />
+            <EditableText
+              page="imprensa"
+              section="header"
+              fieldKey="title"
+              defaultContent="A Voz do Direito nos Principais Veículos do País"
+              as="h1"
+              className="text-4xl md:text-5xl lg:text-6xl font-serif text-evi-deep font-bold tracking-tight mb-6 leading-tight"
+            />
+            <EditableText
+              page="imprensa"
+              section="header"
+              fieldKey="desc"
+              defaultContent="Acompanhe a presença constante do Dr. Eduardo Veríssimo Inocente e da equipe da EVI Advogados em reportagens de TV, jornais de grande circulação, revistas internacionais e premiações jurídicas."
+              as="p"
+              className="text-evi-text-light text-lg md:text-xl leading-relaxed"
+              multiline
+            />
           </div>
+
+          {/* Botão de Adicionar Novo Artigo de Imprensa (Visível no modo edição) */}
+          <PressAdminActions onArticleAdded={handleArticleAdded} />
 
           {/* Filtros por Categoria */}
           <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
@@ -103,13 +229,40 @@ export default function ImprensaPage() {
             )}
           </div>
 
-          {/* Grid de Matérias com 9 Cards por Página */}
+          {/* Grid de Matérias com 9 Cards por Página com CRUD Completo */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {paginatedArticles.map((item) => (
               <article
                 key={item.slug}
-                className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative"
               >
+                {/* Ações de Edição CRUD quando Admin estiver em modo edição */}
+                {isAdmin && isEditing && (
+                  <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700 shadow-xl">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setEditingArticle(item);
+                      }}
+                      className="p-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
+                      title="Editar Matéria (Título, Texto, Mídias)"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span className="text-[11px] font-semibold pr-0.5">Editar</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleTriggerDelete(item, e)}
+                      className="p-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-lg text-xs transition-colors"
+                      title="Excluir Matéria"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 <div>
                   {/* Foto de Capa da Matéria */}
                   <Link href={`/imprensa/${item.slug}`} className="block relative aspect-[16/10] overflow-hidden bg-slate-900 border-b border-evi-border">
@@ -122,7 +275,7 @@ export default function ImprensaPage() {
                     <div className="absolute top-3 left-3 bg-evi-deep/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       {item.outlet}
                     </div>
-                    {item.youtubeId && (
+                    {item.youtubeId && !isAdmin && (
                       <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md">
                         <span>▶ Vídeo</span>
                       </div>
@@ -166,10 +319,9 @@ export default function ImprensaPage() {
             ))}
           </div>
 
-          {/* Controles de Paginação (quando houver mais de 1 página) */}
+          {/* Controles de Paginação */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mb-16">
-              {/* Botão Anterior */}
               <button
                 type="button"
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -185,7 +337,6 @@ export default function ImprensaPage() {
                 <span className="hidden sm:inline">Anterior</span>
               </button>
 
-              {/* Botões das Páginas */}
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                   <button
@@ -205,7 +356,6 @@ export default function ImprensaPage() {
                 ))}
               </div>
 
-              {/* Botão Próximo */}
               <button
                 type="button"
                 onClick={() => handlePageChange(currentPage + 1)}
@@ -250,6 +400,33 @@ export default function ImprensaPage() {
           </div>
         </div>
       </main>
+
+      {/* Modal de Edição CRUD de Artigos Existentes */}
+      {editingArticle && (
+        <PressArticleEditModal
+          article={editingArticle}
+          onClose={() => setEditingArticle(null)}
+          onSave={handleArticleUpdated}
+          onDelete={handleArticleDeleted}
+        />
+      )}
+
+      {/* Modal de Confirmação com a Estética do Site */}
+      <ConfirmModal
+        isOpen={Boolean(itemToDelete)}
+        title="Excluir Matéria de Imprensa"
+        message={
+          itemToDelete
+            ? `Tem certeza que deseja excluir a matéria "${itemToDelete.title}"? Esta ação removerá o artigo do banco de dados.`
+            : ''
+        }
+        confirmLabel="Sim, Excluir Matéria"
+        cancelLabel="Cancelar"
+        variant="danger"
+        isLoading={isDeletingDirect}
+        onConfirm={confirmDeleteAction}
+        onCancel={() => setItemToDelete(null)}
+      />
     </>
   );
 }

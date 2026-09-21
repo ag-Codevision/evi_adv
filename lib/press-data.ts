@@ -383,14 +383,36 @@ export const pressArticles: PressArticle[] = [
   }
 ];
 
-export function getAllPressArticles(): PressArticle[] {
-  return pressArticles;
+export function getAllPressArticles(customArticles: PressArticle[] = []): PressArticle[] {
+  if (!customArticles || customArticles.length === 0) {
+    return pressArticles;
+  }
+
+  // Cria um mapa onde os artigos customizados do banco têm prioridade sobre os estáticos
+  const map = new Map<string, PressArticle>();
+
+  // 1. Adiciona os customizados do banco primeiro (incluindo novos e editados)
+  customArticles.forEach((art) => {
+    map.set(art.slug, art);
+  });
+
+  // 2. Adiciona os estáticos se não foram sobrepostos por edição
+  pressArticles.forEach((art) => {
+    if (!map.has(art.slug)) {
+      map.set(art.slug, art);
+    }
+  });
+
+  return Array.from(map.values());
 }
 
-export function getPressArticleBySlug(slug: string): PressArticle | undefined {
-  return pressArticles.find((a) => a.slug === slug);
+export function getPressArticleBySlug(slug: string, customArticles: PressArticle[] = []): PressArticle | undefined {
+  const all = getAllPressArticles(customArticles);
+  return all.find((a) => a.slug === slug);
 }
 
-export function getRelatedPressArticles(currentSlug: string, count: number = 3): PressArticle[] {
-  return pressArticles.filter((a) => a.slug !== currentSlug).slice(0, count);
+export function getRelatedPressArticles(currentSlug: string, count: number = 3, customArticles: PressArticle[] = []): PressArticle[] {
+  const all = getAllPressArticles(customArticles);
+  return all.filter((a) => a.slug !== currentSlug).slice(0, count);
 }
+

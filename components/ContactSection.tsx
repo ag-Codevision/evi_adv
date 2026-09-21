@@ -1,23 +1,29 @@
+'use client';
+
 import React from 'react';
+import EditableText from './admin/EditableText';
+import EditableLink from './admin/EditableLink';
 
 export default function ContactSection() {
   return (
     <section className="contact" id="contato">
       <div className="container contact-panel">
         <div className="contact-copy motion-item" data-motion="left">
-          <span className="eyebrow">Contato</span>
-          <h2>Converse com o escritório.</h2>
-          <p>
-            Apresente sua necessidade pelos canais oficiais e receba orientação sobre o atendimento.
-          </p>
+          <EditableText page="home" section="contact" fieldKey="eyebrow" defaultContent="Contato" as="span" className="eyebrow" />
+          <EditableText page="home" section="contact" fieldKey="heading" defaultContent="Converse com o escritório." as="h2" />
+          <EditableText page="home" section="contact" fieldKey="desc" defaultContent="Apresente sua necessidade pelos canais oficiais e receba orientação sobre o atendimento." as="p" className="section-subtitle" multiline />
           <div className="contact-list">
-            <a href="tel:+551143623533">Telefone · (11) 4362-3533</a>
-            <a href="mailto:contato@evi.adv.br">contato@evi.adv.br</a>
-            <span>Atendimento em todo o território nacional</span>
+            <EditableLink page="home" section="contact" fieldKey="phone" defaultLabel="Telefone · (11) 4362-3533" defaultHref="tel:+551143623533" />
+            <EditableLink page="home" section="contact" fieldKey="email" defaultLabel="contato@evi.adv.br" defaultHref="mailto:contato@evi.adv.br" />
+            <EditableText page="home" section="contact" fieldKey="badge" defaultContent="Atendimento em todo o território nacional" as="span" />
           </div>
-          <a
+          <EditableLink
+            page="home"
+            section="contact"
+            fieldKey="wa_link"
+            defaultLabel="Iniciar conversa"
+            defaultHref="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
             className="btn btn-wa"
-            href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -28,7 +34,7 @@ export default function ContactSection() {
               />
             </svg>
             <span>Iniciar conversa</span>
-          </a>
+          </EditableLink>
         </div>
         <iframe
           className="motion-item"

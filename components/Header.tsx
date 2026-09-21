@@ -19,6 +19,9 @@ import {
   ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
+import EditableText from './admin/EditableText';
+import EditableMedia from './admin/EditableMedia';
+import EditableLink from './admin/EditableLink';
 
 export interface NavLinkItem {
   label: string;
@@ -192,12 +195,16 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
         <div className="container">
           {/* Mobile Header Bar: Logotipo no Centro e Menu Hambúrguer no Lado Direito */}
           <div className="lg:hidden mobile-header-bar">
-            <Link href="/" className="mobile-header-logo" aria-label="EVI Advogados - Início">
-              <img
-                src="/assets/logo.png"
+            <div className="mobile-header-logo">
+              <EditableMedia
+                page="global"
+                section="header"
+                fieldKey="mobile_logo"
+                defaultSrc="/assets/logo.png"
                 alt="EVI Sociedade de Advogados"
+                className="max-h-9 w-auto"
               />
-            </Link>
+            </div>
 
             <button
               type="button"
@@ -227,15 +234,16 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
               ))}
             </div>
 
-            <Link href="/" className="brand-center" aria-label="EVI Sociedade de Advogados - Página Inicial">
-              <img
-                src="/assets/logo.png"
+            <div className="brand-center">
+              <EditableMedia
+                page="global"
+                section="header"
+                fieldKey="desktop_logo"
+                defaultSrc="/assets/logo.png"
                 alt="EVI Sociedade de Advogados"
                 className="max-h-[52px] w-auto object-contain transition-all duration-350"
-                width={180}
-                height={52}
               />
-            </Link>
+            </div>
 
             <div className="nav-side nav-right">
               {finalRight.map((item, idx) => (
@@ -354,50 +362,63 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                     </span>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
-                      Plantão Jurídico VIP
-                    </span>
+                    <EditableText
+                      page="global"
+                      section="header"
+                      fieldKey="wa_title"
+                      defaultContent="Plantão Jurídico VIP"
+                      as="span"
+                      className="text-xs font-semibold uppercase tracking-wider text-emerald-800"
+                    />
                   </div>
                   <span className="text-[0.7rem] bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded-full">
                     Online agora
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Fale com um advogado especialista e receba orientação jurídica estratégica.
-                </p>
-                <a
-                  href="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
+                <EditableText
+                  page="global"
+                  section="header"
+                  fieldKey="wa_desc"
+                  defaultContent="Fale com um advogado especialista e receba orientação jurídica estratégica."
+                  as="p"
+                  className="text-xs text-slate-600 leading-relaxed"
+                  multiline
+                />
+                <EditableLink
+                  page="global"
+                  section="header"
+                  fieldKey="wa_link"
+                  defaultLabel="Atendimento Rápido pelo WhatsApp"
+                  defaultHref="https://wa.me/5511991390045?text=Ol%C3%A1%2C%20encontrei%20o%20site%20e%20gostaria%20de%20receber%20uma%20orienta%C3%A7%C3%A3o%20jur%C3%ADdica."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="md3-ripple-container btn btn-wa w-full py-3 text-center justify-center text-xs font-bold rounded-xl shadow-md flex items-center gap-2"
-                  onClick={(e) => {
-                    triggerInkRipple(e);
-                    handleCloseMenu(e);
-                  }}
-                >
-                  <span>Atendimento Rápido pelo WhatsApp</span>
-                </a>
+                />
               </div>
 
               {/* Ações Rápidas de Contato */}
               <div className="md3-stagger-item grid grid-cols-2 gap-2 pt-1" style={{ animationDelay: '0.40s' }}>
-                <a
-                  href="tel:+551143623533"
+                <EditableLink
+                  page="global"
+                  section="header"
+                  fieldKey="phone"
+                  defaultLabel="(11) 4362-3533"
+                  defaultHref="tel:+551143623533"
                   className="md3-ripple-container flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-evi-deep text-xs font-medium"
-                  onClick={triggerInkRipple}
                 >
                   <PhoneCall className="w-3.5 h-3.5 text-evi-accent" />
-                  <span>(11) 4362-3533</span>
-                </a>
+                </EditableLink>
 
-                <a
-                  href="mailto:contato@evi.adv.br"
+                <EditableLink
+                  page="global"
+                  section="header"
+                  fieldKey="email"
+                  defaultLabel="contato@evi.adv.br"
+                  defaultHref="mailto:contato@evi.adv.br"
                   className="md3-ripple-container flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-evi-deep text-xs font-medium truncate"
-                  onClick={triggerInkRipple}
                 >
                   <Mail className="w-3.5 h-3.5 text-evi-accent flex-shrink-0" />
-                  <span className="truncate">contato@evi.adv.br</span>
-                </a>
+                </EditableLink>
               </div>
             </div>
 
