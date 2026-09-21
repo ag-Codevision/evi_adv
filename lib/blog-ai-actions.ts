@@ -133,12 +133,94 @@ export async function saveBlogAiConfig(config: BlogAiConfig): Promise<{ success:
 }
 
 /**
+ * Parser resiliente para JSONs gerados por modelos de inteligência artificial
+ */
+function parseJsonFromAi(raw: string): any {
+  if (!raw) throw new Error('Conteúdo vazio retornado pela IA');
+
+  let cleaned = raw.trim();
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '');
+  }
+
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (!match) {
+    throw new Error('Nenhum objeto JSON delimitado por { } foi encontrado na resposta da IA.');
+  }
+
+  const jsonStr = match[0];
+
+  // Tentativa 1: Parse direto padrão
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e1) {
+    // Tentativa 2: Sanitização de quebras de linha e caracteres de controle literais dentro de strings
+    try {
+      const sanitized = jsonStr.replace(/"((?:[^"\\]|\\.)*)"/gs, (_, strContent) => {
+        const fixed = strContent
+          .replace(/\r\n/g, '\\n')
+          .replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\n')
+          .replace(/\t/g, '\\t');
+        return `"${fixed}"`;
+      });
+      return JSON.parse(sanitized);
+    } catch (e2) {
+      // Tentativa 3: Extração individual de campos por Regex caso o JSON esteja truncado
+      const getField = (field: string) => {
+        const fieldRegex = new RegExp(`"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`, 's');
+        const m = jsonStr.match(fieldRegex);
+        if (m) {
+          return m[1]
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+        }
+        const looseRegex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)(?="\\s*,\\s*"|"[\\s\\S]*?\\}\\s*$)`, 's');
+        const m2 = jsonStr.match(looseRegex);
+        return m2 ? m2[1] : '';
+      };
+
+      const title = getField('title');
+      const slug = getField('slug');
+      const excerpt = getField('excerpt');
+      const content = getField('content');
+      const reading_time = parseInt((jsonStr.match(/"reading_time"\s*:\s*(\d+)/) || [])[1] || '6', 10);
+      const seo_title = getField('seo_title');
+      const seo_description = getField('seo_description');
+
+      if (title && content) {
+        return {
+          title,
+          slug:
+            slug ||
+            title
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^\w\s-]/g, '')
+              .trim()
+              .replace(/\s+/g, '-'),
+          excerpt: excerpt || title,
+          content,
+          reading_time,
+          seo_title: seo_title || title.slice(0, 60),
+          seo_description: seo_description || excerpt?.slice(0, 155) || title.slice(0, 155),
+        };
+      }
+      throw e2;
+    }
+  }
+}
+
+/**
  * Dispara manualmente a criação e publicação imediata de um artigo com o assistente de IA.
  */
 export async function generateArticleNow(targetCategorySlug?: string, customThemePrompt?: string): Promise<{
   success: boolean;
   error?: string;
   article?: any;
+  modelUsed?: string;
 }> {
   try {
     const supabase = createClient();
@@ -149,12 +231,11 @@ export async function generateArticleNow(targetCategorySlug?: string, customThem
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return { success: false, error: 'Acesso negado.' };
+      return { success: false, error: 'Acesso negado. Apenas administradores autenticados podem gerar artigos.' };
     }
 
     const config = await getBlogAiConfig();
     const nvidiaKey = process.env.NVIDIA_API_KEY;
-    const nvidiaModel = process.env.NVIDIA_MODEL || 'meta/llama-3.2-90b-vision-instruct';
 
     if (!nvidiaKey) {
       return { success: false, error: 'NVIDIA_API_KEY não configurada no servidor.' };
@@ -201,42 +282,95 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
   "seo_description": "Meta description persuasiva até 155 caracteres"
 }`;
 
-    const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${nvidiaKey}`,
-      },
-      body: JSON.stringify({
-        model: nvidiaModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.35,
-        max_tokens: 3500,
-      }),
-    });
+    // Fila inteligente de modelos com fallback automático
+    const configuredModel = process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct';
+    const modelCandidates = [
+      configuredModel,
+      'meta/llama-3.2-11b-vision-instruct',
+      'google/diffusiongemma-26b-a4b-it',
+      'meta/llama-3.2-90b-vision-instruct',
+    ].filter(Boolean);
 
-    if (!res.ok) {
-      const errText = await res.text();
-      return { success: false, error: `Erro na API de IA: ${errText}` };
+    const uniqueModels = [...new Set(modelCandidates)];
+    let generated: any = null;
+    let successfulModel = '';
+    const failureLog: string[] = [];
+
+    console.log(`[Blog IA] Iniciando geração. Fila de modelos: ${uniqueModels.join(' -> ')}`);
+
+    for (let i = 0; i < uniqueModels.length; i++) {
+      const currentModel = uniqueModels[i];
+      const modelStartTime = Date.now();
+      console.log(`[Blog IA] [${i + 1}/${uniqueModels.length}] Tentando modelo: ${currentModel}...`);
+
+      const controller = new AbortController();
+      // Timeout de 40s por modelo para não deixar travar
+      const timeoutId = setTimeout(() => controller.abort(), 40000);
+
+      try {
+        const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${nvidiaKey}`,
+          },
+          body: JSON.stringify({
+            model: currentModel,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.35,
+            max_tokens: 3500,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          throw new Error(`HTTP ${res.status}: ${errText.slice(0, 150)}`);
+        }
+
+        const aiData = await res.json();
+        const rawContent = aiData.choices?.[0]?.message?.content || '';
+
+        if (!rawContent) {
+          throw new Error('Resposta vazia da API');
+        }
+
+        generated = parseJsonFromAi(rawContent);
+
+        if (!generated || !generated.title || !generated.content) {
+          throw new Error('JSON retornado não contém os campos title e content');
+        }
+
+        successfulModel = currentModel;
+        console.log(
+          `[Blog IA] Sucesso com o modelo "${currentModel}" em ${Date.now() - modelStartTime}ms. Título: "${generated.title}"`
+        );
+        break; // Sucesso obtido! Sai da fila e prossegue para as imagens e banco
+      } catch (modelErr: any) {
+        clearTimeout(timeoutId);
+        const errMsg = modelErr?.name === 'AbortError' ? 'Timeout de 40s excedido' : modelErr?.message || 'Erro desconhecido';
+        console.warn(`[Blog IA] Modelo "${currentModel}" falhou (${errMsg}).`);
+        failureLog.push(`${currentModel}: ${errMsg}`);
+      }
     }
 
-    const aiData = await res.json();
-    const rawContent = aiData.choices?.[0]?.message?.content || '';
-    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-
-    if (!jsonMatch) {
-      return { success: false, error: 'A IA não retornou um formato JSON válido.' };
+    if (!generated) {
+      return {
+        success: false,
+        error: `Não foi possível gerar o artigo com os modelos disponíveis na fila. Detalhes: ${failureLog.join(' | ')}`,
+      };
     }
 
-    const generated = JSON.parse(jsonMatch[0]);
-
-    // 3. Busca imagens temáticas (Capa + 2 de corpo)
+    // 3. Busca imagens temáticas (Capa + 2 de corpo) no Unsplash
+    console.log('[Blog IA] Selecionando fotos temáticas de alta resolução no Unsplash...');
     const images = await fetchTopicImages(selectedCategory.slug, selectedCategory.keywords || []);
 
-    // 4. Injeta as 2 imagens no corpo do artigo
+    // 4. Injeta as 2 imagens no corpo do artigo de forma elegante
     const fig1 = `
 <figure class="my-8 rounded-2xl overflow-hidden border border-slate-700/60 bg-slate-900/60 shadow-lg">
   <img src="${images.body1.url}" alt="${images.body1.caption}" class="w-full h-auto max-h-[500px] object-cover" loading="lazy" />
@@ -315,6 +449,7 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
     return {
       success: true,
       article: post,
+      modelUsed: successfulModel,
     };
   } catch (err: any) {
     console.error('Erro na automação do artigo:', err);

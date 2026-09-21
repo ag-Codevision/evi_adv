@@ -47,6 +47,81 @@ function injectBodyImages(htmlContent, body1, body2) {
   return htmlContent + '\n' + fig1 + '\n' + fig2;
 }
 
+function parseJsonFromAi(raw) {
+  if (!raw) throw new Error('Conteúdo vazio retornado pela IA');
+
+  let cleaned = raw.trim();
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '');
+  }
+
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (!match) {
+    throw new Error('Nenhum objeto JSON delimitado por { } foi encontrado na resposta da IA.');
+  }
+
+  const jsonStr = match[0];
+
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e1) {
+    try {
+      const sanitized = jsonStr.replace(/"((?:[^"\\]|\\.)*)"/gs, (_, strContent) => {
+        const fixed = strContent
+          .replace(/\r\n/g, '\\n')
+          .replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\n')
+          .replace(/\t/g, '\\t');
+        return `"${fixed}"`;
+      });
+      return JSON.parse(sanitized);
+    } catch (e2) {
+      const getField = (field) => {
+        const fieldRegex = new RegExp(`"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`, 's');
+        const m = jsonStr.match(fieldRegex);
+        if (m) {
+          return m[1]
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+        }
+        const looseRegex = new RegExp(`"${field}"\\s*:\\s*"([\\s\\S]*?)(?="\\s*,\\s*"|"[\\s\\S]*?\\}\\s*$)`, 's');
+        const m2 = jsonStr.match(looseRegex);
+        return m2 ? m2[1] : '';
+      };
+
+      const title = getField('title');
+      const slug = getField('slug');
+      const excerpt = getField('excerpt');
+      const content = getField('content');
+      const reading_time = parseInt((jsonStr.match(/"reading_time"\s*:\s*(\d+)/) || [])[1] || '6', 10);
+      const seo_title = getField('seo_title');
+      const seo_description = getField('seo_description');
+
+      if (title && content) {
+        return {
+          title,
+          slug:
+            slug ||
+            title
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^\w\s-]/g, '')
+              .trim()
+              .replace(/\s+/g, '-'),
+          excerpt: excerpt || title,
+          content,
+          reading_time,
+          seo_title: seo_title || title.slice(0, 60),
+          seo_description: seo_description || excerpt?.slice(0, 155) || title.slice(0, 155),
+        };
+      }
+      throw e2;
+    }
+  }
+}
+
 async function generateLegalArticle(topic) {
   const systemPrompt = `Você é o Dr. Eduardo Veríssimo Inocente, advogado sócio-fundador da EVI Sociedade de Advogados (OAB/SP 200.334), com mais de 25 anos de atuação de vanguarda no Direito Empresarial brasileiro, referência em Recuperação Judicial, Agronegócio e Contencioso Estratégico.
 
@@ -78,36 +153,75 @@ Entregue a resposta no formato JSON estrito com a seguinte estrutura (sem markdo
   "seo_description": "Meta description persuasiva até 155 caracteres"
 }`;
 
-  const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${nvidiaKey}`,
-    },
-    body: JSON.stringify({
-      model: nvidiaModel,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.35,
-      max_tokens: 3500,
-    }),
-  });
+  const configuredModel = process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct';
+  const modelCandidates = [
+    configuredModel,
+    'meta/llama-3.2-11b-vision-instruct',
+    'google/diffusiongemma-26b-a4b-it',
+    'meta/llama-3.2-90b-vision-instruct',
+  ].filter(Boolean);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Erro na chamada da NVIDIA API: ${response.status} - ${errorText}`);
+  const uniqueModels = [...new Set(modelCandidates)];
+  let article = null;
+  const failureLog = [];
+
+  for (let i = 0; i < uniqueModels.length; i++) {
+    const currentModel = uniqueModels[i];
+    const modelStart = Date.now();
+    console.log(`[Robô Editorial] [${i + 1}/${uniqueModels.length}] Tentando modelo: ${currentModel}...`);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 40000);
+
+    try {
+      const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${nvidiaKey}`,
+        },
+        body: JSON.stringify({
+          model: currentModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.35,
+          max_tokens: 3500,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}: ${errText.slice(0, 150)}`);
+      }
+
+      const data = await response.json();
+      const rawContent = data.choices[0]?.message?.content;
+      article = parseJsonFromAi(rawContent);
+
+      if (!article || !article.title || !article.content) {
+        throw new Error('JSON não possui title ou content válidos');
+      }
+
+      console.log(`[Robô Editorial] Sucesso com "${currentModel}" em ${Date.now() - modelStart}ms!`);
+      break;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      const errMsg = err?.name === 'AbortError' ? 'Timeout de 40s excedido' : err?.message || 'Erro';
+      console.warn(`[Robô Editorial] Modelo "${currentModel}" falhou (${errMsg}).`);
+      failureLog.push(`${currentModel}: ${errMsg}`);
+    }
   }
 
-  const data = await response.json();
-  const rawContent = data.choices[0]?.message?.content;
-  const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('Falha ao interpretar resposta JSON da NVIDIA API: ' + rawContent);
+  if (!article) {
+    throw new Error(`Falha em todos os modelos da fila. Detalhes: ${failureLog.join(' | ')}`);
   }
 
-  return JSON.parse(jsonMatch[0]);
+  return article;
 }
 
 async function run() {

@@ -30,6 +30,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SECRET_KEY }}
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-          NVIDIA_MODEL: 'meta/llama-3.2-90b-vision-instruct'
+          NVIDIA_MODEL: ${{ secrets.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct' }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY || secrets.UNSPLASH_Access_Key }}
         run: node scripts/generate-article.mjs

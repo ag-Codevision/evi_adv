@@ -83,6 +83,77 @@ const CURATED_IMAGES: Record<string, { url: string; caption: string }[]> = {
   ],
 };
 
+export async function fetchTopicImages(categorySlug: string = '', keywords: string[] = []): Promise<ArticleImages> {
+  const unsplashKey =
+    process.env.UNSPLASH_ACCESS_KEY ||
+    process.env.UNSPLASH_Access_Key ||
+    process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+
+  if (unsplashKey) {
+    try {
+      let englishQuery = 'corporate business law';
+      const catLower = (categorySlug || '').toLowerCase();
+
+      if (catLower.includes('agro')) {
+        englishQuery = 'agribusiness farming agriculture field';
+      } else if (catLower.includes('recupera') || catLower.includes('falencia')) {
+        englishQuery = 'business finance restructuring negotiation';
+      } else if (catLower.includes('socie') || catLower.includes('contrato')) {
+        englishQuery = 'corporate boardroom executive handshake contract';
+      } else if (catLower.includes('tribut')) {
+        englishQuery = 'tax financial audit documents calculator';
+      } else if (catLower.includes('imob')) {
+        englishQuery = 'commercial real estate building modern architecture';
+      } else if (catLower.includes('medico')) {
+        englishQuery = 'healthcare clinic hospital compliance';
+      } else if (keywords && keywords.length > 0) {
+        englishQuery = keywords[0].replace(/-/g, ' ');
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch(
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+          englishQuery
+        )}&orientation=landscape&per_page=6&client_id=${unsplashKey.trim()}`,
+        { signal: controller.signal }
+      );
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results && data.results.length >= 3) {
+          const cap1 =
+            data.results[1].description ||
+            data.results[1].alt_description ||
+            'Alinhamento técnico e análise documental estratégica.';
+          const cap2 =
+            data.results[2].description ||
+            data.results[2].alt_description ||
+            'Segurança jurídica e governança corporativa no cenário brasileiro.';
+
+          return {
+            cover: data.results[0].urls.regular,
+            body1: {
+              url: data.results[1].urls.regular,
+              caption: cap1.length > 110 ? cap1.slice(0, 107) + '...' : cap1,
+            },
+            body2: {
+              url: data.results[2].urls.regular,
+              caption: cap2.length > 110 ? cap2.slice(0, 107) + '...' : cap2,
+            },
+          };
+        }
+      }
+    } catch (e: any) {
+      console.warn('Aviso: Unsplash API não respondeu a tempo, acionando curadoria fotográfica nativa:', e?.message || e);
+    }
+  }
+
+  return getCuratedImages(categorySlug);
+}
+
 export function getCuratedImages(categorySlug: string): ArticleImages {
   let catKey = 'recuperacao';
   if (categorySlug.includes('agro')) catKey = 'agronegocio';

@@ -191,17 +191,40 @@ export default function BlogAiAssistantModal({
     }
   };
 
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [createdArticle, setCreatedArticle] = useState<any>(null);
+
+  // Timer para feedback em tempo real durante a geração imediata
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (generatingNow) {
+      setElapsedSeconds(0);
+      interval = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [generatingNow]);
+
   const handleGenerateNow = async () => {
     setGeneratingNow(true);
     setError(null);
-    setStatusMessage('Criando artigo com IA e selecionando fotos do Unsplash...');
+    setCreatedArticle(null);
+    setStatusMessage('Assistente de IA redigindo artigo e consultando fotos do Unsplash...');
 
     const res = await generateArticleNow(manualCategory, manualTheme);
 
     setGeneratingNow(false);
 
     if (res.success) {
-      setSuccessMessage(`Artigo publicado com sucesso! "${res.article?.title}"`);
+      setCreatedArticle(res.article);
+      setSuccessMessage(
+        `Artigo publicado com sucesso! "${res.article?.title}" (Processado via ${res.modelUsed || 'NVIDIA NIM'})`
+      );
       setStatusMessage(null);
       if (onArticleGenerated) {
         onArticleGenerated();
@@ -209,9 +232,9 @@ export default function BlogAiAssistantModal({
       setTimeout(() => {
         setSuccessMessage(null);
         window.location.reload();
-      }, 2500);
+      }, 3500);
     } else {
-      setError(res.error || 'Falha ao gerar artigo.');
+      setError(res.error || 'Falha ao gerar artigo. Verifique as configurações de IA.');
       setStatusMessage(null);
     }
   };
@@ -643,12 +666,12 @@ export default function BlogAiAssistantModal({
                         type="button"
                         onClick={handleGenerateNow}
                         disabled={generatingNow}
-                        className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xl shadow-emerald-950/40 transition-all active:scale-95 disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 py-3.5 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xl shadow-emerald-950/40 transition-all active:scale-95 disabled:opacity-50"
                       >
                         {generatingNow ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Redigindo Artigo e Selecionando Imagens...</span>
+                            <span>Processando Artigo com IA ({elapsedSeconds}s)...</span>
                           </>
                         ) : (
                           <>
@@ -658,16 +681,106 @@ export default function BlogAiAssistantModal({
                         )}
                       </button>
 
-                      {/* Status de processamento ativo com alerta */}
+                      {/* Status de processamento ativo com fases dinâmicas e cronômetro */}
                       {generatingNow && (
-                        <div className="p-3.5 bg-sky-950/80 border border-sky-500/40 rounded-xl flex items-center gap-3 animate-pulse">
-                          <Loader2 className="w-5 h-5 text-sky-400 animate-spin shrink-0" />
-                          <div className="text-xs text-sky-200">
-                            <strong className="block text-white font-semibold">
-                              Robô de IA trabalhando em tempo real...
-                            </strong>
-                            <span className="text-[11px]">
-                              Por favor, <strong>não feche este modal</strong>. O artigo está sendo gravado no banco de dados e a página atualizará em instantes.
+                        <div className="p-4 bg-slate-900 border border-sky-500/50 rounded-2xl shadow-xl space-y-3 animate-fade-in">
+                          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <div className="flex items-center gap-2 text-xs font-bold text-sky-400">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Assistente Editorial em Ação</span>
+                            </div>
+                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-sky-950 text-sky-300 border border-sky-700/60">
+                              ⏱ {elapsedSeconds}s decorridos
+                            </span>
+                          </div>
+
+                          {/* Fases visuais dinâmicas baseadas no tempo */}
+                          <div className="space-y-2 text-xs">
+                            <div className="flex items-center gap-2 text-slate-300">
+                              <span
+                                className={`w-2 h-2 rounded-full ${
+                                  elapsedSeconds < 20 ? 'bg-sky-400 animate-pulse' : 'bg-emerald-400'
+                                }`}
+                              />
+                              <span className={elapsedSeconds < 20 ? 'text-white font-medium' : 'text-slate-400'}>
+                                {elapsedSeconds < 20
+                                  ? '1. Redigindo artigo jurídico e fundamentações com IA...'
+                                  : '✓ Artigo redigido com sucesso'}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-slate-300">
+                              <span
+                                className={`w-2 h-2 rounded-full ${
+                                  elapsedSeconds >= 20 && elapsedSeconds < 28
+                                    ? 'bg-amber-400 animate-pulse'
+                                    : elapsedSeconds >= 28
+                                    ? 'bg-emerald-400'
+                                    : 'bg-slate-700'
+                                }`}
+                              />
+                              <span
+                                className={
+                                  elapsedSeconds >= 20 && elapsedSeconds < 28
+                                    ? 'text-amber-200 font-medium'
+                                    : elapsedSeconds >= 28
+                                    ? 'text-slate-400'
+                                    : 'text-slate-500'
+                                }
+                              >
+                                {elapsedSeconds >= 28
+                                  ? '✓ Fotos do Unsplash obtidas e diagramadas'
+                                  : elapsedSeconds >= 20
+                                  ? '2. Consultando Unsplash e selecionando fotografias profissionais...'
+                                  : '2. Curadoria fotográfica no Unsplash'}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-slate-300">
+                              <span
+                                className={`w-2 h-2 rounded-full ${
+                                  elapsedSeconds >= 28 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-700'
+                                }`}
+                              />
+                              <span
+                                className={
+                                  elapsedSeconds >= 28 ? 'text-emerald-300 font-medium' : 'text-slate-500'
+                                }
+                              >
+                                3. Salvando dados e registrando publicação no Supabase...
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+                            <span>🛡️ Sistema de redundância ativo (fila de modelos resiliente)</span>
+                            <span>Mantenha esta janela aberta</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Card de sucesso com link quando o artigo é criado */}
+                      {createdArticle && (
+                        <div className="p-4 bg-emerald-950/70 border border-emerald-500/60 rounded-2xl space-y-2 animate-fade-in">
+                          <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            <span>Artigo Gravado e Publicado com Sucesso!</span>
+                          </div>
+                          <p className="text-white text-xs font-serif font-bold line-clamp-1">
+                            {createdArticle.title}
+                          </p>
+                          <div className="pt-1 flex items-center gap-3">
+                            <a
+                              href={`/blog/${createdArticle.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                            >
+                              <span>Visualizar no Blog</span>
+                              <span>↗</span>
+                            </a>
+                            <span className="text-[11px] text-slate-400">
+                              A página recarregará em instantes...
                             </span>
                           </div>
                         </div>
