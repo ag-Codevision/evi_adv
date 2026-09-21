@@ -1,43 +1,94 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { createClient } from '../../../lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Loader2, Clock } from 'lucide-react';
 import Link from 'next/link';
 
-export default function AdminLoginPage() {
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 60 * 1000; // 60 segundos de bloqueio temporário
+
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  // Verifica bloqueio prévio e parâmetros de URL na montagem
+  useEffect(() => {
+    if (searchParams.get('error') === 'unauthorized') {
+      setErrorMsg('Acesso restrito: sua conta não possui privilégios de administrador.');
+    }
+
+    const checkLockout = () => {
+      const storedLockout = localStorage.getItem('evi_admin_lockout_until');
+      if (storedLockout) {
+        const lockoutTime = parseInt(storedLockout, 10);
+        const now = Date.now();
+        if (now < lockoutTime) {
+          setLockoutRemaining(Math.ceil((lockoutTime - now) / 1000));
+        } else {
+          localStorage.removeItem('evi_admin_lockout_until');
+          localStorage.removeItem('evi_admin_failed_attempts');
+          setLockoutRemaining(0);
+        }
+      }
+    };
+
+    checkLockout();
+    const interval = setInterval(checkLockout, 1000);
+    return () => clearInterval(interval);
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (lockoutRemaining > 0) return;
+
     setLoading(true);
     setErrorMsg(null);
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: cleanEmail,
         password,
       });
 
       if (error) {
-        setErrorMsg('Credenciais inválidas ou e-mail não autorizado.');
+        // Registra tentativa falha e calcula lockout
+        const currentAttempts = parseInt(localStorage.getItem('evi_admin_failed_attempts') || '0', 10) + 1;
+        localStorage.setItem('evi_admin_failed_attempts', currentAttempts.toString());
+
+        if (currentAttempts >= MAX_FAILED_ATTEMPTS) {
+          const lockoutUntil = Date.now() + LOCKOUT_DURATION_MS;
+          localStorage.setItem('evi_admin_lockout_until', lockoutUntil.toString());
+          setLockoutRemaining(Math.ceil(LOCKOUT_DURATION_MS / 1000));
+          setErrorMsg(`Muitas tentativas incorretas. Por segurança, o acesso foi temporariamente suspenso por 60 segundos.`);
+        } else {
+          const attemptsLeft = MAX_FAILED_ATTEMPTS - currentAttempts;
+          setErrorMsg(`Credenciais inválidas. ${attemptsLeft} tentativa(s) restante(s) antes do bloqueio temporário.`);
+        }
+
         setLoading(false);
         return;
       }
 
+      // Sucesso na autenticação: limpa tentativas e redireciona
+      localStorage.removeItem('evi_admin_failed_attempts');
+      localStorage.removeItem('evi_admin_lockout_until');
+
       if (data.session) {
-        // Redireciona para o site com o modo de edição ativo
         router.push('/');
         router.refresh();
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Erro inesperado ao realizar login.');
+      setErrorMsg('Falha de conexão ou erro no servidor de autenticação.');
       setLoading(false);
     }
   };
@@ -85,10 +136,11 @@ export default function AdminLoginPage() {
               <input
                 type="email"
                 required
+                disabled={lockoutRemaining > 0}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@eviadvogados.com.br"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#0c1524]/80 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#0c1524]/80 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -102,23 +154,33 @@ export default function AdminLoginPage() {
               <input
                 type="password"
                 required
+                disabled={lockoutRemaining > 0}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#0c1524]/80 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#0c1524]/80 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-950/60 disabled:opacity-50 transition-all active:scale-[0.99]"
+            disabled={loading || lockoutRemaining > 0}
+            className={`w-full mt-2 py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99] ${
+              lockoutRemaining > 0
+                ? 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed'
+                : 'bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white shadow-sky-950/60 disabled:opacity-50'
+            }`}
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Autenticando...</span>
+              </>
+            ) : lockoutRemaining > 0 ? (
+              <>
+                <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span className="text-amber-300">Acesso suspenso ({lockoutRemaining}s)</span>
               </>
             ) : (
               <>
@@ -143,5 +205,19 @@ export default function AdminLoginPage() {
         Ambiente protegido com criptografia de ponta a ponta (Supabase Auth SSL).
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0c1524] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

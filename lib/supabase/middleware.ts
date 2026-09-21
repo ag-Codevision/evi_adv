@@ -39,15 +39,43 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Se o usuário tentar acessar rotas estritamente protegidas de /admin e não estiver logado
-  if (
-    !user &&
-    request.nextUrl.pathname.startsWith('/admin') &&
-    !request.nextUrl.pathname.startsWith('/admin/login')
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/admin/login';
-    return NextResponse.redirect(url);
+  // Validação de acesso ao painel administrativo (/admin)
+  const isAdminPath = request.nextUrl.pathname.startsWith('/admin');
+  const isLoginPage = request.nextUrl.pathname.startsWith('/admin/login');
+
+  if (isAdminPath) {
+    if (!user && !isLoginPage) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/admin/login';
+      return NextResponse.redirect(url);
+    }
+
+    if (user) {
+      const adminEmails = (process.env.ADMIN_EMAILS || 'admin@eviadvogados.com.br')
+        .split(',')
+        .map((e) => e.trim().toLowerCase());
+
+      const userEmail = user.email?.toLowerCase() || '';
+      const hasAdminRole =
+        user.app_metadata?.role === 'admin' ||
+        user.user_metadata?.role === 'admin' ||
+        adminEmails.includes(userEmail);
+
+      // Usuário autenticado sem permissões de administrador tentando acessar o painel
+      if (!hasAdminRole && !isLoginPage) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/admin/login';
+        url.searchParams.set('error', 'unauthorized');
+        return NextResponse.redirect(url);
+      }
+
+      // Se já é administrador autenticado e acessa a página de login, redireciona para o painel
+      if (hasAdminRole && isLoginPage) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/admin';
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
   return supabaseResponse;

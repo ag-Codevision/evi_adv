@@ -1,8 +1,24 @@
 'use server';
 
 import { createClient } from './supabase/server';
+import { createClient as createDirectClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { fetchTopicImages } from './image-provider.mjs';
+
+/**
+ * Cria um cliente Supabase direto, sem dependência de cookies de navegador.
+ * Essencial para operações em segundo plano, cron jobs na Vercel e scripts autônomos.
+ */
+export function getDirectSupabase(useServiceRole = false) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const key =
+    (useServiceRole ? process.env.SUPABASE_SERVICE_ROLE_KEY : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ||
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    '';
+  return createDirectClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 export interface BlogAiConfig {
   enabled: boolean;
@@ -67,7 +83,7 @@ const DEFAULT_AI_CONFIG: BlogAiConfig = {
  */
 export async function getBlogAiConfig(): Promise<BlogAiConfig> {
   try {
-    const supabase = createClient();
+    const supabase = getDirectSupabase(true);
     const { data } = await supabase
       .from('site_contents')
       .select('content_value')
@@ -86,7 +102,34 @@ export async function getBlogAiConfig(): Promise<BlogAiConfig> {
 }
 
 /**
- * Salva as configurações do Assistente de IA do Blog no banco de dados.
+ * Atualiza especificamente a data de última execução da IA (sem exigir autenticação por cookie).
+ */
+export async function updateBlogAiLastRun(lastRunIso: string): Promise<void> {
+  try {
+    const supabase = getDirectSupabase(true);
+    const config = await getBlogAiConfig();
+    const updated = { ...config, lastRun: lastRunIso };
+
+    await supabase
+      .from('site_contents')
+      .upsert(
+        {
+          page: 'blog_ai_config',
+          section: 'engine',
+          field_key: 'settings',
+          content_type: 'list',
+          content_value: JSON.stringify(updated),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'page,section,field_key' }
+      );
+  } catch (err) {
+    console.error('Erro ao atualizar lastRun do blog:', err);
+  }
+}
+
+/**
+ * Salva as configurações do Assistente de IA do Blog no banco de dados (pelo painel admin).
  */
 export async function saveBlogAiConfig(config: BlogAiConfig): Promise<{ success: boolean; error?: string }> {
   try {
