@@ -292,62 +292,58 @@ export default function BlogPage() {
           {/* Botões de Ação do Administrador (Novo Artigo e Robô IA) */}
           <BlogAdminActions />
 
-          {/* Bloco de Filtros Avançados: Categorias & Datas */}
-          <div className="bg-white border border-evi-border rounded-3xl p-5 md:p-6 mb-10 shadow-sm space-y-5">
-            {/* 1. Categorias */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-evi-deep flex items-center gap-1.5">
-                  <Filter className="w-3.5 h-3.5 text-evi-accent" />
-                  Filtrar por Categoria
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => handleCategoryChange(cat)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
-                      activeCategory === cat
-                        ? 'bg-evi-deep text-white shadow-md'
-                        : 'bg-[#f4f7f9] text-evi-text-muted hover:text-evi-deep hover:bg-slate-200 border border-transparent'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 2. Filtro por Data e Ordenação */}
-            <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+          {/* Barra de Filtros Compacta e Fina (Linha Única) */}
+          <div className="bg-white border border-evi-border rounded-2xl p-3 md:px-5 md:py-3.5 mb-8 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+              
+              {/* Controles de Filtro à Esquerda */}
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-evi-deep">
-                  <Calendar className="w-3.5 h-3.5 text-evi-accent" />
-                  <span>Filtrar por Data:</span>
+                {/* Seletor de Categoria */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-evi-deep text-[11px]">
+                    <Filter className="w-3.5 h-3.5 text-evi-accent" />
+                    <span>Categoria:</span>
+                  </div>
+                  <select
+                    value={activeCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="px-3 py-1.5 bg-[#f4f7f9] border border-slate-200 rounded-xl text-xs font-semibold text-evi-deep focus:outline-none focus:border-evi-accent cursor-pointer"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <select
-                  value={dateRange}
-                  onChange={(e) => {
-                    setDateRange(e.target.value as any);
-                    setCurrentPage(1);
-                  }}
-                  className="px-3.5 py-2 bg-[#f4f7f9] border border-slate-200 rounded-xl text-xs font-semibold text-evi-deep focus:outline-none focus:border-evi-accent"
-                >
-                  <option value="all">Todas as Datas</option>
-                  <option value="7days">Últimos 7 dias</option>
-                  <option value="30days">Últimos 30 dias</option>
-                  <option value="90days">Últimos 90 dias</option>
-                  <option value="year">Este ano ({new Date().getFullYear()})</option>
-                  <option value="custom">Período personalizado...</option>
-                </select>
+                {/* Seletor de Data */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-evi-deep text-[11px]">
+                    <Calendar className="w-3.5 h-3.5 text-evi-accent" />
+                    <span>Data:</span>
+                  </div>
+                  <select
+                    value={dateRange}
+                    onChange={(e) => {
+                      setDateRange(e.target.value as any);
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-1.5 bg-[#f4f7f9] border border-slate-200 rounded-xl text-xs font-semibold text-evi-deep focus:outline-none focus:border-evi-accent cursor-pointer"
+                  >
+                    <option value="all">Todas as Datas</option>
+                    <option value="7days">Últimos 7 dias</option>
+                    <option value="30days">Últimos 30 dias</option>
+                    <option value="90days">Últimos 90 dias</option>
+                    <option value="year">Este ano ({new Date().getFullYear()})</option>
+                    <option value="custom">Período personalizado...</option>
+                  </select>
+                </div>
 
                 {/* Seletor Customizado de Data Inicial e Final */}
                 {dateRange === 'custom' && (
-                  <div className="flex items-center gap-2 text-xs bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 pl-1">De:</span>
+                  <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200 animate-fade-in">
+                    <span className="text-slate-400">De:</span>
                     <input
                       type="date"
                       value={customStartDate}
@@ -355,7 +351,7 @@ export default function BlogPage() {
                         setCustomStartDate(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs text-evi-deep"
+                      className="px-2 py-0.5 bg-white border border-slate-200 rounded-lg text-xs text-evi-deep"
                     />
                     <span className="text-slate-400">Até:</span>
                     <input
@@ -365,20 +361,20 @@ export default function BlogPage() {
                         setCustomEndDate(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs text-evi-deep"
+                      className="px-2 py-0.5 bg-white border border-slate-200 rounded-lg text-xs text-evi-deep"
                     />
                   </div>
                 )}
               </div>
 
-              {/* Ordenação e Limpeza */}
+              {/* Ordenação e Limpeza à Direita */}
               <div className="flex items-center gap-3 ml-auto">
                 <div className="flex items-center gap-1.5">
                   <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as any)}
-                    className="px-3 py-2 bg-[#f4f7f9] border border-slate-200 rounded-xl text-xs font-semibold text-evi-deep focus:outline-none focus:border-evi-accent"
+                    className="px-3 py-1.5 bg-[#f4f7f9] border border-slate-200 rounded-xl text-xs font-semibold text-evi-deep focus:outline-none focus:border-evi-accent cursor-pointer"
                   >
                     <option value="desc">Mais recentes primeiro</option>
                     <option value="asc">Mais antigos primeiro</option>
@@ -389,14 +385,15 @@ export default function BlogPage() {
                   <button
                     type="button"
                     onClick={handleResetFilters}
-                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
                     title="Limpar todos os filtros aplicados"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Limpar Filtros</span>
+                    <span>Limpar</span>
                   </button>
                 )}
               </div>
+
             </div>
           </div>
 
@@ -462,10 +459,6 @@ export default function BlogPage() {
                     <div className="absolute top-3 left-3 bg-evi-deep/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       {article.category}
                     </div>
-                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-evi-deep text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-evi-border shadow-sm flex items-center gap-1.5">
-                      <Clock className="w-3 h-3 text-evi-accent" />
-                      <span>{formatCardDate(article.publishedAt || article.date)}</span>
-                    </div>
                   </Link>
 
                   <div className="p-6">
@@ -489,9 +482,15 @@ export default function BlogPage() {
 
                 <div className="px-6 pb-6 pt-0">
                   <div className="pt-3 border-t border-evi-border/60 flex items-center justify-between">
-                    <span className="text-[11px] text-evi-text-muted truncate max-w-[150px]">
-                      Por {article.author?.name || 'Dr. Eduardo Veríssimo'}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-medium text-evi-text-muted truncate max-w-[170px]">
+                        Por {article.author?.name || 'Dr. Eduardo Veríssimo'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                        <Clock className="w-2.5 h-2.5 text-slate-400" />
+                        <span>{formatCardDate(article.publishedAt || article.date)}</span>
+                      </span>
+                    </div>
                     <Link
                       href={`/blog/${article.slug}`}
                       className="text-xs font-bold text-evi-deep hover:text-evi-accent uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
