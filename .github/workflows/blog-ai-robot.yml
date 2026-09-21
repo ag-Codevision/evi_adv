@@ -2,34 +2,51 @@ name: Robô Editorial de IA - EVI Advogados
 
 on:
   schedule:
-    # Executa a cada hora para checar se é o horário agendado de publicação
+    # Executa a cada hora para checar os agendamentos do robô editorial
     - cron: '0 * * * *'
   workflow_dispatch:
     # Permite disparar manualmente pelo painel do GitHub Actions
+    inputs:
+      force:
+        description: 'Forçar publicação imediata (ignora dia e horário agendado)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
-  publish-ai-article:
+  trigger-editorial-cron:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Instalar Dependências
-        run: npm ci --prefer-offline --no-audit
-
-      - name: Executar Motor Editorial com Assistente de IA
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SECRET_KEY }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-          NVIDIA_MODEL: ${{ secrets.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct' }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY || secrets.UNSPLASH_Access_Key }}
-        run: node scripts/generate-article.mjs
+      - name: Chamar endpoint de automação no site em produção
+        run: |
+          FORCE_QUERY="${{ github.event.inputs.force == 'true' && 'force=true' || '' }}"
+          KEY_QUERY="${{ secrets.CRON_SECRET != '' && format('key={0}', secrets.CRON_SECRET) || '' }}"
+          
+          # Monta os parâmetros de consulta
+          PARAMS=""
+          if [ -n "$FORCE_QUERY" ] && [ -n "$KEY_QUERY" ]; then
+            PARAMS="?$FORCE_QUERY&$KEY_QUERY"
+          elif [ -n "$FORCE_QUERY" ]; then
+            PARAMS="?$FORCE_QUERY"
+          elif [ -n "$KEY_QUERY" ]; then
+            PARAMS="?$KEY_QUERY"
+          fi
+          
+          TARGET_URL="https://evi.adv.br/api/cron/auto-blog${PARAMS}"
+          echo "Disparando: https://evi.adv.br/api/cron/auto-blog"
+          
+          HTTP_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "$TARGET_URL" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "User-Agent: GitHub-Actions-Cron/1.0")
+          
+          BODY=$(echo "$HTTP_RESPONSE" | sed -e '$d')
+          STATUS=$(echo "$HTTP_RESPONSE" | tail -n1 | cut -d':' -f2)
+          
+          echo "Resposta do servidor (Status $STATUS):"
+          echo "$BODY"
+          
+          if [ "$STATUS" -ge 400 ]; then
+            echo "Erro na execução do Cron: HTTP $STATUS"
+            exit 1
+          fi

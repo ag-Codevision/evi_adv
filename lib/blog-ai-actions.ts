@@ -1,24 +1,9 @@
 'use server';
 
 import { createClient } from './supabase/server';
-import { createClient as createDirectClient } from '@supabase/supabase-js';
+import { getDirectSupabase } from './supabase/direct';
 import { revalidatePath } from 'next/cache';
 import { fetchTopicImages } from './image-provider.mjs';
-
-/**
- * Cria um cliente Supabase direto, sem dependência de cookies de navegador.
- * Essencial para operações em segundo plano, cron jobs na Vercel e scripts autônomos.
- */
-export function getDirectSupabase(useServiceRole = false) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-  const key =
-    (useServiceRole ? process.env.SUPABASE_SERVICE_ROLE_KEY : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ||
-    process.env.SUPABASE_PUBLISHABLE_KEY ||
-    '';
-  return createDirectClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
 
 export interface BlogAiConfig {
   enabled: boolean;
@@ -257,26 +242,21 @@ function parseJsonFromAi(raw: string): any {
 }
 
 /**
- * Dispara manualmente a criação e publicação imediata de um artigo com o assistente de IA.
+ * Executa o ciclo editorial completo de IA (utilizável tanto por Cron Jobs na nuvem quanto por disparo manual).
+ * Não depende de sessões ativas no navegador do usuário.
  */
-export async function generateArticleNow(targetCategorySlug?: string, customThemePrompt?: string): Promise<{
+export async function runBlogAiCycle(options?: {
+  targetCategorySlug?: string;
+  customThemePrompt?: string;
+  isCron?: boolean;
+}): Promise<{
   success: boolean;
   error?: string;
   article?: any;
   modelUsed?: string;
 }> {
   try {
-    const supabase = createClient();
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, error: 'Acesso negado. Apenas administradores autenticados podem gerar artigos.' };
-    }
-
+    const supabase = getDirectSupabase(true);
     const config = await getBlogAiConfig();
     const nvidiaKey = process.env.NVIDIA_API_KEY;
 
@@ -286,12 +266,12 @@ export async function generateArticleNow(targetCategorySlug?: string, customThem
 
     // 1. Define categoria e tema
     const selectedCategory =
-      config.categories.find((c) => c.slug === targetCategorySlug) ||
+      config.categories.find((c) => c.slug === options?.targetCategorySlug) ||
       config.categories[Math.floor(Math.random() * config.categories.length)] ||
       DEFAULT_AI_CONFIG.categories[0];
 
     const chosenTheme =
-      customThemePrompt?.trim() ||
+      options?.customThemePrompt?.trim() ||
       (config.customThemes.length > 0
         ? config.customThemes[Math.floor(Math.random() * config.customThemes.length)]
         : `Teses jurídicas e soluções estratégicas em ${selectedCategory.name}`);
@@ -457,6 +437,7 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
       .single();
 
     // 6. Insere no Supabase
+    const nowIso = new Date().toISOString();
     const { data: post, error: insertError } = await supabase
       .from('posts')
       .insert({
@@ -471,7 +452,7 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
         seo_title: generated.seo_title,
         seo_description: generated.seo_description,
         is_featured: true,
-        published_at: new Date().toISOString(),
+        published_at: nowIso,
       })
       .select()
       .single();
@@ -480,11 +461,8 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
       return { success: false, error: insertError.message };
     }
 
-    // Atualiza data de última execução na config
-    await saveBlogAiConfig({
-      ...config,
-      lastRun: new Date().toISOString(),
-    });
+    // 7. Atualiza data de última execução na configuração
+    await updateBlogAiLastRun(nowIso);
 
     revalidatePath('/blog');
     revalidatePath('/');
@@ -495,7 +473,40 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
       modelUsed: successfulModel,
     };
   } catch (err: any) {
-    console.error('Erro na automação do artigo:', err);
+    console.error('Erro no ciclo de automação do artigo:', err);
     return { success: false, error: err.message || 'Erro inesperado na geração.' };
+  }
+}
+
+/**
+ * Dispara manualmente a criação e publicação imediata de um artigo com o assistente de IA.
+ * Requer autenticação do administrador no painel.
+ */
+export async function generateArticleNow(targetCategorySlug?: string, customThemePrompt?: string): Promise<{
+  success: boolean;
+  error?: string;
+  article?: any;
+  modelUsed?: string;
+}> {
+  try {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: 'Acesso negado. Apenas administradores autenticados podem gerar artigos manualmente.' };
+    }
+
+    return await runBlogAiCycle({
+      targetCategorySlug,
+      customThemePrompt,
+      isCron: false,
+    });
+  } catch (err: any) {
+    console.error('Erro na ação manual de geração:', err);
+    return { success: false, error: err.message || 'Erro inesperado na geração manual.' };
   }
 }
