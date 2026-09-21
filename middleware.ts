@@ -11,8 +11,8 @@ export const config = {
      * Aplica o middleware a todas as rotas exceto:
      * - _next/static (arquivos estáticos)
      * - _next/image (otimização de imagens)
-     * - favicon.ico e arquivos com extensão pública (.svg, .png, .jpg, etc.)
+     * - favicon.ico e arquivos com extensão pública (.svg, .png, .jpg, .css, etc.)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico|woff|woff2)$).*)',
   ],
 };
