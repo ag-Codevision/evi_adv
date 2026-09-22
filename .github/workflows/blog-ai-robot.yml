@@ -2,8 +2,8 @@ name: Robô Editorial de IA - EVI Advogados
 
 on:
   schedule:
-    # Executa a cada hora para checar os agendamentos do robô editorial
-    - cron: '0 * * * *'
+    # Acorda a cada 30 minutos para checar se há agendamento editorial pendente para o horário atual
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     # Permite disparar manualmente pelo painel do GitHub Actions
     inputs:
@@ -20,24 +20,28 @@ jobs:
     steps:
       - name: Chamar endpoint de automação no site em produção
         run: |
+          # Token oficial com fallback caso não esteja salvo nos Secrets do GitHub
+          SECRET_TOKEN="${{ secrets.CRON_SECRET }}"
+          if [ -z "$SECRET_TOKEN" ]; then
+            SECRET_TOKEN="c593749da9104553bbd4a708c03062c8d0710350ca4fac707f4e0ad9e653d4dc"
+          fi
+
           FORCE_QUERY="${{ github.event.inputs.force == 'true' && 'force=true' || '' }}"
-          KEY_QUERY="${{ secrets.CRON_SECRET != '' && format('key={0}', secrets.CRON_SECRET) || '' }}"
+          KEY_QUERY="key=${SECRET_TOKEN}"
           
           # Monta os parâmetros de consulta
-          PARAMS=""
-          if [ -n "$FORCE_QUERY" ] && [ -n "$KEY_QUERY" ]; then
-            PARAMS="?$FORCE_QUERY&$KEY_QUERY"
-          elif [ -n "$FORCE_QUERY" ]; then
-            PARAMS="?$FORCE_QUERY"
-          elif [ -n "$KEY_QUERY" ]; then
-            PARAMS="?$KEY_QUERY"
+          if [ -n "$FORCE_QUERY" ]; then
+            PARAMS="?${FORCE_QUERY}&${KEY_QUERY}"
+          else
+            PARAMS="?${KEY_QUERY}"
           fi
           
-          TARGET_URL="https://evi.adv.br/api/cron/auto-blog${PARAMS}"
-          echo "Disparando: https://evi.adv.br/api/cron/auto-blog"
+          # URL oficial em produção na Vercel
+          TARGET_URL="https://evi-adv.vercel.app/api/cron/auto-blog${PARAMS}"
+          echo "Disparando robô editorial: https://evi-adv.vercel.app/api/cron/auto-blog"
           
           HTTP_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "$TARGET_URL" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Authorization: Bearer ${SECRET_TOKEN}" \
             -H "User-Agent: GitHub-Actions-Cron/1.0")
           
           BODY=$(echo "$HTTP_RESPONSE" | sed -e '$d')

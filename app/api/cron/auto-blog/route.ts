@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getBlogAiConfig, runBlogAiCycle } from '@/lib/blog-ai-actions';
+import { getDirectSupabase } from '@/lib/supabase/direct';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Suporte a processamento resiliente de IA
@@ -83,18 +84,21 @@ async function handleCronExecution(req: NextRequest) {
         });
       }
 
-      // Checa se já houve publicação bem-sucedida hoje
-      if (config.lastRun) {
-        const lastRunBrasiliaStr = new Date(config.lastRun).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
-        const lastRunBrasiliaDate = new Date(lastRunBrasiliaStr).toISOString().slice(0, 10);
+      // Checa se já houve publicação bem-sucedida hoje no banco de dados
+      const directSupabase = getDirectSupabase(true);
+      const { data: postsToday } = await directSupabase
+        .from('posts')
+        .select('id, title, published_at')
+        .gte('published_at', `${todayDateBrasilia}T00:00:00.000Z`)
+        .order('published_at', { ascending: false });
 
-        if (lastRunBrasiliaDate === todayDateBrasilia) {
-          return NextResponse.json({
-            status: 'already_run_today',
-            message: `O assistente de IA já publicou o artigo programado para o dia de hoje (${todayDateBrasilia}).`,
-            lastRun: config.lastRun,
-          });
-        }
+      const targetCount = config.articlesPerCycle || 1;
+      if (postsToday && postsToday.length >= targetCount) {
+        return NextResponse.json({
+          status: 'already_run_today',
+          message: `O assistente de IA já possui ${postsToday.length} artigo(s) publicado(s) para o dia de hoje (${todayDateBrasilia}).`,
+          lastArticle: postsToday[0],
+        });
       }
     }
 
