@@ -3,7 +3,7 @@
 import { createClient } from './supabase/server';
 import { getDirectSupabase } from './supabase/direct';
 import { revalidatePath } from 'next/cache';
-import { fetchTopicImages } from './image-provider.mjs';
+import { fetchTopicImages } from './image-provider';
 
 export interface BlogAiConfig {
   enabled: boolean;
@@ -389,9 +389,29 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
       };
     }
 
-    // 3. Busca imagens temáticas (Capa + 2 de corpo) no Unsplash
-    console.log('[Blog IA] Selecionando fotos temáticas de alta resolução no Unsplash...');
-    const images = await fetchTopicImages(selectedCategory.slug, selectedCategory.keywords || []);
+    // 3. Consulta capas recentes no Supabase para garantir variedade contínua e anti-repetição
+    console.log('[Blog IA] Selecionando fotos temáticas de alta resolução com verificação anti-repetição...');
+    let recentCoverUrls: string[] = [];
+    try {
+      const { data: recentPosts } = await supabase
+        .from('posts')
+        .select('cover_image')
+        .order('published_at', { ascending: false })
+        .limit(15);
+      if (recentPosts) {
+        recentCoverUrls = recentPosts.map((p) => p.cover_image).filter(Boolean);
+      }
+    } catch (dbErr) {
+      console.warn('[Blog IA] Não foi possível consultar histórico de capas:', dbErr);
+    }
+
+    const images = await fetchTopicImages({
+      categorySlug: selectedCategory.slug,
+      keywords: selectedCategory.keywords || [],
+      theme: chosenTheme,
+      title: generated.title,
+      excludeUrls: recentCoverUrls,
+    });
 
     // 4. Injeta as 2 imagens no corpo do artigo de forma elegante
     const fig1 = `
