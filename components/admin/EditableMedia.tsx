@@ -122,7 +122,7 @@ export default function EditableMedia({
         <img src={src} alt={alt} className={imgClassName} />
 
         {/* Overlay interativo de troca */}
-        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 rounded z-20 backdrop-blur-[2px]">
+        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 rounded z-10 backdrop-blur-[2px]">
           <button
             onClick={() => setModalOpen(true)}
             className="flex items-center gap-2 px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg shadow-xl text-xs font-semibold uppercase tracking-wider transition-transform active:scale-95"

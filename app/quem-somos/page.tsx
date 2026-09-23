@@ -574,8 +574,12 @@ export default function QuemSomosPage() {
                   {isEditing && (
                     <button
                       type="button"
-                      onClick={onDelete}
-                      className="absolute top-3 right-3 z-20 bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 rounded-full shadow font-semibold"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="absolute top-3 right-3 z-50 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs px-3 py-1.5 rounded-full shadow-2xl font-semibold flex items-center gap-1.5 cursor-pointer transition-all border border-white/30"
                     >
                       Remover
                     </button>

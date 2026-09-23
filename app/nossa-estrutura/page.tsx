@@ -184,9 +184,18 @@ export default function NossaEstruturaPage() {
                   {isEditing && (
                     <button
                       type="button"
-                      onClick={onDelete}
-                      className="absolute top-3 right-3 z-20 bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 rounded-full shadow font-semibold"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="absolute top-3 right-3 z-50 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs px-3 py-1.5 rounded-full shadow-2xl font-semibold flex items-center gap-1.5 cursor-pointer transition-all border border-white/30 hover:shadow-rose-900/50"
+                      title="Excluir este card da estrutura"
                     >
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
                       Remover Card
                     </button>
                   )}
