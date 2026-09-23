@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent, uploadSiteMedia } from '../../lib/site-content';
 import { Camera, Video, Upload, Link2, X, Check, Loader2, Smile } from 'lucide-react';
 
@@ -51,23 +52,31 @@ export default function EditableMediaOrVideo({
   modalTitle = 'Personalizar Ícone / Mídia',
 }: EditableMediaOrVideoProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [mediaType, setMediaType] = useState<'image' | 'video' | 'icon'>(defaultType);
-  const [mediaSrc, setMediaSrc] = useState<string>(defaultSrc);
-  const [currentIcon, setCurrentIcon] = useState<string>(defaultIcon);
+  const { getContentItem, updateContent } = useSiteContent();
+
+  const item = getContentItem(page, section, fieldKey);
+  const savedType = (item?.metadata?.mediaType || (item?.contentType === 'video' ? 'video' : item?.contentType === 'image' ? 'image' : undefined)) as ('image' | 'video' | 'icon' | undefined);
+  const effectiveType = savedType || defaultType;
+  const effectiveSrc = (effectiveType !== 'icon' && item?.value) ? item.value : defaultSrc;
+  const effectiveIcon = (effectiveType === 'icon' && item?.value) ? item.value : defaultIcon;
+
+  const [mediaType, setMediaType] = useState<'image' | 'video' | 'icon'>(effectiveType);
+  const [mediaSrc, setMediaSrc] = useState<string>(effectiveSrc);
+  const [currentIcon, setCurrentIcon] = useState<string>(effectiveIcon);
   const [modalOpen, setModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form states no modal
-  const [selectedType, setSelectedType] = useState<'image' | 'video' | 'icon'>(defaultType);
+  const [selectedType, setSelectedType] = useState<'image' | 'video' | 'icon'>(effectiveType);
   const [inputUrl, setInputUrl] = useState('');
-  const [customEmoji, setCustomEmoji] = useState(defaultIcon);
+  const [customEmoji, setCustomEmoji] = useState(effectiveIcon);
 
   useEffect(() => {
-    setMediaType(defaultType);
-    setMediaSrc(defaultSrc);
-    setCurrentIcon(defaultIcon);
-  }, [defaultType, defaultSrc, defaultIcon]);
+    setMediaType(effectiveType);
+    setMediaSrc(effectiveSrc);
+    setCurrentIcon(effectiveIcon);
+  }, [effectiveType, effectiveSrc, effectiveIcon]);
 
   const handleOpenModal = () => {
     setSelectedType(mediaType);
@@ -103,6 +112,14 @@ export default function EditableMediaOrVideo({
       } else {
         setMediaSrc(valueToSave);
       }
+      updateContent(
+        page,
+        section,
+        fieldKey,
+        valueToSave,
+        { mediaType: typeToSave },
+        typeToSave === 'video' ? 'video' : typeToSave === 'image' ? 'image' : 'text'
+      );
       setStatusMessage('Atualizado com sucesso!');
       setTimeout(() => setStatusMessage(null), 2500);
       setModalOpen(false);

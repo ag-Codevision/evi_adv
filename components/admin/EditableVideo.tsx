@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent } from '../../lib/site-content';
 import { Video, Check, X, Edit3 } from 'lucide-react';
 
@@ -47,15 +48,18 @@ export default function EditableVideo({
   className = '',
 }: EditableVideoProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [videoUrl, setVideoUrl] = useState<string>(defaultVideoUrl);
+  const { getContent, updateContent } = useSiteContent();
+
+  const savedVideoUrl = getContent(page, section, fieldKey, defaultVideoUrl);
+  const [videoUrl, setVideoUrl] = useState<string>(savedVideoUrl);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [inputUrl, setInputUrl] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setVideoUrl(defaultVideoUrl);
-  }, [defaultVideoUrl]);
+    setVideoUrl(savedVideoUrl);
+  }, [savedVideoUrl]);
 
   const embedUrl = getEmbedUrl(videoUrl);
 
@@ -93,6 +97,7 @@ export default function EditableVideo({
 
     if (res.success) {
       setVideoUrl(inputUrl.trim());
+      updateContent(page, section, fieldKey, inputUrl.trim(), undefined, 'video');
       setStatusMessage('Vídeo atualizado com sucesso!');
       setTimeout(() => setStatusMessage(null), 2500);
       setModalOpen(false);

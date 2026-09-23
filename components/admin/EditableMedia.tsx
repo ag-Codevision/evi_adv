@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent, uploadSiteMedia } from '../../lib/site-content';
 import { Camera, Upload, Link2, X, Check, Loader2 } from 'lucide-react';
 
@@ -25,15 +26,18 @@ export default function EditableMedia({
   imgClassName = '',
 }: EditableMediaProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [src, setSrc] = useState<string>(defaultSrc);
+  const { getContent, updateContent } = useSiteContent();
+
+  const savedSrc = getContent(page, section, fieldKey, defaultSrc);
+  const [src, setSrc] = useState<string>(savedSrc);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [urlInput, setUrlInput] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSrc(defaultSrc);
-  }, [defaultSrc]);
+    setSrc(savedSrc);
+  }, [savedSrc]);
 
   if (!isAdmin || !isEditing) {
     return (
@@ -68,6 +72,7 @@ export default function EditableMedia({
 
       if (saveRes.success) {
         setSrc(uploadRes.url);
+        updateContent(page, section, fieldKey, uploadRes.url, undefined, 'image');
         setStatusMessage('Imagem atualizada com sucesso!');
         setTimeout(() => setStatusMessage(null), 2500);
         setModalOpen(false);
@@ -101,6 +106,7 @@ export default function EditableMedia({
 
     if (saveRes.success) {
       setSrc(urlInput.trim());
+      updateContent(page, section, fieldKey, urlInput.trim(), undefined, 'image');
       setStatusMessage('Imagem atualizada!');
       setTimeout(() => setStatusMessage(null), 2500);
       setModalOpen(false);

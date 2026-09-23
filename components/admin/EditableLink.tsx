@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent } from '../../lib/site-content';
 import { Check, Edit2, Link2, ExternalLink, X } from 'lucide-react';
 
@@ -37,8 +38,14 @@ export default function EditableLink({
   children,
 }: EditableLinkProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [label, setLabel] = useState<string>(defaultLabel);
-  const [href, setHref] = useState<string>(defaultHref);
+  const { getContentItem, updateContent } = useSiteContent();
+
+  const item = getContentItem(page, section, fieldKey);
+  const savedLabel = (item && item.value !== undefined && item.value !== null && item.value !== '') ? item.value : defaultLabel;
+  const savedHref = item?.metadata?.href || defaultHref;
+
+  const [label, setLabel] = useState<string>(savedLabel);
+  const [href, setHref] = useState<string>(savedHref);
   
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [editLabel, setEditLabel] = useState<string>('');
@@ -50,9 +57,9 @@ export default function EditableLink({
   const triggerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    setLabel(defaultLabel);
-    setHref(defaultHref);
-  }, [defaultLabel, defaultHref]);
+    setLabel(savedLabel);
+    setHref(savedHref);
+  }, [savedLabel, savedHref]);
 
   const renderContent = () => {
     if (iconOnly) {
@@ -146,6 +153,7 @@ export default function EditableLink({
     if (res.success) {
       setLabel(editLabel);
       setHref(editHref);
+      updateContent(page, section, fieldKey, editLabel, { href: editHref }, 'link');
       setJustSaved(true);
       setStatusMessage(null);
       setIsPopoverOpen(false);

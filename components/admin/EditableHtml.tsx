@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent } from '../../lib/site-content';
 import { Edit2, Check, Sparkles, X } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
@@ -22,16 +23,19 @@ export default function EditableHtml({
   className = '',
 }: EditableHtmlProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [content, setContent] = useState<string>(defaultHtml);
+  const { getContent, updateContent } = useSiteContent();
+
+  const savedHtml = getContent(page, section, fieldKey, defaultHtml);
+  const [content, setContent] = useState<string>(savedHtml);
   const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
-  const [tempContent, setTempContent] = useState<string>(defaultHtml);
+  const [tempContent, setTempContent] = useState<string>(savedHtml);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [justSaved, setJustSaved] = useState<boolean>(false);
 
   useEffect(() => {
-    setContent(defaultHtml);
-    setTempContent(defaultHtml);
-  }, [defaultHtml]);
+    setContent(savedHtml);
+    setTempContent(savedHtml);
+  }, [savedHtml]);
 
   const handleOpenEdit = () => {
     setTempContent(content);
@@ -54,6 +58,7 @@ export default function EditableHtml({
 
     if (res.success) {
       setContent(tempContent);
+      updateContent(page, section, fieldKey, tempContent, undefined, 'html');
       setJustSaved(true);
       setEditModalOpen(false);
       setStatusMessage('Salvo com sucesso!');

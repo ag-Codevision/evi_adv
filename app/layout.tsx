@@ -59,24 +59,30 @@ export const metadata: Metadata = {
 };
 
 import ClientLayoutWrapper from '@/components/ClientLayoutWrapper';
+import SiteContentProvider from '@/components/admin/SiteContentProvider';
+import { getAllSiteContents } from '@/lib/site-content';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialContents = await getAllSiteContents();
+
   return (
     <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable}`}>
       <body>
         <AdminAuthProvider>
-          <ClientLayoutWrapper
-            topbar={<Topbar />}
-            motion={<ScrollMotionManager />}
-            footer={<Footer />}
-            whatsapp={<WhatsAppFloat />}
-          >
-            {children}
-          </ClientLayoutWrapper>
+          <SiteContentProvider initialContents={initialContents}>
+            <ClientLayoutWrapper
+              topbar={<Topbar />}
+              motion={<ScrollMotionManager />}
+              footer={<Footer />}
+              whatsapp={<WhatsAppFloat />}
+            >
+              {children}
+            </ClientLayoutWrapper>
+          </SiteContentProvider>
         </AdminAuthProvider>
       </body>
     </html>

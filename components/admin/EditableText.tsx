@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent } from '../../lib/site-content';
 import { Check, Edit2 } from 'lucide-react';
 
@@ -25,15 +26,18 @@ export default function EditableText({
   multiline = false,
 }: EditableTextProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [content, setContent] = useState<string>(defaultContent);
+  const { getContent, updateContent } = useSiteContent();
+
+  const savedContent = getContent(page, section, fieldKey, defaultContent);
+  const [content, setContent] = useState<string>(savedContent);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [justSaved, setJustSaved] = useState<boolean>(false);
   const elementRef = useRef<HTMLElement>(null);
 
-  // Sincroniza se defaultContent mudar externamente
+  // Sincroniza se o conteúdo salvo no banco ou o defaultContent mudar
   useEffect(() => {
-    setContent(defaultContent);
-  }, [defaultContent]);
+    setContent(savedContent);
+  }, [savedContent]);
 
   // Se o visitante for comum ou o modo de edição estiver desligado, renderiza texto estático limpo
   if (!isAdmin || !isEditing) {
@@ -61,6 +65,7 @@ export default function EditableText({
 
     if (res.success) {
       setContent(newText);
+      updateContent(page, section, fieldKey, newText, undefined, 'text');
       setJustSaved(true);
       setStatusMessage(null);
       setTimeout(() => setJustSaved(false), 2000);

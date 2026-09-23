@@ -29,7 +29,7 @@ export default function AdminTopBar() {
         ) : (
           <span className="hidden md:flex items-center gap-1 text-emerald-400/90">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-            Salvo no Supabase
+            Salvo no banco de dados
           </span>
         )}
       </div>

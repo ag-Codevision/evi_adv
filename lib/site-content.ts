@@ -1,7 +1,15 @@
 'use server';
 
 import { createClient } from './supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+
+function getPublicSupabase() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export interface SiteContentItem {
   id?: string;
@@ -19,7 +27,7 @@ export interface SiteContentItem {
  */
 export async function getPageContents(page: string): Promise<Record<string, string>> {
   try {
-    const supabase = createClient();
+    const supabase = getPublicSupabase();
     const { data, error } = await supabase
       .from('site_contents')
       .select('section, field_key, content_value')
@@ -38,6 +46,37 @@ export async function getPageContents(page: string): Promise<Record<string, stri
     return contentsMap;
   } catch (err) {
     console.error(`Erro ao buscar conteúdos da página ${page}:`, err);
+    return {};
+  }
+}
+
+/**
+ * Busca todos os conteúdos do site de todas as páginas para hidratação inicial rápida.
+ */
+export async function getAllSiteContents(): Promise<Record<string, { value: string; metadata?: any; contentType?: string }>> {
+  try {
+    const supabase = getPublicSupabase();
+    const { data, error } = await supabase
+      .from('site_contents')
+      .select('page, section, field_key, content_value, content_type, metadata');
+
+    if (error || !data) {
+      return {};
+    }
+
+    const contentsMap: Record<string, { value: string; metadata?: any; contentType?: string }> = {};
+    data.forEach((item) => {
+      const key = `${item.page}.${item.section}.${item.field_key}`;
+      contentsMap[key] = {
+        value: item.content_value,
+        metadata: item.metadata || {},
+        contentType: item.content_type || 'text',
+      };
+    });
+
+    return contentsMap;
+  } catch (err) {
+    console.error('Erro ao buscar todos os conteúdos do site:', err);
     return {};
   }
 }

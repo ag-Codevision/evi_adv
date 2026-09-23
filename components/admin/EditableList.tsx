@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent } from '../../lib/site-content';
 import { Plus } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
@@ -28,24 +29,38 @@ export default function EditableList<T>({
   addButtonLabel = 'Adicionar Item',
 }: EditableListProps<T>) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const [items, setItems] = useState<T[]>(defaultItems);
+  const { getContentItem, updateContent } = useSiteContent();
+
+  const item = getContentItem(page, section, fieldKey);
+  const getInitialItems = (): T[] => {
+    if (item?.value) {
+      try {
+        const parsed = JSON.parse(item.value);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    return defaultItems;
+  };
+
+  const [items, setItems] = useState<T[]>(getInitialItems);
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [indexToDelete, setIndexToDelete] = useState<number | null>(null);
 
   useEffect(() => {
-    setItems(defaultItems);
-  }, [defaultItems]);
+    setItems(getInitialItems());
+  }, [item?.value, defaultItems]);
 
   const saveItems = async (newItems: T[]) => {
     setIsSaving(true);
     setStatusMessage('Salvando lista...');
 
+    const jsonValue = JSON.stringify(newItems);
     const res = await saveSiteContent({
       page,
       section,
       fieldKey,
-      value: JSON.stringify(newItems),
+      value: jsonValue,
       contentType: 'list',
     });
 
@@ -53,6 +68,7 @@ export default function EditableList<T>({
 
     if (res.success) {
       setItems(newItems);
+      updateContent(page, section, fieldKey, jsonValue, undefined, 'list');
       setStatusMessage('Lista salva com sucesso');
       setTimeout(() => setStatusMessage(null), 2000);
     } else {
