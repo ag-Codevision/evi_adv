@@ -864,9 +864,14 @@ export default function QuemSomosPage() {
           <div className="bg-evi-deep text-white rounded-3xl p-8 md:p-14 mb-16 relative overflow-hidden shadow-evi-card">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
               <div className="md:col-span-7 space-y-4">
-                <span className="text-xs uppercase tracking-widest text-evi-silver font-semibold block">
-                  Infraestrutura de Primeiro Mundo
-                </span>
+                <EditableText
+                  page="quem_somos"
+                  section="sede"
+                  fieldKey="eyebrow"
+                  defaultContent="Infraestrutura de Primeiro Mundo"
+                  as="span"
+                  className="text-xs uppercase tracking-widest text-evi-silver font-semibold block"
+                />
                 <EditableText
                   page="quem_somos"
                   section="sede"
@@ -896,25 +901,41 @@ export default function QuemSomosPage() {
                 </div>
               </div>
               <div className="md:col-span-5 grid grid-cols-2 gap-3">
-                <img
-                  src="/img/estrutura/fachada.jpg"
+                <EditableMedia
+                  page="quem_somos"
+                  section="sede"
+                  fieldKey="img_1"
+                  defaultSrc="/img/estrutura/fachada.jpg"
                   alt="Fachada EVI Advogados"
-                  className="rounded-xl object-cover h-36 w-full border border-white/20 shadow-md"
+                  className="rounded-xl overflow-hidden border border-white/20 shadow-md h-36"
+                  imgClassName="object-cover h-36 w-full"
                 />
-                <img
-                  src="/img/estrutura/recepcao.jpg"
+                <EditableMedia
+                  page="quem_somos"
+                  section="sede"
+                  fieldKey="img_2"
+                  defaultSrc="/img/estrutura/recepcao.jpg"
                   alt="Recepção EVI Advogados"
-                  className="rounded-xl object-cover h-36 w-full border border-white/20 shadow-md"
+                  className="rounded-xl overflow-hidden border border-white/20 shadow-md h-36"
+                  imgClassName="object-cover h-36 w-full"
                 />
-                <img
-                  src="/img/estrutura/lounge.jpg"
+                <EditableMedia
+                  page="quem_somos"
+                  section="sede"
+                  fieldKey="img_3"
+                  defaultSrc="/img/estrutura/lounge.jpg"
                   alt="Lounge EVI Advogados"
-                  className="rounded-xl object-cover h-36 w-full border border-white/20 shadow-md"
+                  className="rounded-xl overflow-hidden border border-white/20 shadow-md h-36"
+                  imgClassName="object-cover h-36 w-full"
                 />
-                <img
-                  src="/img/estrutura/sala-reuniao.jpg"
+                <EditableMedia
+                  page="quem_somos"
+                  section="sede"
+                  fieldKey="img_4"
+                  defaultSrc="/img/estrutura/sala-reuniao.jpg"
                   alt="Sala de Reunião EVI Advogados"
-                  className="rounded-xl object-cover h-36 w-full border border-white/20 shadow-md"
+                  className="rounded-xl overflow-hidden border border-white/20 shadow-md h-36"
+                  imgClassName="object-cover h-36 w-full"
                 />
               </div>
             </div>
