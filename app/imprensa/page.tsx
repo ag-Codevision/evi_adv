@@ -9,8 +9,8 @@ import PressAdminActions from '@/components/admin/PressAdminActions';
 import PressArticleEditModal from '@/components/admin/PressArticleEditModal';
 import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
 import { createClient } from '@/lib/supabase/client';
-import { Edit2, Trash2, Clock, Calendar, ArrowUpDown, RotateCcw, Filter } from 'lucide-react';
-import { deleteSiteContent } from '@/lib/site-content';
+import { Edit2, Trash2, Clock, Calendar, ArrowUpDown, RotateCcw, Filter, Pin } from 'lucide-react';
+import { deleteSiteContent, saveSiteContent } from '@/lib/site-content';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import { formatCardDate, getTimestamp } from '@/lib/date-utils';
 
@@ -19,6 +19,7 @@ const ITEMS_PER_PAGE = 9;
 export default function ImprensaPage() {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
   const [customArticles, setCustomArticles] = useState<PressArticle[]>([]);
+  const [pinnedSlugs, setPinnedSlugs] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('Todas');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -32,31 +33,50 @@ export default function ImprensaPage() {
   const [itemToDelete, setItemToDelete] = useState<PressArticle | null>(null);
   const [isDeletingDirect, setIsDeletingDirect] = useState(false);
 
-  // Busca as matérias salvas no Supabase
+  // Busca as matérias e os artigos fixados no Supabase
   const loadCustomArticles = async () => {
     try {
       const supabase = createClient();
       const { data, error } = await supabase
         .from('site_contents')
-        .select('field_key, content_value')
-        .eq('page', 'imprensa')
-        .eq('section', 'custom_articles');
+        .select('section, field_key, content_value')
+        .eq('page', 'imprensa');
 
       if (!error && data) {
         const parsed: PressArticle[] = [];
-        data.forEach((row) => {
-          try {
-            if (row.content_value) {
+        let loadedPinnedSlugs: string[] = [];
+
+        data.forEach((row: any) => {
+          if (row.section === 'custom_articles' && row.content_value) {
+            try {
               const item = JSON.parse(row.content_value);
               if (item && item.slug) {
                 parsed.push(item);
+                if (item.pinned && !loadedPinnedSlugs.includes(item.slug)) {
+                  loadedPinnedSlugs.push(item.slug);
+                }
               }
+            } catch (e) {
+              console.error('Erro ao analisar JSON de matéria:', e);
             }
-          } catch (e) {
-            console.error('Erro ao analisar JSON de matéria:', e);
+          } else if (row.section === 'settings' && row.field_key === 'pinned_slugs' && row.content_value) {
+            try {
+              const slugs = JSON.parse(row.content_value);
+              if (Array.isArray(slugs)) {
+                slugs.forEach((s) => {
+                  if (typeof s === 'string' && !loadedPinnedSlugs.includes(s)) {
+                    loadedPinnedSlugs.push(s);
+                  }
+                });
+              }
+            } catch (e) {
+              console.error('Erro ao analisar JSON de pinned_slugs:', e);
+            }
           }
         });
+
         setCustomArticles(parsed);
+        setPinnedSlugs(loadedPinnedSlugs);
       }
     } catch (err) {
       console.error('Erro ao buscar matérias do Supabase:', err);
@@ -93,11 +113,66 @@ export default function ImprensaPage() {
     }
   };
 
+  const handleTogglePin = async (slug: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const isCurrentlyPinned = pinnedSlugs.includes(slug);
+    const updatedPinned = isCurrentlyPinned
+      ? pinnedSlugs.filter((s) => s !== slug)
+      : [slug, ...pinnedSlugs.filter((s) => s !== slug)];
+
+    setPinnedSlugs(updatedPinned);
+
+    // Se o artigo for customizado, atualiza a propriedade pinned nele
+    setCustomArticles((prev) =>
+      prev.map((art) => (art.slug === slug ? { ...art, pinned: !isCurrentlyPinned } : art))
+    );
+
+    setStatusMessage(isCurrentlyPinned ? 'Artigo desafixado do topo!' : 'Artigo fixado no topo com sucesso!');
+
+    try {
+      await saveSiteContent({
+        page: 'imprensa',
+        section: 'settings',
+        fieldKey: 'pinned_slugs',
+        value: JSON.stringify(updatedPinned),
+        contentType: 'list',
+        metadata: { totalPinned: updatedPinned.length, updatedAt: new Date().toISOString() },
+      });
+      setTimeout(() => setStatusMessage(null), 2500);
+    } catch (err) {
+      console.error('Erro ao salvar artigos fixados:', err);
+      setStatusMessage('Erro ao sincronizar artigos fixados.');
+      setTimeout(() => setStatusMessage(null), 3000);
+    }
+  };
+
   const handleArticleAdded = (newArticle: PressArticle) => {
     setCustomArticles((prev) => {
       const filtered = prev.filter((a) => a.slug !== newArticle.slug);
       return [newArticle, ...filtered];
     });
+
+    if (newArticle.pinned) {
+      setPinnedSlugs((prev) => {
+        if (!prev.includes(newArticle.slug)) {
+          const updated = [newArticle.slug, ...prev];
+          saveSiteContent({
+            page: 'imprensa',
+            section: 'settings',
+            fieldKey: 'pinned_slugs',
+            value: JSON.stringify(updated),
+            contentType: 'list',
+          }).catch(console.error);
+          return updated;
+        }
+        return prev;
+      });
+    }
+
     setCurrentPage(1);
   };
 
@@ -106,10 +181,41 @@ export default function ImprensaPage() {
       const filtered = prev.filter((a) => a.slug !== updatedArticle.slug);
       return [updatedArticle, ...filtered];
     });
+
+    setPinnedSlugs((prev) => {
+      let updated = [...prev];
+      if (updatedArticle.pinned && !updated.includes(updatedArticle.slug)) {
+        updated = [updatedArticle.slug, ...updated];
+      } else if (!updatedArticle.pinned && updated.includes(updatedArticle.slug)) {
+        updated = updated.filter((s) => s !== updatedArticle.slug);
+      }
+      saveSiteContent({
+        page: 'imprensa',
+        section: 'settings',
+        fieldKey: 'pinned_slugs',
+        value: JSON.stringify(updated),
+        contentType: 'list',
+      }).catch(console.error);
+      return updated;
+    });
   };
 
   const handleArticleDeleted = async (slug: string) => {
     setCustomArticles((prev) => prev.filter((a) => a.slug !== slug));
+    setPinnedSlugs((prev) => {
+      if (prev.includes(slug)) {
+        const updated = prev.filter((s) => s !== slug);
+        saveSiteContent({
+          page: 'imprensa',
+          section: 'settings',
+          fieldKey: 'pinned_slugs',
+          value: JSON.stringify(updated),
+          contentType: 'list',
+        }).catch(console.error);
+        return updated;
+      }
+      return prev;
+    });
   };
 
   const handleTriggerDelete = (item: PressArticle, e: React.MouseEvent) => {
@@ -210,6 +316,17 @@ export default function ImprensaPage() {
       return true;
     })
     .sort((a, b) => {
+      const isAPinned = pinnedSlugs.includes(a.slug) || Boolean(a.pinned);
+      const isBPinned = pinnedSlugs.includes(b.slug) || Boolean(b.pinned);
+
+      if (isAPinned && !isBPinned) return -1;
+      if (!isAPinned && isBPinned) return 1;
+      if (isAPinned && isBPinned) {
+        const idxA = pinnedSlugs.indexOf(a.slug);
+        const idxB = pinnedSlugs.indexOf(b.slug);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      }
+
       const tsA = getTimestamp(a.publishedAt || a.date);
       const tsB = getTimestamp(b.publishedAt || b.date);
       return sortOrder === 'desc' ? tsB - tsA : tsA - tsB;
@@ -376,14 +493,40 @@ export default function ImprensaPage() {
 
           {/* Grid de Matérias com 9 Cards por Página com CRUD Completo */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {paginatedArticles.map((item) => (
+            {paginatedArticles.map((item) => {
+              const isPinned = pinnedSlugs.includes(item.slug) || Boolean(item.pinned);
+
+              return (
               <article
                 key={item.slug}
-                className="bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative"
+                className={`bg-white rounded-3xl border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative ${
+                  isPinned ? 'border-amber-300 ring-2 ring-amber-400/30 shadow-md' : 'border-evi-border'
+                }`}
               >
+                {/* Badge de Matéria Fixada no Topo (Visível para visitantes) */}
+                {isPinned && (!isAdmin || !isEditing) && (
+                  <div className="absolute top-3 right-3 z-20 bg-amber-500/95 backdrop-blur-md text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg border border-amber-300 tracking-wide">
+                    <Pin className="w-3 h-3 fill-slate-950 text-slate-950" />
+                    <span>Fixado no Topo</span>
+                  </div>
+                )}
+
                 {/* Ações de Edição CRUD quando Admin estiver em modo edição */}
                 {isAdmin && isEditing && (
-                  <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700 shadow-xl">
+                  <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-slate-900/95 backdrop-blur-md p-1.5 rounded-xl border border-slate-700 shadow-xl">
+                    <button
+                      type="button"
+                      onClick={(e) => handleTogglePin(item.slug, e)}
+                      className={`p-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
+                        isPinned
+                          ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold'
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                      }`}
+                      title={isPinned ? 'Desafixar do Topo da Página' : 'Fixar no Topo da Página'}
+                    >
+                      <Pin className={`w-3.5 h-3.5 ${isPinned ? 'fill-slate-950 text-slate-950' : 'text-slate-300'}`} />
+                      <span className="text-[11px] pr-0.5">{isPinned ? 'Fixado' : 'Fixar'}</span>
+                    </button>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -420,8 +563,10 @@ export default function ImprensaPage() {
                     <div className="absolute top-3 left-3 bg-evi-deep/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       {item.outlet}
                     </div>
-                    {item.youtubeId && !isAdmin && (
-                      <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md">
+                    {item.youtubeId && (!isAdmin || !isEditing) && (
+                      <div className={`absolute right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md ${
+                        isPinned ? 'top-10' : 'top-3'
+                      }`}>
                         <span>▶ Vídeo</span>
                       </div>
                     )}
@@ -466,7 +611,8 @@ export default function ImprensaPage() {
                   </div>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
 
           {/* Controles de Paginação */}

@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   Calendar,
-  Clock
+  Clock,
+  Pin
 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import ConfirmModal from './ConfirmModal';
@@ -58,6 +59,7 @@ export default function PressArticleEditModal({
     return '';
   });
   const [galleryImages, setGalleryImages] = useState<string[]>(article.bodyImages || []);
+  const [pinned, setPinned] = useState<boolean>(article.pinned || false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -114,6 +116,7 @@ export default function PressArticleEditModal({
       paragraphs: contentPayload,
       bodyImages: galleryImages,
       excerpt: excerpt || title,
+      pinned,
     };
 
     // Salva no banco de dados Supabase
@@ -123,7 +126,7 @@ export default function PressArticleEditModal({
       fieldKey: article.slug,
       value: JSON.stringify(updatedArticle),
       contentType: 'list',
-      metadata: { slug: article.slug, title, category: finalCategory, date: formattedCardDate, publishedAt: isoPublishedAt },
+      metadata: { slug: article.slug, title, category: finalCategory, date: formattedCardDate, publishedAt: isoPublishedAt, pinned },
     });
 
     setIsSubmitting(false);
@@ -271,6 +274,28 @@ export default function PressArticleEditModal({
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-sky-500 [color-scheme:dark]"
                 />
               </div>
+            </div>
+
+            {/* Opção de Fixar Matéria no Topo */}
+            <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+                  <Pin className={`w-4 h-4 ${pinned ? 'fill-amber-400' : ''}`} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-amber-200">Fixar matéria no topo da Sala de Imprensa</h4>
+                  <p className="text-[11px] text-slate-400">Artigos fixados aparecem sempre em primeiro lugar na página, antes dos demais.</p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={pinned}
+                  onChange={(e) => setPinned(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
             </div>
 
             {/* Mídia de Capa */}

@@ -10,6 +10,7 @@ export interface PressArticle {
   paragraphs: string[];
   bodyImages: string[];
   excerpt: string;
+  pinned?: boolean;
 }
 
 export const pressArticles: PressArticle[] = [
