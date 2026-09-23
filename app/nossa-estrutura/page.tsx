@@ -207,6 +207,7 @@ export default function NossaEstruturaPage() {
                         fieldKey={`space_img_${idx}`}
                         defaultSrc={space.image}
                         alt={space.title}
+                        className="w-full h-full"
                         imgClassName="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute top-4 left-4 bg-evi-deep/80 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider z-20 pointer-events-auto">

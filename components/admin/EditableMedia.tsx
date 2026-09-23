@@ -39,9 +39,14 @@ export default function EditableMedia({
     setSrc(savedSrc);
   }, [savedSrc]);
 
+  const hasCustomWidth = className.includes('w-');
+  const hasCustomHeight = className.includes('h-');
+  const baseDim = `${hasCustomWidth ? '' : 'w-full'} ${hasCustomHeight ? '' : 'h-full'}`.trim();
+  const wrapperClass = `${baseDim} ${className}`.trim();
+
   if (!isAdmin || !isEditing) {
     return (
-      <div className={className}>
+      <div className={wrapperClass}>
         <img src={src} alt={alt} className={imgClassName} />
       </div>
     );
@@ -118,14 +123,19 @@ export default function EditableMedia({
 
   return (
     <>
-      <div className={`relative group ${className}`}>
+      <div className={`relative group ${wrapperClass} overflow-hidden`}>
         <img src={src} alt={alt} className={imgClassName} />
 
-        {/* Overlay interativo de troca */}
-        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 rounded z-10 backdrop-blur-[2px]">
+        {/* Overlay interativo de troca - sempre centralizado na div visível da imagem */}
+        <div className="absolute inset-0 w-full h-full bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 rounded z-10 backdrop-blur-[2px]">
           <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg shadow-xl text-xs font-semibold uppercase tracking-wider transition-transform active:scale-95"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg shadow-xl text-xs font-semibold uppercase tracking-wider transition-transform active:scale-95 cursor-pointer z-20 pointer-events-auto"
             title="Trocar esta imagem em tempo real"
           >
             <Camera className="w-4 h-4" />
