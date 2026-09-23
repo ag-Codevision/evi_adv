@@ -13,14 +13,15 @@ export default function Footer() {
         <div className="footer-grid">
           {/* Coluna 1: Marca Institucional & Autoridade */}
           <div className="motion-item" data-motion="left">
-            <div className="footer-brand block">
+            <div className="footer-brand block mb-5">
               <EditableMedia
                 page="global"
                 section="footer"
                 fieldKey="logo"
                 defaultSrc="/assets/logo_25_anos.webp"
                 alt="Logo oficial EVI Sociedade de Advogados - 25 Anos"
-                className="max-h-16 w-auto"
+                className="w-auto block"
+                imgClassName="max-h-[90px] w-auto object-contain block"
               />
             </div>
             <EditableText
@@ -29,7 +30,7 @@ export default function Footer() {
               fieldKey="desc"
               defaultContent="Fundada em 2001 pelo Dr. Eduardo Veríssimo Inocente, a EVI Advogados une 25 anos de solidez jurídica, presença na grande mídia e atendimento humanizado para clientes em todo o território nacional."
               as="p"
-              className="text-slate-300 text-sm leading-relaxed mt-4"
+              className="text-slate-300 text-sm leading-relaxed"
               multiline
             />
           </div>

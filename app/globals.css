@@ -1950,9 +1950,8 @@ button {
 }
 
 .footer-brand {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
+  display: inline-block;
+  margin-bottom: 22px;
   padding: 0;
   background: transparent;
   box-shadow: none;
@@ -1968,9 +1967,9 @@ button {
 
 .footer-brand img {
   width: auto;
-  max-width: 350px;
+  max-width: 280px;
   height: auto;
-  max-height: 110px;
+  max-height: 90px;
   object-fit: contain;
   object-position: left center;
   display: block;
