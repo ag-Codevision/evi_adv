@@ -60,7 +60,8 @@ export default function BlogAiAssistantModal({
   // Estados de Configuração
   const [enabled, setEnabled] = useState(true);
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 4]); // Segundas e Quintas
-  const [publishHour, setPublishHour] = useState<number>(19); // 19h
+  const [publishHour, setPublishHour] = useState<number>(19); // 19h (retrocompatibilidade)
+  const [publishHours, setPublishHours] = useState<number[]>([19]); // Múltiplos horários diários
   const [articlesPerCycle, setArticlesPerCycle] = useState<number>(1);
 
   // Mini Cérebro (Categorias & Temas)
@@ -73,7 +74,8 @@ export default function BlogAiAssistantModal({
   const [newCatSlug, setNewCatSlug] = useState('');
   const [newCatKeywords, setNewCatKeywords] = useState('');
 
-  // Disparo manual imediato
+  // Disparo manual imediato (com seleção dinâmica dos temas do Mini Cérebro)
+  const [selectedTopic, setSelectedTopic] = useState<string>('');
   const [manualTheme, setManualTheme] = useState('');
   const [manualCategory, setManualCategory] = useState('');
 
@@ -90,12 +92,25 @@ export default function BlogAiAssistantModal({
       const cfg = await getBlogAiConfig();
       setEnabled(cfg.enabled);
       setSelectedDays(cfg.daysOfWeek || [1, 4]);
-      setPublishHour(cfg.publishHour || 19);
+      
+      const loadedHours =
+        cfg.publishHours && Array.isArray(cfg.publishHours) && cfg.publishHours.length > 0
+          ? cfg.publishHours
+          : [cfg.publishHour || 19];
+      setPublishHours(loadedHours);
+      setPublishHour(loadedHours[0] || 19);
       setArticlesPerCycle(cfg.articlesPerCycle || 1);
-      setCustomThemes(cfg.customThemes || []);
-      setCategories(cfg.categories || []);
-      if (cfg.categories && cfg.categories.length > 0) {
-        setManualCategory(cfg.categories[0].slug);
+      
+      const loadedThemes = cfg.customThemes || [];
+      const loadedCategories = cfg.categories || [];
+      setCustomThemes(loadedThemes);
+      setCategories(loadedCategories);
+
+      if (loadedThemes.length > 0) {
+        setSelectedTopic(`theme:${loadedThemes[0]}`);
+      } else if (loadedCategories.length > 0) {
+        setSelectedTopic(`cat:${loadedCategories[0].slug}`);
+        setManualCategory(loadedCategories[0].slug);
       }
     } catch (err: any) {
       setError('Erro ao carregar configurações de IA.');
@@ -118,12 +133,51 @@ export default function BlogAiAssistantModal({
   const handleAddTheme = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTheme.trim()) return;
-    setCustomThemes((prev) => [...prev, newTheme.trim()]);
+    const added = newTheme.trim();
+    setCustomThemes((prev) => [...prev, added]);
+    if (!selectedTopic || selectedTopic.startsWith('cat:')) {
+      setSelectedTopic(`theme:${added}`);
+    }
     setNewTheme('');
   };
 
   const handleRemoveTheme = (index: number) => {
-    setCustomThemes((prev) => prev.filter((_, i) => i !== index));
+    const themeToRemove = customThemes[index];
+    const updated = customThemes.filter((_, i) => i !== index);
+    setCustomThemes(updated);
+    if (selectedTopic === `theme:${themeToRemove}`) {
+      if (updated.length > 0) {
+        setSelectedTopic(`theme:${updated[0]}`);
+      } else if (categories.length > 0) {
+        setSelectedTopic(`cat:${categories[0].slug}`);
+      } else {
+        setSelectedTopic('');
+      }
+    }
+  };
+
+  const handleArticlesPerCycleChange = (count: number) => {
+    setArticlesPerCycle(count);
+    setPublishHours((prev) => {
+      const next = [...prev];
+      const defaultSpreads = [9, 14, 19];
+      while (next.length < count) {
+        const nextHour = defaultSpreads[next.length] ?? (next[next.length - 1] + 4) % 24;
+        next.push(nextHour);
+      }
+      return next.slice(0, count);
+    });
+  };
+
+  const handleHourChange = (index: number, newHour: number) => {
+    setPublishHours((prev) => {
+      const copy = [...prev];
+      copy[index] = newHour;
+      if (index === 0) {
+        setPublishHour(newHour);
+      }
+      return copy;
+    });
   };
 
   const handleAddCategory = (e: React.FormEvent) => {
@@ -162,6 +216,16 @@ export default function BlogAiAssistantModal({
 
   const handleRemoveCategory = (slug: string) => {
     setCategories((prev) => prev.filter((c) => c.slug !== slug));
+    if (selectedTopic === `cat:${slug}`) {
+      if (customThemes.length > 0) {
+        setSelectedTopic(`theme:${customThemes[0]}`);
+      } else {
+        const remaining = categories.filter((c) => c.slug !== slug);
+        if (remaining.length > 0) {
+          setSelectedTopic(`cat:${remaining[0].slug}`);
+        }
+      }
+    }
   };
 
   const handleSaveConfig = async () => {
@@ -169,11 +233,13 @@ export default function BlogAiAssistantModal({
     setError(null);
     setStatusMessage('Salvando parâmetros do Assistente de IA...');
 
+    const hoursToSave = publishHours.slice(0, articlesPerCycle);
     const res = await saveBlogAiConfig({
       enabled,
       frequency: 'weekly',
       daysOfWeek: selectedDays,
-      publishHour,
+      publishHour: hoursToSave[0] || publishHour,
+      publishHours: hoursToSave,
       articlesPerCycle,
       categories,
       customThemes,
@@ -216,7 +282,35 @@ export default function BlogAiAssistantModal({
     setCreatedArticle(null);
     setStatusMessage('Assistente de IA redigindo artigo e consultando fotos do Unsplash...');
 
-    const res = await generateArticleNow(manualCategory, manualTheme);
+    // Salva parâmetros atualizados para garantir sincronização no banco
+    const hoursToSave = publishHours.slice(0, articlesPerCycle);
+    saveBlogAiConfig({
+      enabled,
+      frequency: 'weekly',
+      daysOfWeek: selectedDays,
+      publishHour: hoursToSave[0] || publishHour,
+      publishHours: hoursToSave,
+      articlesPerCycle,
+      categories,
+      customThemes,
+    }).catch(console.warn);
+
+    let targetCategoryOrTheme = '';
+    let themePrompt = manualTheme.trim();
+
+    if (selectedTopic.startsWith('theme:')) {
+      const themeName = selectedTopic.replace('theme:', '');
+      targetCategoryOrTheme = themeName;
+      if (!themePrompt) {
+        themePrompt = themeName;
+      }
+    } else if (selectedTopic.startsWith('cat:')) {
+      targetCategoryOrTheme = selectedTopic.replace('cat:', '');
+    } else if (selectedTopic) {
+      targetCategoryOrTheme = selectedTopic;
+    }
+
+    const res = await generateArticleNow(targetCategoryOrTheme, themePrompt);
 
     setGeneratingNow(false);
 
@@ -402,49 +496,79 @@ export default function BlogAiAssistantModal({
                   </div>
 
                   {/* Horário de Publicação & Quantidade */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="p-5 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-sky-400" />
-                        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                          Horário de Disparo (Horário de Brasília)
-                        </label>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="p-5 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                            Volume por Ciclo
+                          </label>
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          Quantos artigos devem ser redigidos por ciclo agendado:
+                        </p>
+                        <select
+                          value={articlesPerCycle}
+                          onChange={(e) => handleArticlesPerCycleChange(Number(e.target.value))}
+                          className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:border-sky-500"
+                        >
+                          <option value={1}>1 Artigo por dia agendado (Recomendado)</option>
+                          <option value={2}>2 Artigos por dia agendado</option>
+                          <option value={3}>3 Artigos por dia agendado</option>
+                        </select>
                       </div>
-                      <p className="text-xs text-slate-400">
-                        Exemplo: 19h (todas as segundas e quintas às 19:00).
-                      </p>
-                      <select
-                        value={publishHour}
-                        onChange={(e) => setPublishHour(Number(e.target.value))}
-                        className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:border-sky-500"
-                      >
-                        {Array.from({ length: 24 }, (_, i) => i).map((h) => (
-                          <option key={h} value={h}>
-                            {String(h).padStart(2, '0')}:00 horas ({h >= 12 ? 'Tarde/Noite' : 'Manhã'})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
 
-                    <div className="p-5 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-amber-400" />
-                        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                          Volume por Ciclo
-                        </label>
+                      <div className="p-5 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-sky-400" />
+                          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                            {articlesPerCycle > 1 ? 'Horários de Disparo (Horário de Brasília)' : 'Horário de Disparo (Horário de Brasília)'}
+                          </label>
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          {articlesPerCycle > 1
+                            ? `Defina os ${articlesPerCycle} horários em que cada artigo do dia será publicado:`
+                            : 'Exemplo: 19h (todas as segundas e quartas às 19:00).'}
+                        </p>
+
+                        {/* Se for 1 artigo por dia */}
+                        {articlesPerCycle === 1 ? (
+                          <select
+                            value={publishHours[0] ?? publishHour}
+                            onChange={(e) => handleHourChange(0, Number(e.target.value))}
+                            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:border-sky-500"
+                          >
+                            {Array.from({ length: 24 }, (_, i) => i).map((h) => (
+                              <option key={h} value={h}>
+                                {String(h).padStart(2, '0')}:00 horas ({h >= 12 ? 'Tarde/Noite' : 'Manhã'})
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          /* Se for 2 ou mais artigos por dia: abre seleção individual para cada um */
+                          <div className={`grid gap-2.5 ${articlesPerCycle === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-3'}`}>
+                            {Array.from({ length: articlesPerCycle }, (_, idx) => (
+                              <div key={idx} className="space-y-1 bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl">
+                                <span className="text-[11px] font-bold text-sky-300 block">
+                                  {idx + 1}º Artigo do dia:
+                                </span>
+                                <select
+                                  value={publishHours[idx] ?? (idx === 0 ? 9 : idx === 1 ? 14 : 19)}
+                                  onChange={(e) => handleHourChange(idx, Number(e.target.value))}
+                                  className="w-full px-2 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs font-semibold focus:border-sky-500"
+                                >
+                                  {Array.from({ length: 24 }, (_, i) => i).map((h) => (
+                                    <option key={h} value={h}>
+                                      {String(h).padStart(2, '0')}:00h ({h >= 12 ? 'Tarde/Noite' : 'Manhã'})
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-slate-400">
-                        Quantos artigos devem ser redigidos por ciclo agendado:
-                      </p>
-                      <select
-                        value={articlesPerCycle}
-                        onChange={(e) => setArticlesPerCycle(Number(e.target.value))}
-                        className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:border-sky-500"
-                      >
-                        <option value={1}>1 Artigo por dia agendado (Recomendado)</option>
-                        <option value={2}>2 Artigos por dia agendado</option>
-                        <option value={3}>3 Artigos por dia agendado</option>
-                      </select>
                     </div>
                   </div>
                 </div>
@@ -606,31 +730,69 @@ export default function BlogAiAssistantModal({
 
                   <div className="space-y-4 pt-2">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                        Eixo / Categoria Alvo
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                          Eixo / Categoria / Tema Alvo (Mini Cérebro)
+                        </label>
+                        <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60 font-semibold">
+                          {customThemes.length} Temas • {categories.length} Categorias
+                        </span>
+                      </div>
                       <select
-                        value={manualCategory}
-                        onChange={(e) => setManualCategory(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                        value={selectedTopic}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSelectedTopic(val);
+                          if (val.startsWith('cat:')) {
+                            setManualCategory(val.replace('cat:', ''));
+                          } else if (val.startsWith('theme:')) {
+                            setManualCategory(val.replace('theme:', ''));
+                          }
+                        }}
+                        className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500 font-medium"
                       >
-                        {categories.map((c) => (
-                          <option key={c.slug} value={c.slug}>
-                            {c.name}
-                          </option>
-                        ))}
+                        {/* 1. Temas configurados no Mini Cérebro */}
+                        {customThemes.length > 0 && (
+                          <optgroup label="💡 Temas do Mini Cérebro (Configurados por Você)">
+                            {customThemes.map((theme, i) => (
+                              <option key={`theme-${i}`} value={`theme:${theme}`}>
+                                {theme}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+
+                        {/* 2. Categorias e Eixos Editoriais */}
+                        {categories.length > 0 && (
+                          <optgroup label="📁 Eixos & Categorias Editoriais">
+                            {categories.map((c) => (
+                              <option key={`cat-${c.slug}`} value={`cat:${c.slug}`}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
                       </select>
+                      <p className="text-[11px] text-slate-400">
+                        {selectedTopic.startsWith('theme:')
+                          ? `💡 Tema ativo do Mini Cérebro: "${selectedTopic.replace('theme:', '')}"`
+                          : '📁 Categoria selecionada para orientar a geração do artigo.'}
+                      </p>
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                        Tema Específico ou Pergunta Jurídica (Opcional)
+                        Complemento / Pergunta Jurídica Específica (Opcional)
                       </label>
                       <input
                         type="text"
                         value={manualTheme}
                         onChange={(e) => setManualTheme(e.target.value)}
-                        placeholder="Deixe em branco para o robô sortear uma pauta estratégica do seu mini cérebro..."
+                        placeholder={
+                          selectedTopic.startsWith('theme:')
+                            ? `Opcional. Se deixar vazio, a IA redigirá sobre "${selectedTopic.replace('theme:', '')}"`
+                            : 'Deixe em branco para o robô sortear uma pauta estratégica do seu mini cérebro...'
+                        }
                         className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:border-emerald-500"
                       />
                     </div>
@@ -796,7 +958,12 @@ export default function BlogAiAssistantModal({
         {/* Rodapé Fixo */}
         <div className="px-6 py-4 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-4 sticky bottom-0 z-30">
           <div className="text-xs text-slate-400">
-            {selectedDays.length} dias selecionados • Horário: {publishHour}:00h (Brasília)
+            {selectedDays.length} dias selecionados • {articlesPerCycle} {articlesPerCycle > 1 ? 'artigos/dia' : 'artigo/dia'} • Horário{articlesPerCycle > 1 ? 's' : ''}:{' '}
+            {publishHours
+              .slice(0, articlesPerCycle)
+              .map((h) => `${String(h).padStart(2, '0')}:00h`)
+              .join(', ')}{' '}
+            (Brasília)
           </div>
 
           <div className="flex items-center gap-3">

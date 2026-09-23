@@ -265,16 +265,22 @@ async function run() {
     const dayOfWeek = brDate.getUTCDay(); // 0 a 6
     const hour = brDate.getUTCHours();
 
+    const scheduledHours = (
+      aiConfig.publishHours && Array.isArray(aiConfig.publishHours) && aiConfig.publishHours.length > 0
+        ? aiConfig.publishHours.slice(0, aiConfig.articlesPerCycle || 1)
+        : [aiConfig.publishHour ?? 19]
+    );
+
     console.log(`Checagem de agendamento: Hoje é dia ${dayOfWeek}, horário de Brasília: ${hour}h`);
-    console.log(`Configuração: Dias [${aiConfig.daysOfWeek.join(', ')}], Horário alvo: ${aiConfig.publishHour}h`);
+    console.log(`Configuração: Dias [${aiConfig.daysOfWeek.join(', ')}], Horários alvo: [${scheduledHours.join(', ')}]h`);
 
     if (!aiConfig.daysOfWeek.includes(dayOfWeek)) {
       console.log(`Hoje (${dayOfWeek}) não é um dia programado para publicação. Aguardando próximo ciclo.`);
       return;
     }
 
-    if (hour !== aiConfig.publishHour) {
-      console.log(`Horário atual (${hour}h) não corresponde ao horário agendado (${aiConfig.publishHour}h).`);
+    if (!scheduledHours.includes(hour)) {
+      console.log(`Horário atual (${hour}h) não corresponde a nenhum dos horários agendados (${scheduledHours.join(', ')}h).`);
       return;
     }
   }

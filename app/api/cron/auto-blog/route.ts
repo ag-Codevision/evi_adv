@@ -99,21 +99,29 @@ async function handleCronExecution(req: NextRequest) {
         });
       }
 
-      // Checa se o horário agendado já foi alcançado
-      // Se ainda não atingiu o horário agendado de hoje (ex: agendado para 17h e ainda são 16h30):
-      if (currentHour < config.publishHour) {
+      // Lista de horários agendados ordenados (suporte a múltiplos horários conforme o volume diário)
+      const scheduledHours: number[] = (
+        config.publishHours && Array.isArray(config.publishHours) && config.publishHours.length > 0
+          ? config.publishHours.slice(0, config.articlesPerCycle || 1)
+          : [config.publishHour ?? 19]
+      ).sort((a, b) => a - b);
+
+      // Quantos horários agendados já foram alcançados no dia de hoje até o momento atual
+      const reachedHours = scheduledHours.filter((h) => currentHour >= h);
+
+      // Se ainda não alcançou nem o primeiro horário agendado de hoje:
+      if (reachedHours.length === 0) {
         return NextResponse.json({
           status: 'skipped',
-          reason: `Ainda não atingiu o horário agendado de publicação (${config.publishHour}:00). Horário atual em Brasília: ${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}.`,
-          publishHour: config.publishHour,
+          reason: `Ainda não atingiu nenhum dos horários agendados (${scheduledHours.map((h) => `${h}:00`).join(', ')}). Horário atual em Brasília: ${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}.`,
+          scheduledHours,
           currentHour,
           currentMinute,
         });
       }
 
       // Checagem de Reconciliação no Banco de Dados:
-      // Se o horário agendado já atingiu ou já passou (ex: agendado para 17:00 e o robô acordou às 17:30, 18:00 ou mais tarde),
-      // consultamos quantos artigos já foram publicados HOJE na tabela 'posts' do Supabase.
+      // Consultamos quantos artigos já foram publicados HOJE na tabela 'posts' do Supabase.
       const directSupabase = getDirectSupabase(true);
       const { data: postsToday, error: queryError } = await directSupabase
         .from('posts')
@@ -126,23 +134,29 @@ async function handleCronExecution(req: NextRequest) {
         console.error('[Cron Auto-Blog] Erro ao consultar posts do dia:', queryError);
       }
 
-      const targetCount = config.articlesPerCycle || 1;
+      const totalTargetDaily = config.articlesPerCycle || 1;
+      const targetCountSoFar = Math.min(reachedHours.length, totalTargetDaily);
       const countToday = postsToday ? postsToday.length : 0;
 
-      // Se a quantidade de posts hoje já atingiu ou superou a meta diária:
-      if (countToday >= targetCount) {
+      // Se a quantidade de posts hoje já atingiu ou superou a meta prevista para os horários já passados:
+      if (countToday >= targetCountSoFar) {
+        const isCompletedFullDay = countToday >= totalTargetDaily;
         return NextResponse.json({
           status: 'already_run_today',
-          message: `A cota diária de hoje (${todayDateBrasilia}) já foi cumprida com ${countToday} artigo(s) publicado(s). Meta do agendamento: ${targetCount} artigo(s).`,
+          message: isCompletedFullDay
+            ? `A cota diária de hoje (${todayDateBrasilia}) já foi cumprida com ${countToday} artigo(s) publicado(s). Meta do dia: ${totalTargetDaily} artigo(s).`
+            : `A meta agendada até o momento já foi cumprida (${countToday}/${targetCountSoFar} artigos). Aguardando próximo horário agendado.`,
           lastArticle: postsToday ? postsToday[0] : null,
           totalToday: countToday,
-          targetCount,
+          targetCountSoFar,
+          totalTargetDaily,
+          scheduledHours,
           brasiliaTime: `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`,
         });
       }
 
-      // Se o horário agendado já passou e a quantidade de posts hoje é MENOR que a meta:
-      console.log(`[Cron Auto-Blog] Horário agendado (${config.publishHour}:00) atingido/passado. Posts existentes hoje: ${countToday}/${targetCount}. Disparando criação autônoma de artigo pendente...`);
+      // Se algum horário agendado já passou e a quantidade de posts hoje é MENOR que a meta acumulada:
+      console.log(`[Cron Auto-Blog] Horário(s) atingido(s) (${reachedHours.map(h => `${h}:00`).join(', ')}). Posts existentes hoje: ${countToday}/${targetCountSoFar} (Meta diária total: ${totalTargetDaily}). Disparando criação autônoma de artigo pendente...`);
     }
 
     console.log(`[Cron Auto-Blog] Disparando ciclo editorial com IA (force=${isForce})...`);

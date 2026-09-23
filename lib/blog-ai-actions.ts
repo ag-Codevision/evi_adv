@@ -9,7 +9,8 @@ export interface BlogAiConfig {
   enabled: boolean;
   frequency: 'daily' | 'weekly' | 'custom';
   daysOfWeek: number[]; // 0 = Domingo, 1 = Segunda, 2 = Terça, 3 = Quarta, 4 = Quinta, 5 = Sexta, 6 = Sábado
-  publishHour: number; // 0 a 23 (horário de Brasília)
+  publishHour: number; // 0 a 23 (horário de Brasília) - retrocompatibilidade
+  publishHours?: number[]; // Lista de horários de disparo diário (ex: [9, 19] para 2 artigos/dia)
   articlesPerCycle: number;
   categories: Array<{ slug: string; name: string; targetAudience?: string; keywords?: string[] }>;
   customThemes: string[];
@@ -22,6 +23,7 @@ const DEFAULT_AI_CONFIG: BlogAiConfig = {
   frequency: 'weekly',
   daysOfWeek: [1, 4], // Segundas e Quintas
   publishHour: 19, // 19h
+  publishHours: [19],
   articlesPerCycle: 1,
   categories: [
     {
@@ -129,6 +131,17 @@ export async function saveBlogAiConfig(config: BlogAiConfig): Promise<{ success:
       return { success: false, error: 'Acesso negado. Apenas administradores autenticados podem alterar as configurações.' };
     }
 
+    const normalizedPublishHours =
+      config.publishHours && config.publishHours.length > 0
+        ? config.publishHours.slice(0, config.articlesPerCycle || 1)
+        : [config.publishHour || 19];
+
+    const updatedConfig: BlogAiConfig = {
+      ...config,
+      publishHour: normalizedPublishHours[0],
+      publishHours: normalizedPublishHours,
+    };
+
     const { error: upsertError } = await supabase
       .from('site_contents')
       .upsert(
@@ -137,11 +150,13 @@ export async function saveBlogAiConfig(config: BlogAiConfig): Promise<{ success:
           section: 'engine',
           field_key: 'settings',
           content_type: 'list',
-          content_value: JSON.stringify(config),
+          content_value: JSON.stringify(updatedConfig),
           metadata: {
-            enabled: config.enabled,
-            daysOfWeek: config.daysOfWeek,
-            publishHour: config.publishHour,
+            enabled: updatedConfig.enabled,
+            daysOfWeek: updatedConfig.daysOfWeek,
+            publishHour: updatedConfig.publishHour,
+            publishHours: updatedConfig.publishHours,
+            articlesPerCycle: updatedConfig.articlesPerCycle,
             updated_by: user.email,
           },
           updated_at: new Date().toISOString(),
@@ -264,17 +279,61 @@ export async function runBlogAiCycle(options?: {
       return { success: false, error: 'NVIDIA_API_KEY não configurada no servidor.' };
     }
 
-    // 1. Define categoria e tema
-    const selectedCategory =
-      config.categories.find((c) => c.slug === options?.targetCategorySlug) ||
-      config.categories[Math.floor(Math.random() * config.categories.length)] ||
-      DEFAULT_AI_CONFIG.categories[0];
+    // 1. Define categoria e tema dinamicamente
+    const requested = options?.targetCategorySlug?.trim();
+    let selectedCategory: { slug: string; name: string; targetAudience?: string; keywords?: string[] } | undefined;
 
-    const chosenTheme =
-      options?.customThemePrompt?.trim() ||
-      (config.customThemes.length > 0
-        ? config.customThemes[Math.floor(Math.random() * config.customThemes.length)]
-        : `Teses jurídicas e soluções estratégicas em ${selectedCategory.name}`);
+    if (requested) {
+      // 1.1 Procura nas categorias configuradas (por slug ou por nome)
+      selectedCategory = config.categories.find(
+        (c) => c.slug === requested || c.name.toLowerCase() === requested.toLowerCase()
+      );
+
+      // 1.2 Procura nos temas do Mini Cérebro
+      if (!selectedCategory) {
+        const foundTheme = config.customThemes?.find(
+          (t) =>
+            t.toLowerCase() === requested.toLowerCase() ||
+            t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-') === requested
+        );
+
+        const name = foundTheme || requested;
+        const slug = name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^\w\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-');
+
+        selectedCategory = {
+          name,
+          slug,
+          targetAudience: 'Empresários, diretores e tomadores de decisão em busca de estratégias e segurança jurídica',
+          keywords: [name, 'direito', 'legislação', 'assessoria jurídica'],
+        };
+      }
+    }
+
+    if (!selectedCategory) {
+      selectedCategory =
+        config.categories[Math.floor(Math.random() * config.categories.length)] ||
+        DEFAULT_AI_CONFIG.categories[0];
+    }
+
+    // 1.3 Define o tema
+    let chosenTheme = options?.customThemePrompt?.trim();
+    if (!chosenTheme) {
+      // Se a categoria selecionada veio de um tema do mini cérebro, usa o próprio tema como foco
+      const isThemeName = config.customThemes?.some((t) => t.toLowerCase() === selectedCategory!.name.toLowerCase());
+      if (isThemeName) {
+        chosenTheme = selectedCategory!.name;
+      } else if (config.customThemes && config.customThemes.length > 0) {
+        chosenTheme = config.customThemes[Math.floor(Math.random() * config.customThemes.length)];
+      } else {
+        chosenTheme = `Teses jurídicas e soluções estratégicas em ${selectedCategory!.name}`;
+      }
+    }
 
     // 2. Prompt com a Persona do Dr. Eduardo Veríssimo Inocente
     const systemPrompt = `Você é o Dr. Eduardo Veríssimo Inocente, advogado sócio-fundador da EVI Sociedade de Advogados (OAB/SP 200.334), com mais de 25 anos de atuação de vanguarda no Direito Empresarial brasileiro, referência nacional em Recuperação Judicial, Agronegócio e Contencioso Estratégico.
@@ -450,11 +509,33 @@ Retorne a resposta EXCLUSIVAMENTE em formato JSON puro, sem blocos markdown:
       .eq('is_director', true)
       .single();
 
-    const { data: dbCat } = await supabase
+    let { data: dbCat } = await supabase
       .from('categories')
-      .select('id')
+      .select('id, name')
       .eq('slug', selectedCategory.slug)
       .single();
+
+    if (!dbCat && selectedCategory.name) {
+      const { data: dbCatByName } = await supabase
+        .from('categories')
+        .select('id, name')
+        .ilike('name', selectedCategory.name)
+        .single();
+      dbCat = dbCatByName;
+    }
+
+    if (!dbCat && selectedCategory.name) {
+      const { data: newCat } = await supabase
+        .from('categories')
+        .insert({
+          name: selectedCategory.name,
+          slug: selectedCategory.slug,
+          description: `Artigos e teses jurídicas estratégicas sobre ${selectedCategory.name}.`,
+        })
+        .select('id, name')
+        .single();
+      dbCat = newCat;
+    }
 
     // 6. Insere no Supabase
     const nowIso = new Date().toISOString();
