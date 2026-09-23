@@ -499,18 +499,10 @@ export default function ImprensaPage() {
               return (
               <article
                 key={item.slug}
-                className={`bg-white rounded-3xl border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative ${
-                  isPinned ? 'border-amber-300 ring-2 ring-amber-400/30 shadow-md' : 'border-evi-border'
+                className={`bg-white rounded-3xl border border-evi-border overflow-hidden shadow-evi-card hover:shadow-evi-hover transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative ${
+                  isAdmin && isEditing && isPinned ? 'ring-2 ring-amber-400/40' : ''
                 }`}
               >
-                {/* Badge de Matéria Fixada no Topo (Visível para visitantes) */}
-                {isPinned && (!isAdmin || !isEditing) && (
-                  <div className="absolute top-3 right-3 z-20 bg-amber-500/95 backdrop-blur-md text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg border border-amber-300 tracking-wide">
-                    <Pin className="w-3 h-3 fill-slate-950 text-slate-950" />
-                    <span>Fixado no Topo</span>
-                  </div>
-                )}
-
                 {/* Ações de Edição CRUD quando Admin estiver em modo edição */}
                 {isAdmin && isEditing && (
                   <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-slate-900/95 backdrop-blur-md p-1.5 rounded-xl border border-slate-700 shadow-xl">
@@ -564,9 +556,7 @@ export default function ImprensaPage() {
                       {item.outlet}
                     </div>
                     {item.youtubeId && (!isAdmin || !isEditing) && (
-                      <div className={`absolute right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md ${
-                        isPinned ? 'top-10' : 'top-3'
-                      }`}>
+                      <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md">
                         <span>▶ Vídeo</span>
                       </div>
                     )}
