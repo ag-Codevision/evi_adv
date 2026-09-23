@@ -1,8 +1,11 @@
 import React from 'react';
 import { createClient } from '../../lib/supabase/server';
 import Link from 'next/link';
-import { FileText, Newspaper, Users, Inbox, Sparkles, Globe, LogOut, ArrowUpRight } from 'lucide-react';
+import { FileText, Newspaper, Sparkles, Globe, ArrowUpRight, CheckCircle, Sliders } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import { getAllBlogArticles } from '@/lib/blog-data';
+import { getAllPressArticles } from '@/lib/press-data';
+import { getBlogAiConfig } from '@/lib/blog-ai-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,18 +20,74 @@ export default async function AdminDashboardPage() {
     redirect('/admin/login');
   }
 
-  // Busca contagens em paralelo no Supabase
+  // 1. Busca dados do Blog, Imprensa, Configurações de IA e Conteúdos em paralelo
   const [
-    { count: postsCount },
-    { count: pressCount },
-    { count: leadsCount },
-    { count: queueCount },
+    { data: dbPosts },
+    { data: blogCustom },
+    { data: blogDeleted },
+    { data: pressCustom },
+    { count: siteContentsCount },
   ] = await Promise.all([
-    supabase.from('posts').select('*', { count: 'exact', head: true }),
-    supabase.from('press_items').select('*', { count: 'exact', head: true }),
-    supabase.from('leads').select('*', { count: 'exact', head: true }),
-    supabase.from('editorial_queue').select('*', { count: 'exact', head: true }),
+    supabase.from('posts').select('*'),
+    supabase.from('site_contents').select('field_key, content_value').eq('page', 'blog').eq('section', 'custom_articles'),
+    supabase.from('site_contents').select('field_key').eq('page', 'blog').eq('section', 'deleted_articles'),
+    supabase.from('site_contents').select('field_key, content_value').eq('page', 'imprensa').eq('section', 'custom_articles'),
+    supabase.from('site_contents').select('*', { count: 'exact', head: true }),
   ]);
+
+  // Monta lista real de artigos de Blog
+  const customBlogArticles: any[] = [];
+  if (dbPosts) {
+    dbPosts.forEach((row: any) => {
+      customBlogArticles.push({
+        slug: row.slug,
+        title: row.title,
+        category: row.category?.name || 'Geral',
+        categorySlug: row.category?.slug || 'geral',
+        date: row.published_at ? new Date(row.published_at).toLocaleDateString('pt-BR') : '',
+        publishedAt: row.published_at || new Date().toISOString(),
+        readingTime: 6,
+        featuredImage: row.cover_image || '/img/01.png',
+        excerpt: row.excerpt || row.title,
+        paragraphs: [row.excerpt || row.title],
+        author: { name: 'Dr. Eduardo Veríssimo Inocente', role: 'Sócio-Fundador', avatar: '/img/01.png' },
+        keywords: [],
+      });
+    });
+  }
+  if (blogCustom) {
+    blogCustom.forEach((row: any) => {
+      try {
+        if (row.content_value) {
+          const item = JSON.parse(row.content_value);
+          if (item && item.slug) customBlogArticles.push(item);
+        }
+      } catch {}
+    });
+  }
+  const deletedSlugs = blogDeleted ? blogDeleted.map((d: any) => d.field_key) : [];
+  const allBlogArticles = getAllBlogArticles(customBlogArticles, deletedSlugs);
+  const totalBlogCount = allBlogArticles.length;
+
+  // Monta lista real de matérias de Imprensa
+  const customPressArticles: any[] = [];
+  if (pressCustom) {
+    pressCustom.forEach((row: any) => {
+      try {
+        if (row.content_value) {
+          const item = JSON.parse(row.content_value);
+          if (item && item.slug) customPressArticles.push(item);
+        }
+      } catch {}
+    });
+  }
+  const allPress = getAllPressArticles(customPressArticles);
+  const totalPressCount = allPress.length;
+
+  // Obtém configurações do Motor de IA
+  const aiConfig = await getBlogAiConfig();
+  const isAiActive = aiConfig.enabled;
+  const aiThemesCount = (aiConfig.customThemes || []).length;
 
   return (
     <div className="min-h-screen bg-[#0a111d] text-slate-100 font-sans p-6 lg:p-12">
@@ -62,62 +121,89 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Grade de Estatísticas e Acessos Rápidos */}
+        {/* Grade de Estatísticas e Acessos Rápidos com Dados Reais */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Blog */}
+          {/* Card 1: Artigos do Blog */}
           <div className="bg-[#111e33]/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-slate-400">Artigos no Blog</span>
               <FileText className="w-5 h-5 text-sky-400" />
             </div>
-            <div className="text-3xl font-bold text-white mb-2">{postsCount ?? 0}</div>
+            <div className="text-3xl font-bold text-white mb-2">{totalBlogCount}</div>
+            <span className="text-[11px] text-slate-400 block mb-3">
+              Publicados e ativos no site
+            </span>
             <Link
               href="/blog"
-              className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 mt-3"
+              className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
             >
               <span>Gerenciar na página do Blog</span>
               <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>
 
-          {/* Card 2: Imprensa */}
+          {/* Card 2: Clipping & TV (Imprensa) */}
           <div className="bg-[#111e33]/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-slate-400">Clipping & TV</span>
               <Newspaper className="w-5 h-5 text-indigo-400" />
             </div>
-            <div className="text-3xl font-bold text-white mb-2">{pressCount ?? 0}</div>
+            <div className="text-3xl font-bold text-white mb-2">{totalPressCount}</div>
+            <span className="text-[11px] text-slate-400 block mb-3">
+              Matérias de TV, jornais e revistas
+            </span>
             <Link
               href="/imprensa"
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-3"
+              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
             >
               <span>Gerenciar matérias</span>
               <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>
 
-          {/* Card 3: Leads Recebidos */}
+          {/* Card 3: Motor Editorial de IA */}
           <div className="bg-[#111e33]/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-slate-400">Leads de Clientes</span>
-              <Inbox className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">{leadsCount ?? 0}</div>
-            <span className="text-xs text-slate-400 block mt-3">
-              Recebidos via formulário
-            </span>
-          </div>
-
-          {/* Card 4: Pautas da IA */}
-          <div className="bg-[#111e33]/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-slate-400">Fila Editorial IA</span>
+              <span className="text-xs font-medium text-slate-400">Motor Editorial IA</span>
               <Sparkles className="w-5 h-5 text-amber-400" />
             </div>
-            <div className="text-3xl font-bold text-white mb-2">{queueCount ?? 0}</div>
-            <span className="text-xs text-slate-400 block mt-3">
-              Pautas agendadas
+            <div className="flex items-baseline gap-2 mb-2">
+              <span className="text-2xl font-bold text-white">
+                {isAiActive ? 'Ativo' : 'Pausado'}
+              </span>
+              <span className="text-xs text-amber-400 font-semibold">
+                ({aiThemesCount} temas)
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-400 block mb-3">
+              {isAiActive ? 'Geração automática semanal ativa' : 'Automação pausada no momento'}
             </span>
+            <Link
+              href="/blog"
+              className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium"
+            >
+              <span>Configurar Motor no Blog</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {/* Card 4: Live CMS Customizações */}
+          <div className="bg-[#111e33]/80 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-slate-400">Edições no Live CMS</span>
+              <CheckCircle className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="text-3xl font-bold text-white mb-2">{siteContentsCount ?? 0}</div>
+            <span className="text-[11px] text-slate-400 block mb-3">
+              Textos e fotos customizadas salvas
+            </span>
+            <Link
+              href="/"
+              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium"
+            >
+              <span>Editar Home e Páginas</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
           </div>
         </div>
 
@@ -128,7 +214,7 @@ export default async function AdminDashboardPage() {
             Como utilizar a Edição em Tempo Real (Live CMS)
           </h2>
           <p className="text-sm text-slate-300 leading-relaxed">
-            Com sua conta de administrador conectada, você não precisa ficar navegando em painéis externos para alterar o site.
+            Com sua conta de administrador conectada, você não precisa ficar navegando em painéis complexos para alterar o site.
             Basta acessar qualquer página pública com o <strong>Modo Edição ATIVO</strong> na barra superior:
           </p>
 
@@ -136,7 +222,7 @@ export default async function AdminDashboardPage() {
             <div className="bg-[#0b1322] border border-slate-800 p-4 rounded-xl">
               <strong className="text-sky-400 text-sm block mb-1">1. Textos e Chamadas</strong>
               <p className="text-xs text-slate-400">
-                Passe o mouse sobre qualquer título, parágrafo ou número e clique para digitar diretamente no local. Ao clicar fora, é salvo automaticamente no Supabase.
+                Passe o mouse sobre qualquer título, parágrafo ou número e clique para digitar diretamente no local. Ao clicar fora, é salvo automaticamente no banco de dados.
               </p>
             </div>
 
