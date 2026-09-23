@@ -595,10 +595,15 @@ export default function QuemSomosPage() {
                         imgClassName="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-evi-deep/80 via-transparent to-transparent opacity-60 pointer-events-none"></div>
-                      <div className="absolute bottom-4 left-4 right-4 text-white pointer-events-none">
-                        <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-200 block">
-                          {member.role}
-                        </span>
+                      <div className="absolute bottom-4 left-4 right-4 text-white z-20 pointer-events-auto">
+                        <EditableText
+                          page="quem_somos"
+                          section="equipe"
+                          fieldKey={`member_role_${idx}`}
+                          defaultContent={member.role}
+                          as="span"
+                          className="text-[11px] uppercase tracking-wider font-semibold text-slate-200 block"
+                        />
                       </div>
                     </div>
 
