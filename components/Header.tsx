@@ -315,9 +315,14 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
               {/* Badge Institucional Estilo Chip MD3 */}
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/60 text-slate-700 text-xs">
                 <ShieldCheck className="w-4 h-4 text-evi-accent flex-shrink-0" />
-                <span className="font-medium tracking-wide">
-                  OAB/SP 8.016 · Desde 2001 com Atuação Nacional
-                </span>
+                <EditableText
+                  page="global"
+                  section="header"
+                  fieldKey="mobile_oab_badge"
+                  defaultContent="OAB/SP 200.344 · Desde 2001 com Atuação Nacional"
+                  as="span"
+                  className="font-medium tracking-wide"
+                />
               </div>
 
               {/* Lista de Navegação Estilo App */}
