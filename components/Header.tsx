@@ -416,20 +416,22 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
 
                   <div className="flex flex-col gap-1.5">
                     {/* Telefone 1 - Principal (em Negrito) */}
-                    <EditableLink
-                      page="global"
-                      section="contact"
-                      fieldKey="phone"
-                      defaultLabel="(11) 4362-3533"
-                      defaultHref="tel:+551143623533"
-                      className="md3-ripple-container flex items-center justify-between p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/60 text-evi-deep text-sm font-bold shadow-sm"
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        (11) 4362-3533
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/60 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                        <EditableLink
+                          page="global"
+                          section="contact"
+                          fieldKey="phone"
+                          defaultLabel="(11) 4125-1000"
+                          defaultHref="tel:+551141251000"
+                          className="text-evi-deep text-sm font-bold hover:text-evi-accent transition-colors"
+                        />
+                      </div>
+                      <span className="text-[10px] bg-amber-100 text-amber-900 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                        Principal
                       </span>
-                      <span className="text-[10px] text-evi-accent font-semibold uppercase tracking-wider">Principal</span>
-                    </EditableLink>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-1.5">
                       {/* Telefone 2 */}

@@ -79,11 +79,12 @@ export default function SiteContentProvider({
 
 // Mapeamento bidirecional de contatos e redes sociais para atualização em tempo real em todas as páginas
 const CONTACT_ALIASES: Record<string, string[]> = {
-  'global.contact.phone': ['global.footer.phone', 'global.header.phone', 'global.topbar.phone', 'contato.telefones.tel1'],
-  'global.footer.phone': ['global.contact.phone', 'global.header.phone', 'global.topbar.phone', 'contato.telefones.tel1'],
-  'global.header.phone': ['global.contact.phone', 'global.footer.phone', 'global.topbar.phone', 'contato.telefones.tel1'],
-  'global.topbar.phone': ['global.contact.phone', 'global.footer.phone', 'global.header.phone', 'contato.telefones.tel1'],
-  'contato.telefones.tel1': ['global.contact.phone', 'global.footer.phone', 'global.header.phone', 'global.topbar.phone'],
+  'global.contact.phone': ['global.footer.phone', 'global.header.phone', 'global.topbar.phone', 'contato.telefones.tel1', 'home.contact.phone'],
+  'global.footer.phone': ['global.contact.phone', 'global.header.phone', 'global.topbar.phone', 'contato.telefones.tel1', 'home.contact.phone'],
+  'global.header.phone': ['global.contact.phone', 'global.footer.phone', 'global.topbar.phone', 'contato.telefones.tel1', 'home.contact.phone'],
+  'global.topbar.phone': ['global.contact.phone', 'global.footer.phone', 'global.header.phone', 'contato.telefones.tel1', 'home.contact.phone'],
+  'contato.telefones.tel1': ['global.contact.phone', 'global.footer.phone', 'global.header.phone', 'global.topbar.phone', 'home.contact.phone'],
+  'home.contact.phone': ['global.contact.phone', 'global.footer.phone', 'global.header.phone', 'global.topbar.phone', 'contato.telefones.tel1'],
 
   'global.contact.phone_2': ['global.footer.phone_2', 'global.header.phone_2', 'contato.telefones.tel2'],
   'global.footer.phone_2': ['global.contact.phone_2', 'global.header.phone_2', 'contato.telefones.tel2'],

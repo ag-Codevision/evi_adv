@@ -13,8 +13,8 @@ export default function ContactSection() {
           <EditableText page="home" section="contact" fieldKey="heading" defaultContent="Converse com o escritório." as="h2" />
           <EditableText page="home" section="contact" fieldKey="desc" defaultContent="Apresente sua necessidade pelos canais oficiais e receba orientação sobre o atendimento." as="p" className="section-subtitle" multiline />
           <div className="contact-list">
-            <EditableLink page="home" section="contact" fieldKey="phone" defaultLabel="Telefone · (11) 4362-3533" defaultHref="tel:+551143623533" />
-            <EditableLink page="home" section="contact" fieldKey="email" defaultLabel="contato@evi.adv.br" defaultHref="mailto:contato@evi.adv.br" />
+            <EditableLink page="global" section="contact" fieldKey="phone" defaultLabel="Telefone · (11) 4125-1000" defaultHref="tel:+551141251000" />
+            <EditableLink page="global" section="contact" fieldKey="email" defaultLabel="contato@evi.adv.br" defaultHref="mailto:contato@evi.adv.br" />
             <EditableText page="home" section="contact" fieldKey="badge" defaultContent="Atendimento em todo o território nacional" as="span" />
           </div>
           <EditableLink

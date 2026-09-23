@@ -105,8 +105,8 @@ export default function ContatoPage() {
                       page="global"
                       section="contact"
                       fieldKey="phone"
-                      defaultLabel="(11) 4362-3533"
-                      defaultHref="tel:+551143623533"
+                      defaultLabel="(11) 4125-1000"
+                      defaultHref="tel:+551141251000"
                       className="inline-flex items-center gap-2.5 hover:text-evi-accent font-bold text-evi-deep transition-colors"
                     />
                     <EditableLink
