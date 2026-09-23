@@ -401,26 +401,67 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
                 />
               </div>
 
-              {/* Ações Rápidas de Contato */}
-              <div className="md3-stagger-item grid grid-cols-2 gap-2 pt-1" style={{ animationDelay: '0.40s' }}>
-                <EditableLink
-                  page="global"
-                  section="header"
-                  fieldKey="phone"
-                  defaultLabel="(11) 4362-3533"
-                  defaultHref="tel:+551143623533"
-                  className="md3-ripple-container flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-evi-deep text-xs font-medium"
-                >
-                  <PhoneCall className="w-3.5 h-3.5 text-evi-accent" />
-                </EditableLink>
+              {/* Ações Rápidas de Contato - 3 Telefones e E-mail */}
+              <div className="md3-stagger-item flex flex-col gap-2 pt-1" style={{ animationDelay: '0.40s' }}>
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <PhoneCall className="w-3.5 h-3.5 text-evi-accent" />
+                      Telefones Oficiais
+                    </span>
+                    <span className="text-[10px] bg-amber-100 text-amber-900 font-semibold px-2 py-0.5 rounded-full">
+                      Atendimento
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    {/* Telefone 1 - Principal (em Negrito) */}
+                    <EditableLink
+                      page="global"
+                      section="contact"
+                      fieldKey="phone"
+                      defaultLabel="(11) 4362-3533"
+                      defaultHref="tel:+551143623533"
+                      className="md3-ripple-container flex items-center justify-between p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/60 text-evi-deep text-sm font-bold shadow-sm"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        (11) 4362-3533
+                      </span>
+                      <span className="text-[10px] text-evi-accent font-semibold uppercase tracking-wider">Principal</span>
+                    </EditableLink>
+
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {/* Telefone 2 */}
+                      <EditableLink
+                        page="global"
+                        section="contact"
+                        fieldKey="phone_2"
+                        defaultLabel="(11) 4367-5850"
+                        defaultHref="tel:+551143675850"
+                        className="md3-ripple-container flex items-center justify-center p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/60 text-slate-700 text-xs font-medium"
+                      />
+
+                      {/* Telefone 3 */}
+                      <EditableLink
+                        page="global"
+                        section="contact"
+                        fieldKey="phone_3"
+                        defaultLabel="(11) 4177-3834"
+                        defaultHref="tel:+551141773834"
+                        className="md3-ripple-container flex items-center justify-center p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/60 text-slate-700 text-xs font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 <EditableLink
                   page="global"
-                  section="header"
+                  section="contact"
                   fieldKey="email"
                   defaultLabel="contato@evi.adv.br"
                   defaultHref="mailto:contato@evi.adv.br"
-                  className="md3-ripple-container flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-evi-deep text-xs font-medium truncate"
+                  className="md3-ripple-container flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-evi-deep text-xs font-medium truncate"
                 >
                   <Mail className="w-3.5 h-3.5 text-evi-accent flex-shrink-0" />
                 </EditableLink>
@@ -434,8 +475,12 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
               </span>
 
               <div className="flex items-center gap-2">
-                <a
-                  href="https://www.facebook.com/EVISociedadedeAdvogados/"
+                <EditableLink
+                  page="global"
+                  section="contact"
+                  fieldKey="social_facebook"
+                  defaultLabel=""
+                  defaultHref="https://www.facebook.com/EVISociedadedeAdvogados/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
@@ -444,9 +489,13 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                   </svg>
-                </a>
-                <a
-                  href="https://www.instagram.com/eviadvogados/?hl=pt-br"
+                </EditableLink>
+                <EditableLink
+                  page="global"
+                  section="contact"
+                  fieldKey="social_instagram"
+                  defaultLabel=""
+                  defaultHref="https://www.instagram.com/eviadvogados/?hl=pt-br"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -457,9 +506,13 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
                     <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
                   </svg>
-                </a>
-                <a
-                  href="https://www.linkedin.com/company/evi-sociedade-de-advogados/"
+                </EditableLink>
+                <EditableLink
+                  page="global"
+                  section="contact"
+                  fieldKey="social_linkedin"
+                  defaultLabel=""
+                  defaultHref="https://www.linkedin.com/company/evi-sociedade-de-advogados/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
@@ -469,9 +522,13 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
                     <circle cx="4" cy="4" r="2" />
                   </svg>
-                </a>
-                <a
-                  href="https://www.youtube.com/channel/UCo_k-NzKbkFVJ5zXz4xOwrQ"
+                </EditableLink>
+                <EditableLink
+                  page="global"
+                  section="contact"
+                  fieldKey="social_youtube"
+                  defaultLabel=""
+                  defaultHref="https://www.youtube.com/channel/UCo_k-NzKbkFVJ5zXz4xOwrQ"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
@@ -480,7 +537,7 @@ export default function Header({ leftLinks, rightLinks, allLinks }: HeaderProps)
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
                     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33zM9.75 15.02l.01-6.54 5.74 3.27-5.75 3.27z" />
                   </svg>
-                </a>
+                </EditableLink>
               </div>
             </div>
           </div>

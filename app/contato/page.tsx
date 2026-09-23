@@ -102,25 +102,25 @@ export default function ContatoPage() {
                   </h3>
                   <div className="flex flex-col gap-2.5 text-sm text-evi-text">
                     <EditableLink
-                      page="contato"
-                      section="telefones"
-                      fieldKey="tel1"
+                      page="global"
+                      section="contact"
+                      fieldKey="phone"
                       defaultLabel="(11) 4362-3533"
                       defaultHref="tel:+551143623533"
-                      className="inline-flex items-center gap-2.5 hover:text-evi-accent font-semibold transition-colors"
+                      className="inline-flex items-center gap-2.5 hover:text-evi-accent font-bold text-evi-deep transition-colors"
                     />
                     <EditableLink
-                      page="contato"
-                      section="telefones"
-                      fieldKey="tel2"
+                      page="global"
+                      section="contact"
+                      fieldKey="phone_2"
                       defaultLabel="(11) 4367-5850"
                       defaultHref="tel:+551143675850"
                       className="inline-flex items-center gap-2.5 hover:text-evi-accent transition-colors"
                     />
                     <EditableLink
-                      page="contato"
-                      section="telefones"
-                      fieldKey="tel3"
+                      page="global"
+                      section="contact"
+                      fieldKey="phone_3"
                       defaultLabel="(11) 4177-3834"
                       defaultHref="tel:+551141773834"
                       className="inline-flex items-center gap-2.5 hover:text-evi-accent transition-colors"
@@ -133,8 +133,8 @@ export default function ContatoPage() {
                     WhatsApp Direto:
                   </h3>
                   <EditableLink
-                    page="contato"
-                    section="telefones"
+                    page="global"
+                    section="contact"
                     fieldKey="whatsapp"
                     defaultLabel="(11) 99139-0045 →"
                     defaultHref="https://wa.me/5511991390045"
@@ -149,13 +149,61 @@ export default function ContatoPage() {
                     E-mail Oficial:
                   </h3>
                   <EditableLink
-                    page="contato"
-                    section="email"
+                    page="global"
+                    section="contact"
                     fieldKey="email"
                     defaultLabel="contato@evi.adv.br"
                     defaultHref="mailto:contato@evi.adv.br"
                     className="inline-flex items-center gap-2.5 text-sm font-semibold text-evi-deep hover:text-evi-accent transition-colors"
                   />
+                </div>
+
+                <div className="pt-4 border-t border-evi-border/60 space-y-2">
+                  <h3 className="text-xs uppercase tracking-wider font-bold text-evi-deep">
+                    Redes Sociais Oficiais:
+                  </h3>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <EditableLink
+                      page="global"
+                      section="contact"
+                      fieldKey="social_facebook"
+                      defaultLabel="Facebook"
+                      defaultHref="https://www.facebook.com/EVISociedadedeAdvogados/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-evi-deep bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors border border-slate-200"
+                    />
+                    <EditableLink
+                      page="global"
+                      section="contact"
+                      fieldKey="social_instagram"
+                      defaultLabel="Instagram"
+                      defaultHref="https://www.instagram.com/eviadvogados/?hl=pt-br"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-evi-deep bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors border border-slate-200"
+                    />
+                    <EditableLink
+                      page="global"
+                      section="contact"
+                      fieldKey="social_linkedin"
+                      defaultLabel="LinkedIn"
+                      defaultHref="https://www.linkedin.com/company/evi-sociedade-de-advogados/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-evi-deep bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors border border-slate-200"
+                    />
+                    <EditableLink
+                      page="global"
+                      section="contact"
+                      fieldKey="social_youtube"
+                      defaultLabel="YouTube"
+                      defaultHref="https://www.youtube.com/channel/UCo_k-NzKbkFVJ5zXz4xOwrQ"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-evi-deep bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-colors border border-slate-200"
+                    />
+                  </div>
                 </div>
               </div>
 

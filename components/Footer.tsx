@@ -99,7 +99,7 @@ export default function Footer() {
                 {/* Telefone Principal em Negrito */}
                 <EditableLink
                   page="global"
-                  section="footer"
+                  section="contact"
                   fieldKey="phone"
                   defaultLabel="(11) 4362-3533"
                   defaultHref="tel:+551143623533"
@@ -113,7 +113,7 @@ export default function Footer() {
                 {/* Telefone 2 */}
                 <EditableLink
                   page="global"
-                  section="footer"
+                  section="contact"
                   fieldKey="phone_2"
                   defaultLabel="(11) 4367-5850"
                   defaultHref="tel:+551143675850"
@@ -127,7 +127,7 @@ export default function Footer() {
                 {/* Telefone 3 */}
                 <EditableLink
                   page="global"
-                  section="footer"
+                  section="contact"
                   fieldKey="phone_3"
                   defaultLabel="(11) 4177-3834"
                   defaultHref="tel:+551141773834"
@@ -141,7 +141,7 @@ export default function Footer() {
               
               <EditableLink
                 page="global"
-                section="footer"
+                section="contact"
                 fieldKey="email"
                 defaultLabel="contato@evi.adv.br"
                 defaultHref="mailto:contato@evi.adv.br"
@@ -173,7 +173,7 @@ export default function Footer() {
             <div className="topbar-social mt-4 flex items-center gap-3">
               <EditableLink
                 page="global"
-                section="footer"
+                section="contact"
                 fieldKey="social_facebook"
                 defaultLabel=""
                 defaultHref="https://www.facebook.com/EVISociedadedeAdvogados/"
@@ -188,7 +188,7 @@ export default function Footer() {
 
               <EditableLink
                 page="global"
-                section="footer"
+                section="contact"
                 fieldKey="social_instagram"
                 defaultLabel=""
                 defaultHref="https://www.instagram.com/eviadvogados/?hl=pt-br"
@@ -205,7 +205,7 @@ export default function Footer() {
 
               <EditableLink
                 page="global"
-                section="footer"
+                section="contact"
                 fieldKey="social_linkedin"
                 defaultLabel=""
                 defaultHref="https://www.linkedin.com/company/evi-sociedade-de-advogados/"
@@ -221,7 +221,7 @@ export default function Footer() {
 
               <EditableLink
                 page="global"
-                section="footer"
+                section="contact"
                 fieldKey="social_youtube"
                 defaultLabel=""
                 defaultHref="https://www.youtube.com/@evisociedadedeadvogados443"
