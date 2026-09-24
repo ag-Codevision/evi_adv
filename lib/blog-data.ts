@@ -480,7 +480,8 @@ export const BLOG_ARTICLES: BlogArticle[] = [
 
 export function getAllBlogArticles(
   customArticles?: BlogArticle[],
-  deletedSlugs: string[] = []
+  deletedSlugs: string[] = [],
+  coverOverrides: Record<string, string> = {}
 ): BlogArticle[] {
   const deletedSet = new Set(deletedSlugs);
 
@@ -494,10 +495,16 @@ export function getAllBlogArticles(
     });
   }
 
-  // Base filtrando excluídos e aplicando overrides
+  // Base filtrando excluídos e aplicando overrides de conteúdo e de capa
   const baseArticles = BLOG_ARTICLES
     .filter((a) => !deletedSet.has(a.slug))
-    .map((a) => (customMap.has(a.slug) ? customMap.get(a.slug)! : a));
+    .map((a) => {
+      const art = customMap.has(a.slug) ? customMap.get(a.slug)! : a;
+      if (coverOverrides && coverOverrides[art.slug]) {
+        return { ...art, featuredImage: coverOverrides[art.slug] };
+      }
+      return art;
+    });
 
   // Artigos novos que não existem na base padrão
   const baseSlugs = new Set(BLOG_ARTICLES.map((a) => a.slug));
@@ -505,7 +512,10 @@ export function getAllBlogArticles(
   if (customArticles) {
     customArticles.forEach((art) => {
       if (!baseSlugs.has(art.slug) && !deletedSet.has(art.slug)) {
-        newArticles.push(art);
+        const item = (coverOverrides && coverOverrides[art.slug])
+          ? { ...art, featuredImage: coverOverrides[art.slug] }
+          : art;
+        newArticles.push(item);
       }
     });
   }

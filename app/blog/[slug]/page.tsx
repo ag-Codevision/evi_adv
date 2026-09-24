@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { fetchPostBySlug } from '@/lib/supabase';
+import { fetchPostBySlug, fetchPostCoverOverride } from '@/lib/supabase';
 import { getBlogArticleBySlug, getRelatedBlogArticles, getAllBlogArticles, BlogArticle } from '@/lib/blog-data';
 import { Post } from '@/lib/types';
 import EditableText from '@/components/admin/EditableText';
@@ -28,14 +28,17 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';
   const canonicalUrl = `${baseUrl}/blog/${params.slug}`;
+  const customCover = await fetchPostCoverOverride(params.slug);
 
   const dbPost = await fetchPostBySlug(params.slug);
   if (dbPost) {
     const title = `${dbPost.seo_title || dbPost.title} | EVI Advogados`;
     const description = dbPost.seo_description || dbPost.excerpt;
-    const coverUrl = dbPost.cover_image?.startsWith('http')
-      ? dbPost.cover_image
-      : `${baseUrl}${dbPost.cover_image || '/assets/logo.png'}`;
+    const baseCover = dbPost.cover_image || '/assets/logo.png';
+    const effectiveCover = customCover || baseCover;
+    const coverUrl = effectiveCover.startsWith('http')
+      ? effectiveCover
+      : `${baseUrl}${effectiveCover}`;
 
     return {
       title,
@@ -66,9 +69,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (localArticle) {
     const title = `${localArticle.title} | EVI Advogados`;
     const description = localArticle.excerpt;
-    const coverUrl = localArticle.featuredImage?.startsWith('http')
-      ? localArticle.featuredImage
-      : `${baseUrl}${localArticle.featuredImage || '/assets/logo.png'}`;
+    const baseCover = localArticle.featuredImage || '/assets/logo.png';
+    const effectiveCover = customCover || baseCover;
+    const coverUrl = effectiveCover.startsWith('http')
+      ? effectiveCover
+      : `${baseUrl}${effectiveCover}`;
 
     return {
       title,
@@ -125,6 +130,9 @@ export default async function BlogPostPage({ params }: PageProps) {
     );
   }
 
+  // 3. Busca se há override de capa persistido em site_contents
+  const customCover = await fetchPostCoverOverride(params.slug);
+
   // Normaliza os dados para renderização
   const isDb = Boolean(dbPost);
   const title = isDb ? dbPost!.title : localArticle!.title;
@@ -133,9 +141,9 @@ export default async function BlogPostPage({ params }: PageProps) {
   const formattedDate = formatFullDateWithTime(rawDate);
   const readingTime = isDb ? (dbPost!.reading_time || 6) : localArticle!.readingTime;
   const excerpt = isDb ? dbPost!.excerpt : localArticle!.excerpt;
-  const coverImage = isDb
+  const coverImage = customCover || (isDb
     ? (dbPost!.cover_image || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80')
-    : localArticle!.featuredImage;
+    : localArticle!.featuredImage);
 
   const related = getRelatedBlogArticles(params.slug, 3);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';

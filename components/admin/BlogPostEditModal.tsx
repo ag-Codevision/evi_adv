@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
 import { upsertPostAction, deletePostAction } from '../../lib/posts-actions';
 import { uploadSiteMedia, saveSiteContent } from '../../lib/site-content';
+import { findBlogImageCandidateAction } from '../../lib/blog-image-actions';
 import { BlogArticle, getBlogCategories } from '../../lib/blog-data';
 import {
   X,
@@ -67,6 +68,8 @@ export default function BlogPostEditModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSearchingStock, setIsSearchingStock] = useState(false);
+  const [stockMessage, setStockMessage] = useState<string | null>(null);
 
   // Inicializa os campos quando o artigo for selecionado
   useEffect(() => {
@@ -129,6 +132,37 @@ export default function BlogPostEditModal({
       setTimeout(() => setStatusMessage(null), 2500);
     } else {
       setError(res.error || 'Falha ao fazer upload da capa.');
+      setTimeout(() => setError(null), 4000);
+    }
+  };
+
+  const handleAutoStockImage = async () => {
+    setIsSearchingStock(true);
+    setError(null);
+    setStockMessage(null);
+    setStatusMessage('Buscando imagem no banco de imagens baseada no título...');
+
+    const finalCategory = category === 'Outra' && customCategory.trim() ? customCategory.trim() : category;
+
+    const res = await findBlogImageCandidateAction({
+      category: finalCategory,
+      title: title.trim() || article.title,
+      currentUrl: coverImage,
+      slug: slug.trim() || article.slug,
+    });
+
+    setIsSearchingStock(false);
+
+    if (res.success && res.imageUrl) {
+      setCoverImage(res.imageUrl);
+      setStockMessage('Nova imagem selecionada com base no título e categoria do artigo!');
+      setStatusMessage('Imagem selecionada automaticamente com base no título!');
+      setTimeout(() => {
+        setStatusMessage(null);
+        setStockMessage(null);
+      }, 4000);
+    } else {
+      setError(res.error || 'Não foi possível encontrar uma imagem adequada no banco de dados.');
       setTimeout(() => setError(null), 4000);
     }
   };
@@ -402,15 +436,36 @@ export default function BlogPostEditModal({
                 />
               </div>
 
-              {/* Upload de Imagem de Capa */}
+              {/* Upload e Busca Automática de Imagem de Capa */}
               <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-3">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Imagem de Capa do Artigo
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Imagem de Capa do Artigo
+                  </label>
+                  <span className="text-[11px] text-slate-400">
+                    Sincronizada automaticamente com o card e página interna
+                  </span>
+                </div>
+
                 <div className="flex flex-wrap items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-xs text-white font-semibold cursor-pointer transition-colors shadow-md">
+                  <button
+                    type="button"
+                    onClick={handleAutoStockImage}
+                    disabled={isSearchingStock}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 hover:from-sky-500 hover:to-indigo-500 text-xs text-white font-semibold cursor-pointer transition-all shadow-md active:scale-95 disabled:opacity-50"
+                    title="Buscar automaticamente uma nova foto de alta resolução baseada no título do artigo"
+                  >
+                    {isSearchingStock ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                    ) : (
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    )}
+                    <span>{isSearchingStock ? 'Buscando Imagem...' : 'Buscar no Banco de Imagens'}</span>
+                  </button>
+
+                  <label className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 font-semibold cursor-pointer transition-colors shadow-sm">
                     <Upload className="w-3.5 h-3.5" />
-                    <span>Fazer Upload da Foto</span>
+                    <span>Upload de Foto</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -418,22 +473,36 @@ export default function BlogPostEditModal({
                       className="hidden"
                     />
                   </label>
+
                   <input
                     type="url"
                     placeholder="Ou cole a URL direta de uma imagem..."
                     value={coverImage}
                     onChange={(e) => setCoverImage(e.target.value)}
-                    className="flex-1 min-w-[240px] px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
+                    className="flex-1 min-w-[220px] px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
                   />
                 </div>
+
+                {stockMessage && (
+                  <div className="p-2.5 bg-emerald-950/70 border border-emerald-500/40 rounded-xl text-emerald-200 text-xs flex items-center gap-2 animate-fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{stockMessage}</span>
+                  </div>
+                )}
+
                 {coverImage && (
                   <div className="flex items-center gap-3 mt-2">
-                    <div className="aspect-[16/9] w-28 rounded-xl overflow-hidden border border-slate-700 shadow-md">
+                    <div className="aspect-[16/9] w-32 rounded-xl overflow-hidden border border-slate-700 shadow-md bg-slate-950">
                       <img src={coverImage} alt="Preview da Capa" className="w-full h-full object-cover" />
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Capa pronta</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-xl w-fit">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Capa pronta</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 truncate max-w-sm md:max-w-md">
+                        {coverImage}
+                      </p>
                     </div>
                   </div>
                 )}

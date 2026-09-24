@@ -9,6 +9,7 @@ import EditableText from '@/components/admin/EditableText';
 import BlogPostEditModal from '@/components/admin/BlogPostEditModal';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import { useAdminEditor } from '@/components/admin/AdminAuthProvider';
+import { useSiteContent } from '@/components/admin/SiteContentProvider';
 import { createClient } from '@/lib/supabase/client';
 import { deletePostAction } from '@/lib/posts-actions';
 import { saveSiteContent } from '@/lib/site-content';
@@ -19,9 +20,11 @@ const ITEMS_PER_PAGE = 9;
 
 export default function BlogPage() {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
+  const { getContent } = useSiteContent();
 
   const [dbArticles, setDbArticles] = useState<BlogArticle[]>([]);
   const [deletedSlugs, setDeletedSlugs] = useState<string[]>([]);
+  const [coverOverrides, setCoverOverrides] = useState<Record<string, string>>({});
   const [activeCategory, setActiveCategory] = useState<string>('Todas');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -121,6 +124,23 @@ export default function BlogPage() {
         setDeletedSlugs(deletedData.map((d) => d.field_key));
       }
 
+      // 4. Busca overrides de capas alteradas na página interna do blog
+      const { data: coverData } = await supabase
+        .from('site_contents')
+        .select('section, content_value')
+        .eq('page', 'blog_detail')
+        .eq('field_key', 'cover_image');
+
+      if (coverData) {
+        const coverMap: Record<string, string> = {};
+        coverData.forEach((row) => {
+          if (row.section && row.content_value) {
+            coverMap[row.section] = row.content_value;
+          }
+        });
+        setCoverOverrides(coverMap);
+      }
+
       setDbArticles(loadedArticles);
     } catch (err) {
       console.error('Erro ao buscar posts do Supabase:', err);
@@ -131,8 +151,8 @@ export default function BlogPage() {
     loadSupabasePosts();
   }, []);
 
-  // Lista unificada com posts do banco de dados + artigos locais base (com suporte a exclusão e overrides)
-  const allArticles: BlogArticle[] = getAllBlogArticles(dbArticles, deletedSlugs);
+  // Lista unificada com posts do banco de dados + artigos locais base (com suporte a exclusão e overrides de capa)
+  const allArticles: BlogArticle[] = getAllBlogArticles(dbArticles, deletedSlugs, coverOverrides);
   const categories = getBlogCategories();
 
   const handleCategoryChange = (cat: string) => {
@@ -451,7 +471,7 @@ export default function BlogPage() {
                   {/* Capa do Artigo */}
                   <Link href={`/blog/${article.slug}`} className="block relative aspect-[16/10] overflow-hidden bg-slate-900 border-b border-evi-border">
                     <img
-                      src={article.featuredImage}
+                      src={getContent('blog_detail', article.slug, 'cover_image', coverOverrides[article.slug] || article.featuredImage)}
                       alt={article.title}
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                       loading="lazy"

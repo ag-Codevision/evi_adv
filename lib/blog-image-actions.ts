@@ -162,3 +162,71 @@ export async function findAndReplaceBlogImageAction(
     };
   }
 }
+
+/**
+ * Server Action para buscar uma imagem no banco de imagens sem persistir de imediato no banco,
+ * ideal para pré-visualização e seleção em modais de edição (como o BlogPostEditModal).
+ */
+export async function findBlogImageCandidateAction(
+  params: AutoStockImageParams
+): Promise<AutoStockImageResult> {
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return {
+        success: false,
+        error: 'Acesso negado. Apenas administradores autenticados podem consultar o acervo.',
+      };
+    }
+
+    const currentUrl = params.currentUrl || '';
+    const categoryKey = resolveCategoryKey(params.category || params.slug || params.title || '');
+    const currentPhotoId = resolvePhotoId(currentUrl);
+
+    const topicResult = await fetchTopicImages({
+      categorySlug: categoryKey,
+      title: params.title || '',
+      excludeUrls: currentUrl ? [currentUrl] : [],
+    });
+
+    let chosenUrl = topicResult?.cover || '';
+    let chosenCaption = topicResult?.body1?.caption || 'Registro fotográfico profissional em alta resolução.';
+
+    if (currentUrl && (chosenUrl === currentUrl || resolvePhotoId(chosenUrl) === currentPhotoId)) {
+      const pool = (CURATED_IMAGES && CURATED_IMAGES[categoryKey]) || CURATED_IMAGES?.civel || CURATED_IMAGES?.recuperacao || [];
+      const alternatives = pool.filter((img: any) => resolvePhotoId(img.url) !== currentPhotoId);
+      if (alternatives.length > 0) {
+        const picked = alternatives[Math.floor(Math.random() * alternatives.length)];
+        chosenUrl = picked.url;
+        chosenCaption = picked.caption;
+      } else if (topicResult?.body1?.url && resolvePhotoId(topicResult.body1.url) !== currentPhotoId) {
+        chosenUrl = topicResult.body1.url;
+      }
+    }
+
+    if (!chosenUrl) {
+      return {
+        success: false,
+        error: 'Não foi possível encontrar uma imagem adequada no banco de dados de imagens.',
+      };
+    }
+
+    return {
+      success: true,
+      imageUrl: chosenUrl,
+      caption: chosenCaption,
+    };
+  } catch (err: any) {
+    console.error('[BlogImageAction] Falha ao consultar candidato de imagem:', err);
+    return {
+      success: false,
+      error: err.message || 'Erro inesperado ao consultar o banco de imagens.',
+    };
+  }
+}
+

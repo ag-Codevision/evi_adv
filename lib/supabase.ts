@@ -57,3 +57,28 @@ export async function fetchPostBySlug(slug: string): Promise<Post | null> {
     return null;
   }
 }
+
+export async function fetchPostCoverOverride(slug: string): Promise<string | null> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/site_contents?page=eq.blog_detail&section=eq.${encodeURIComponent(slug)}&field_key=eq.cover_image&select=content_value&limit=1`,
+      {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+        },
+        next: { revalidate: 60 },
+      }
+    );
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data && data.length > 0 && data[0].content_value ? data[0].content_value : null;
+  } catch (err) {
+    return null;
+  }
+}
