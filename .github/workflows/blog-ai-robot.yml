@@ -2,8 +2,9 @@ name: Robô Editorial de IA - EVI Advogados
 
 on:
   schedule:
-    # Acorda a cada 30 minutos para checar se há agendamento editorial pendente para o horário atual
-    - cron: '*/30 * * * *'
+    # Dispara a cada 30 minutos nos minutos 05 e 35 (fora do pico mundial de :00 e :30 do GitHub Actions)
+    # Isso garante que a fila do GitHub não atrase a execução dos agendamentos
+    - cron: '5,35 * * * *'
   workflow_dispatch:
     # Permite disparar manualmente pelo painel do GitHub Actions
     inputs:
