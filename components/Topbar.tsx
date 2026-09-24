@@ -10,11 +10,46 @@ export default function Topbar() {
       <div className="container">
         <div className="topbar-left">
           <div className="topbar-contacts">
-            <EditableLink page="global" section="contact" fieldKey="phone" defaultLabel="(11) 4125-1000" defaultHref="tel:+551141251000" className="topbar-item" title="Telefone comercial da EVI Advogados">
-              <svg className="topbar-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
-            </EditableLink>
+            {/* 3 Telefones Fixos Lado a Lado */}
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <EditableLink
+                page="global"
+                section="contact"
+                fieldKey="phone"
+                defaultLabel="(11) 4125-1000"
+                defaultHref="tel:+551141251000"
+                className="topbar-item font-bold text-white hover:text-evi-accent"
+                title="Telefone comercial principal da EVI Advogados"
+              >
+                <svg className="topbar-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </EditableLink>
+
+              <span className="text-slate-600 text-xs select-none">•</span>
+
+              <EditableLink
+                page="global"
+                section="contact"
+                fieldKey="phone_2"
+                defaultLabel="(11) 4367-5850"
+                defaultHref="tel:+551143675850"
+                className="topbar-item text-slate-300 hover:text-white"
+                title="Telefone secundário da EVI Advogados"
+              />
+
+              <span className="text-slate-600 text-xs select-none">•</span>
+
+              <EditableLink
+                page="global"
+                section="contact"
+                fieldKey="phone_3"
+                defaultLabel="(11) 4177-3834"
+                defaultHref="tel:+551141773834"
+                className="topbar-item text-slate-300 hover:text-white"
+                title="Telefone adicional da EVI Advogados"
+              />
+            </div>
             <EditableLink page="global" section="contact" fieldKey="email" defaultLabel="contato@evi.adv.br" defaultHref="mailto:contato@evi.adv.br" className="topbar-item email-item" title="E-mail oficial da EVI Advogados">
               <svg className="topbar-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect width="20" height="16" x="2" y="4" rx="2" />
