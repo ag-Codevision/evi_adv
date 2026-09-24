@@ -20,7 +20,7 @@ const ITEMS_PER_PAGE = 9;
 
 export default function BlogPage() {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
-  const { getContent } = useSiteContent();
+  const { getContent, updateContent } = useSiteContent();
 
   const [dbArticles, setDbArticles] = useState<BlogArticle[]>([]);
   const [deletedSlugs, setDeletedSlugs] = useState<string[]>([]);
@@ -176,6 +176,14 @@ export default function BlogPage() {
       const filtered = prev.filter((a) => a.slug !== updatedArticle.slug);
       return [updatedArticle, ...filtered];
     });
+
+    if (updatedArticle.featuredImage) {
+      setCoverOverrides((prev) => ({
+        ...prev,
+        [updatedArticle.slug]: updatedArticle.featuredImage,
+      }));
+      updateContent('blog_detail', updatedArticle.slug, 'cover_image', updatedArticle.featuredImage, undefined, 'image');
+    }
   };
 
   // Handler ao confirmar exclusão

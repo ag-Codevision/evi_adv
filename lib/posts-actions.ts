@@ -2,6 +2,7 @@
 
 import { createClient } from './supabase/server';
 import { revalidatePath } from 'next/cache';
+import { saveSiteContent } from './site-content';
 
 export interface UpsertPostInput {
   id?: string;
@@ -51,12 +52,26 @@ export async function upsertPostAction(input: UpsertPostInput): Promise<{ succes
       postPayload.published_at = input.published_at;
     }
 
+    // Se não veio ID, ou veio id não-UUID, busca se já existe na tabela posts pelo slug!
+    let targetPostId = input.id;
+    if (input.slug) {
+      const { data: existingPost } = await supabase
+        .from('posts')
+        .select('id')
+        .eq('slug', input.slug)
+        .maybeSingle();
+
+      if (existingPost?.id) {
+        targetPostId = existingPost.id;
+      }
+    }
+
     let result;
-    if (input.id) {
+    if (targetPostId) {
       result = await supabase
         .from('posts')
         .update(postPayload)
-        .eq('id', input.id)
+        .eq('id', targetPostId)
         .select('id')
         .single();
     } else {
@@ -71,14 +86,34 @@ export async function upsertPostAction(input: UpsertPostInput): Promise<{ succes
     }
 
     if (result.error) {
+      console.error('[upsertPostAction] Erro no Supabase:', result.error);
       return { success: false, error: result.error.message };
+    }
+
+    // Garante persistência da capa em site_contents para sincronização completa de todos os componentes
+    if (input.cover_image && input.slug) {
+      try {
+        await saveSiteContent({
+          page: 'blog_detail',
+          section: input.slug,
+          fieldKey: 'cover_image',
+          value: input.cover_image,
+          contentType: 'image',
+          metadata: {
+            updated_via: 'upsertPostAction',
+            updated_at: new Date().toISOString(),
+          },
+        });
+      } catch (contentErr) {
+        console.warn('[upsertPostAction] Aviso ao salvar cover_image em site_contents:', contentErr);
+      }
     }
 
     revalidatePath('/blog');
     revalidatePath(`/blog/${input.slug}`);
     revalidatePath('/');
 
-    return { success: true, postId: result.data?.id };
+    return { success: true, postId: result.data?.id || targetPostId };
   } catch (err: any) {
     return { success: false, error: err.message || 'Erro inesperado ao salvar post.' };
   }

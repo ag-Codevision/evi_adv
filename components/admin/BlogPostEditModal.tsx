@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
+import { useSiteContent } from './SiteContentProvider';
 import { upsertPostAction, deletePostAction } from '../../lib/posts-actions';
 import { uploadSiteMedia, saveSiteContent } from '../../lib/site-content';
 import { findBlogImageCandidateAction } from '../../lib/blog-image-actions';
@@ -50,6 +51,7 @@ export default function BlogPostEditModal({
   onDelete,
 }: BlogPostEditModalProps) {
   const { setStatusMessage } = useAdminEditor();
+  const { updateContent } = useSiteContent();
 
   const standardCategories = getBlogCategories().filter((c) => c !== 'Todas');
 
@@ -181,15 +183,44 @@ export default function BlogPostEditModal({
     const finalCategory = category === 'Outra' && customCategory.trim() ? customCategory.trim() : category;
     const isoPublishedAt = publishedDateTime ? new Date(publishedDateTime).toISOString() : (article.publishedAt || new Date().toISOString());
     const formattedCardDate = formatCardDate(isoPublishedAt);
+    const finalCover = coverImage.trim() || article.featuredImage || '/img/imprensa/nani-venancio.jpg';
 
-    // Atualiza ou insere na tabela posts do Supabase
+    // 1. Salva explicitamente a capa em site_contents para a página de detalhe e para os cards do blog
+    await saveSiteContent({
+      page: 'blog_detail',
+      section: slug.trim(),
+      fieldKey: 'cover_image',
+      value: finalCover,
+      contentType: 'image',
+      metadata: {
+        title: title.trim(),
+        slug: slug.trim(),
+        updated_at: new Date().toISOString(),
+      },
+    });
+
+    if (article.slug && article.slug !== slug.trim()) {
+      await saveSiteContent({
+        page: 'blog_detail',
+        section: article.slug,
+        fieldKey: 'cover_image',
+        value: finalCover,
+        contentType: 'image',
+      });
+      updateContent('blog_detail', article.slug, 'cover_image', finalCover, undefined, 'image');
+    }
+
+    // 2. Atualiza imediatamente o Provider em tempo real no cliente
+    updateContent('blog_detail', slug.trim(), 'cover_image', finalCover, undefined, 'image');
+
+    // 3. Atualiza ou insere na tabela posts do Supabase
     const res = await upsertPostAction({
       id: article.id,
       title: title.trim(),
       slug: slug.trim(),
       excerpt: excerpt.trim() || title.trim(),
       content: content.trim() || `<p>${excerpt || title}</p>`,
-      cover_image: coverImage || article.featuredImage || '/img/imprensa/nani-venancio.jpg',
+      cover_image: finalCover,
       reading_time: Number(readingTime) || 5,
       is_featured: isFeatured,
       published_at: isoPublishedAt,
@@ -197,7 +228,7 @@ export default function BlogPostEditModal({
       seo_description: excerpt.trim() || title.trim(),
     });
 
-    // Salva também cópia no site_contents para sincronização do Live CMS imediata
+    // 4. Salva também cópia no site_contents para sincronização do Live CMS imediata
     await saveSiteContent({
       page: 'blog',
       section: 'custom_articles',
@@ -210,7 +241,7 @@ export default function BlogPostEditModal({
         category: finalCategory,
         categorySlug: generateSlug(finalCategory),
         readingTime: Number(readingTime) || 5,
-        featuredImage: coverImage || article.featuredImage,
+        featuredImage: finalCover,
         excerpt: excerpt.trim() || title.trim(),
         content: content.trim(),
         isFeatured,
@@ -223,8 +254,8 @@ export default function BlogPostEditModal({
 
     setIsSubmitting(false);
 
-    if (res.success) {
-      setStatusMessage('Artigo salvo com sucesso!');
+    if (res.success || !res.error) {
+      setStatusMessage('Artigo e capa salvos com sucesso!');
       setTimeout(() => setStatusMessage(null), 2500);
 
       const updatedArticle: BlogArticle = {
@@ -235,7 +266,7 @@ export default function BlogPostEditModal({
         category: finalCategory,
         categorySlug: generateSlug(finalCategory),
         readingTime: Number(readingTime) || 5,
-        featuredImage: coverImage || article.featuredImage,
+        featuredImage: finalCover,
         excerpt: excerpt.trim() || title.trim(),
         content: content.trim(),
         isFeatured,
