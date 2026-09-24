@@ -41,7 +41,7 @@ export default function EditableLink({
   const { getContentItem, updateContent } = useSiteContent();
 
   const item = getContentItem(page, section, fieldKey);
-  const savedLabel = (item && item.value !== undefined && item.value !== null && item.value !== '') ? item.value : defaultLabel;
+  const savedLabel = (item && item.value !== undefined && item.value !== null) ? item.value : defaultLabel;
   const savedHref = item?.metadata?.href || defaultHref;
 
   const [label, setLabel] = useState<string>(savedLabel);
