@@ -2,7 +2,7 @@
 
 import { createClient } from './supabase/server';
 import { saveSiteContent } from './site-content';
-import { fetchTopicImages, CURATED_IMAGES, getCategoryKey, extractPhotoId } from './image-provider';
+import { fetchTopicImages, CURATED_IMAGES } from './image-provider';
 import { revalidatePath } from 'next/cache';
 
 export interface AutoStockImageParams {
@@ -20,6 +20,27 @@ export interface AutoStockImageResult {
   imageUrl?: string;
   caption?: string;
   error?: string;
+}
+
+function resolveCategoryKey(slugOrCat: string = ''): string {
+  const cat = (slugOrCat || '').toLowerCase();
+  if (cat.includes('agro')) return 'agronegocio';
+  if (cat.includes('recupera') || cat.includes('falencia')) return 'recuperacao';
+  if (cat.includes('socie') || cat.includes('contrato') || cat.includes('societario')) return 'societario';
+  if (cat.includes('tribut') || cat.includes('fiscal')) return 'tributario';
+  if (cat.includes('imob')) return 'imobiliario';
+  if (cat.includes('medico') || cat.includes('saude') || cat.includes('hospital')) return 'direito-medico';
+  if (cat.includes('famili') || cat.includes('sucess') || cat.includes('heranc') || cat.includes('divorc') || cat.includes('inventari')) return 'familia';
+  if (cat.includes('trabalh') || cat.includes('empreg') || cat.includes('labor')) return 'trabalhista';
+  if (cat.includes('civel') || cat.includes('consum') || cat.includes('danos') || cat.includes('indeniz')) return 'civel';
+  if (cat.includes('blindag') || cat.includes('holding') || cat.includes('patrimon')) return 'blindagem';
+  return 'civel';
+}
+
+function resolvePhotoId(url: string = ''): string {
+  if (!url) return '';
+  const match = url.match(/photo-([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : url.split('?')[0];
 }
 
 /**
@@ -50,9 +71,9 @@ export async function findAndReplaceBlogImageAction(
     const fieldKey = params.fieldKey || 'cover_image';
     const currentUrl = params.currentUrl || '';
 
-    // 2. Extrai termos relevantes e categoria
-    const categoryKey = getCategoryKey(params.category || params.slug || params.title || '');
-    const currentPhotoId = extractPhotoId(currentUrl);
+    // 2. Extrai termos relevantes e categoria de forma blindada
+    const categoryKey = resolveCategoryKey(params.category || params.slug || params.title || '');
+    const currentPhotoId = resolvePhotoId(currentUrl);
 
     // 3. Busca imagens temáticas no Unsplash / acervo
     const topicResult = await fetchTopicImages({
@@ -61,18 +82,18 @@ export async function findAndReplaceBlogImageAction(
       excludeUrls: currentUrl ? [currentUrl] : [],
     });
 
-    let chosenUrl = topicResult.cover;
-    let chosenCaption = topicResult.body1?.caption || 'Registro fotográfico profissional em alta resolução.';
+    let chosenUrl = topicResult?.cover || '';
+    let chosenCaption = topicResult?.body1?.caption || 'Registro fotográfico profissional em alta resolução.';
 
     // Se por acaso a capa retornada for idêntica à atual, busca uma alternativa diferente no acervo
-    if (currentUrl && (chosenUrl === currentUrl || extractPhotoId(chosenUrl) === currentPhotoId)) {
-      const pool = CURATED_IMAGES[categoryKey] || CURATED_IMAGES.civel || CURATED_IMAGES.recuperacao;
-      const alternatives = pool.filter((img) => extractPhotoId(img.url) !== currentPhotoId);
+    if (currentUrl && (chosenUrl === currentUrl || resolvePhotoId(chosenUrl) === currentPhotoId)) {
+      const pool = (CURATED_IMAGES && CURATED_IMAGES[categoryKey]) || CURATED_IMAGES?.civel || CURATED_IMAGES?.recuperacao || [];
+      const alternatives = pool.filter((img: any) => resolvePhotoId(img.url) !== currentPhotoId);
       if (alternatives.length > 0) {
         const picked = alternatives[Math.floor(Math.random() * alternatives.length)];
         chosenUrl = picked.url;
         chosenCaption = picked.caption;
-      } else if (topicResult.body1?.url && extractPhotoId(topicResult.body1.url) !== currentPhotoId) {
+      } else if (topicResult?.body1?.url && resolvePhotoId(topicResult.body1.url) !== currentPhotoId) {
         chosenUrl = topicResult.body1.url;
       }
     }
