@@ -26,28 +26,70 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';
+  const canonicalUrl = `${baseUrl}/blog/${params.slug}`;
+
   const dbPost = await fetchPostBySlug(params.slug);
   if (dbPost) {
+    const title = `${dbPost.seo_title || dbPost.title} | EVI Advogados`;
+    const description = dbPost.seo_description || dbPost.excerpt;
+    const coverUrl = dbPost.cover_image?.startsWith('http')
+      ? dbPost.cover_image
+      : `${baseUrl}${dbPost.cover_image || '/assets/logo.png'}`;
+
     return {
-      title: `${dbPost.seo_title || dbPost.title} | EVI Sociedade de Advogados`,
-      description: dbPost.seo_description || dbPost.excerpt,
+      title,
+      description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: dbPost.title,
-        description: dbPost.excerpt,
-        images: dbPost.cover_image ? [{ url: dbPost.cover_image }] : [],
+        description,
+        url: canonicalUrl,
+        type: 'article',
+        publishedTime: dbPost.published_at,
+        modifiedTime: dbPost.updated_at || dbPost.published_at,
+        authors: ['https://evi.adv.br/eduardo-verissimo'],
+        images: [{ url: coverUrl, width: 1200, height: 630, alt: dbPost.title }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: dbPost.title,
+        description,
+        images: [coverUrl],
       },
     };
   }
 
   const localArticle = getBlogArticleBySlug(params.slug);
   if (localArticle) {
+    const title = `${localArticle.title} | EVI Advogados`;
+    const description = localArticle.excerpt;
+    const coverUrl = localArticle.featuredImage?.startsWith('http')
+      ? localArticle.featuredImage
+      : `${baseUrl}${localArticle.featuredImage || '/assets/logo.png'}`;
+
     return {
-      title: `${localArticle.title} | EVI Sociedade de Advogados`,
-      description: localArticle.excerpt,
+      title,
+      description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: localArticle.title,
-        description: localArticle.excerpt,
-        images: [{ url: localArticle.featuredImage }],
+        description,
+        url: canonicalUrl,
+        type: 'article',
+        publishedTime: localArticle.publishedAt || localArticle.date,
+        authors: ['https://evi.adv.br/eduardo-verissimo'],
+        images: [{ url: coverUrl, width: 1200, height: 630, alt: localArticle.title }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: localArticle.title,
+        description,
+        images: [coverUrl],
       },
     };
   }
@@ -55,6 +97,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: 'Artigo | EVI Sociedade de Advogados',
     description: 'Análise estratégica e jurídica por EVI Advogados.',
+    alternates: {
+      canonical: canonicalUrl,
+    },
   };
 }
 
@@ -93,9 +138,105 @@ export default async function BlogPostPage({ params }: PageProps) {
     : localArticle!.featuredImage;
 
   const related = getRelatedBlogArticles(params.slug, 3);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';
+  const postUrl = `${baseUrl}/blog/${params.slug}`;
+
+  // Schema.org BlogPosting / Article
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description: excerpt,
+    image: coverImage.startsWith('http') ? coverImage : `${baseUrl}${coverImage}`,
+    datePublished: rawDate ? new Date(rawDate).toISOString() : new Date().toISOString(),
+    dateModified: dbPost?.updated_at ? new Date(dbPost.updated_at).toISOString() : (rawDate ? new Date(rawDate).toISOString() : new Date().toISOString()),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': postUrl,
+    },
+    author: {
+      '@type': 'Person',
+      name: 'Dr. Eduardo Veríssimo Inocente',
+      jobTitle: 'Advogado Sócio-Fundador OAB/SP 200.334',
+      url: `${baseUrl}/eduardo-verissimo`,
+    },
+    publisher: {
+      '@type': 'LegalService',
+      name: 'EVI Sociedade de Advogados',
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/assets/logo.png`,
+      },
+    },
+  };
+
+  // Schema.org Breadcrumbs
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Início',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog & Artigos',
+        item: `${baseUrl}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: title,
+        item: postUrl,
+      },
+    ],
+  };
+
+  // Extração inteligente de FAQ do conteúdo HTML para Schema FAQPage (Rich Snippets)
+  let faqSchema: any = null;
+  const contentHtml = isDb ? dbPost?.content || '' : '';
+  const faqRegex = /<h2[^>]*>(?:.*perguntas frequentes|.*faq).*?<\/h2>([\s\S]*?)(?:<h2|$)/i;
+  const faqMatch = contentHtml.match(faqRegex);
+  if (faqMatch) {
+    const faqBody = faqMatch[1];
+    const qaMatches = Array.from(faqBody.matchAll(/<h3[^>]*>(.*?)<\/h3>[\s\S]*?<p[^>]*>(.*?)<\/p>/gi));
+    if (qaMatches.length > 0) {
+      faqSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: qaMatches.map((m) => ({
+          '@type': 'Question',
+          name: m[1].replace(/<[^>]*>/g, '').trim(),
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: m[2].replace(/<[^>]*>/g, '').trim(),
+          },
+        })),
+      };
+    }
+  }
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <Header />
 
       <main className="bg-[#f8fafb] min-h-screen pb-20 pt-8">

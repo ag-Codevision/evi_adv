@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import LgpdConsentBanner from './LgpdConsentBanner';
 
 export default function ClientLayoutWrapper({
   topbar,
@@ -26,6 +27,7 @@ export default function ClientLayoutWrapper({
       {children}
       {!isAuthPage && footer}
       {!isAuthPage && whatsapp}
+      {!isAuthPage && <LgpdConsentBanner />}
     </>
   );
 }

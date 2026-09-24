@@ -27,17 +27,17 @@ async function generateLegalArticle(topic: TopicBlueprint) {
 
   const systemPrompt = `Você é o Dr. Eduardo Veríssimo Inocente, advogado sócio-fundador da EVI Sociedade de Advogados (OAB/SP 200.334), com mais de 25 anos de atuação de vanguarda no Direito Empresarial brasileiro, referência em Recuperação Judicial, Agronegócio e Contencioso Estratégico.
 
-Sua tarefa é redigir um artigo jurídico de alto nível técnico, com tom sóbrio, pragmático, elegante e fundamentado na jurisprudência brasileira (especialmente STJ e Tribunais Estaduais).
+Sua tarefa é redigir um artigo jurídico de altíssimo nível técnico com NOTA 100 DE SEO no Google e autoridade máxima (critérios Google E-E-A-T).
 
-DIRETRIZES FUNDAMENTAIS:
-1. Jamais use frases vazias, chavões ou introduções genéricas ("Nos dias de hoje...", "É sabido que...").
-2. Escreva em Português do Brasil com precisão terminológica impecável.
-3. Estruture o texto em HTML semântico limpo: use tags <h2>, <h3>, <p>, <ul>/<li> e <blockquote>. Não inclua tags <html>, <head> ou <body>.
-4. Foque em soluções práticas para diretores financeiros (CFOs), produtores rurais, acionistas e empresários.
-5. Ao final, inclua uma conclusão estratégica ressaltando a importância da análise individualizada do caso concreto.
-6. O texto deve ter entre 900 e 1500 palavras de densidade técnica real.`;
+DIRETRIZES DE ARQUITETURA E SEO NOTA 100:
+1. RESPOSTA DIRETA NO INÍCIO (FEATURED SNIPPET): Nos primeiros 2 parágrafos, responda diretamente à dúvida central do tema em 45-60 palavras para qualificação na Posição Zero do Google.
+2. HIERARQUIA SEMÂNTICA: Use subtítulos <h2> estratégicos com termos de busca e <h3> para aspectos operacionais. Use listas <ul>/<li> e citações <blockquote>.
+3. EMBASAMENTO: Cite artigos de lei pertinentes (Lei 11.101/2005, Código Civil, etc.) e teses consolidadas do STJ.
+4. LINKAGEM INTERNA: Insira links internos naturais: <a href="/areas-de-atuacao" class="text-sky-600 font-semibold hover:underline">áreas de atuação do escritório</a>, <a href="/eduardo-verissimo" class="text-sky-600 font-semibold hover:underline">Dr. Eduardo Veríssimo Inocente</a> e <a href="/contato" class="text-sky-600 font-semibold hover:underline">consulta jurídica especializada</a>.
+5. PERGUNTAS FREQUENTES (FAQ): Adicione ao final uma seção <h2>Perguntas Frequentes (FAQ)</h2> com 3 a 4 perguntas e respostas detalhadas.
+6. EXTENSÃO: Entre 900 e 1500 palavras em HTML limpo, sem tags <html> ou <body>.`;
 
-  const userPrompt = `Redija um artigo jurídico aprofundado com o seguinte escopo:
+  const userPrompt = `Redija o artigo com foco em máxima indexação e autoridade:
 Título Proposto: "${topic.title}"
 Área/Eixo: "${topic.categoryName}"
 Público-Alvo: ${topic.targetAudience}
@@ -46,13 +46,14 @@ Resumo/Ponto de partida: "${topic.excerpt}"
 
 Entregue a resposta no formato JSON com a seguinte estrutura:
 {
-  "title": "Título final refinado",
-  "slug": "slug-url-amigavel-sem-acentos",
-  "excerpt": "Resumo executivo de 2 a 3 frases persuasivas e técnicas",
-  "content": "Conteúdo HTML completo do artigo",
+  "title": "Título final refinado com alto CTR (55-68 chars)",
+  "slug": "slug-url-amigavel-sem-acentos-separado-por-hifens",
+  "focus_keyword": "Palavra-chave principal de busca",
+  "excerpt": "Resumo executivo de 2 a 3 frases persuasivas e técnicas (120-150 chars)",
+  "content": "Conteúdo HTML completo do artigo com <h2>, <h3>, <p>, <ul>, <blockquote>, links internos e a seção <h2>Perguntas Frequentes (FAQ)</h2>",
   "reading_time": 6,
-  "seo_title": "Título otimizado para SEO até 60 caracteres",
-  "seo_description": "Meta description persuasiva até 155 caracteres"
+  "seo_title": "Título otimizado para SEO entre 50 e 60 caracteres com palavra-chave no início",
+  "seo_description": "Meta description persuasiva entre 135 e 155 caracteres com verbo de ação"
 }`;
 
   const response = await fetch(NVIDIA_API_URL, {

@@ -237,15 +237,37 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Rodapé inferior com copyright estável */}
+        {/* Rodapé inferior com copyright estável e conformidade LGPD */}
         <div className="footer-bottom mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <EditableText
-            page="global"
-            section="footer"
-            fieldKey="copyright"
-            defaultContent="© 2001–2026 EVI Sociedade de Advogados. 25 Anos de Vanguarda. Todos os direitos reservados."
-            as="span"
-          />
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <EditableText
+              page="global"
+              section="footer"
+              fieldKey="copyright"
+              defaultContent="© 2001–2026 EVI Sociedade de Advogados. 25 Anos de Vanguarda. Todos os direitos reservados."
+              as="span"
+            />
+            <span className="hidden sm:inline text-white/20">|</span>
+            <Link
+              href="/politica-de-privacidade"
+              className="text-slate-300 hover:text-amber-400 transition-colors underline underline-offset-2"
+            >
+              Política de Privacidade (LGPD)
+            </Link>
+            <span className="hidden sm:inline text-white/20">|</span>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('open-lgpd-modal'));
+                }
+              }}
+              className="text-slate-300 hover:text-amber-400 transition-colors"
+            >
+              Preferências de Cookies
+            </button>
+          </div>
+
           <EditableText
             page="global"
             section="footer"
