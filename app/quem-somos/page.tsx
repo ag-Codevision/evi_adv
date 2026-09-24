@@ -8,6 +8,7 @@ import EditableMedia from '@/components/admin/EditableMedia';
 import EditableLink from '@/components/admin/EditableLink';
 import EditableList from '@/components/admin/EditableList';
 import EditableMediaOrVideo from '@/components/admin/EditableMediaOrVideo';
+import EditableCredentialsList, { CredentialItem } from '@/components/admin/EditableCredentialsList';
 import { uploadSiteMedia } from '@/lib/site-content';
 
 /* ─── Formulário de Adicionar Membro (componente separado para respeitar regras de hooks) ─── */
@@ -275,6 +276,44 @@ const initialTimelineEvents: TimelineEvent[] = [
   },
 ];
 
+const defaultFormacaoItems: CredentialItem[] = [
+  {
+    id: 'f1',
+    text: '**Mestre em Direitos Difusos e Coletivos**, com rigor metodológico e fundamentação científica em cada peça jurídica.',
+  },
+  {
+    id: 'f2',
+    text: '**Especialista em Direito das Famílias e Sucessões**, aliando sensibilidade humana a estratégias patrimoniais de alto impacto.',
+  },
+  {
+    id: 'f3',
+    text: '**Professor Universitário de Direito**, formando gerações de operadores jurídicos.',
+  },
+];
+
+const defaultAtuacaoItems: CredentialItem[] = [
+  {
+    id: 'a1',
+    text: '**Ex-Instrutor do Tribunal de Ética e Disciplina da OAB/SP** (Subseção SBC).',
+  },
+  {
+    id: 'a2',
+    text: '**Vice-Presidente da Comissão de Combate ao Exercício Ilegal da Profissão** da OAB/SBC.',
+  },
+  {
+    id: 'a3',
+    text: '**Autor do Livro** “Direito das Famílias Esquematizado – Teoria e Prática Processual”.',
+  },
+  {
+    id: 'a4',
+    text: '**Homenageado com o Troféu Personalidade ABC** no calendário oficial de São Paulo.',
+  },
+  {
+    id: 'a5',
+    text: '**Laureado com o Prêmio QUALITY JUSTIÇA** em reconhecimento ético e responsabilidade social.',
+  },
+];
+
 export default function QuemSomosPage() {
   return (
     <>
@@ -397,26 +436,13 @@ export default function QuemSomosPage() {
                 as="h2"
                 className="text-2xl font-serif font-bold text-evi-deep mb-6"
               />
-              <ul className="space-y-3.5 text-sm text-evi-text">
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Mestre em Direitos Difusos e Coletivos</strong>, com rigor metodológico e fundamentação científica em cada peça jurídica.
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Especialista em Direito das Famílias e Sucessões</strong>, aliando sensibilidade humana a estratégias patrimoniais de alto impacto.
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Professor Universitário de Direito</strong>, formando gerações de operadores jurídicos.
-                  </div>
-                </li>
-              </ul>
+              <EditableCredentialsList
+                page="quem_somos"
+                section="credenciais"
+                fieldKey="formacao_list"
+                defaultItems={defaultFormacaoItems}
+                addButtonLabel="Adicionar Credencial de Formação"
+              />
             </div>
 
             <div className="bg-white rounded-3xl border border-evi-border p-8 md:p-10 shadow-evi-card">
@@ -429,38 +455,13 @@ export default function QuemSomosPage() {
                 as="h2"
                 className="text-2xl font-serif font-bold text-evi-deep mb-6"
               />
-              <ul className="space-y-3.5 text-sm text-evi-text">
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Ex-Instrutor do Tribunal de Ética e Disciplina da OAB/SP</strong> (Subseção SBC).
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Vice-Presidente da Comissão de Combate ao Exercício Ilegal da Profissão</strong> da OAB/SBC.
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Autor do Livro</strong> “Direito das Famílias Esquematizado – Teoria e Prática Processual”.
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Homenageado com o Troféu Personalidade ABC</strong> no calendário oficial de São Paulo.
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-evi-accent font-bold mt-1">✔</span>
-                  <div>
-                    <strong>Laureado com o Prêmio QUALITY JUSTIÇA</strong> em reconhecimento ético e responsabilidade social.
-                  </div>
-                </li>
-              </ul>
+              <EditableCredentialsList
+                page="quem_somos"
+                section="credenciais"
+                fieldKey="atuacao_list"
+                defaultItems={defaultAtuacaoItems}
+                addButtonLabel="Adicionar Reconhecimento / Atuação"
+              />
             </div>
           </div>
 
