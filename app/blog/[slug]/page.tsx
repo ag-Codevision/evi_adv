@@ -295,6 +295,11 @@ export default async function BlogPostPage({ params }: PageProps) {
                 defaultSrc={coverImage}
                 alt={title}
                 imgClassName="w-full h-full object-cover"
+                autoSearchContext={{
+                  category,
+                  title,
+                  slug: params.slug,
+                }}
               />
             </div>
           </div>

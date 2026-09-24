@@ -4,7 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useAdminEditor } from './AdminAuthProvider';
 import { useSiteContent } from './SiteContentProvider';
 import { saveSiteContent, uploadSiteMedia } from '../../lib/site-content';
-import { Camera, Upload, Link2, X, Check, Loader2 } from 'lucide-react';
+import { Camera, Upload, Link2, X, Check, Loader2, Sparkles, Wand2, RefreshCw } from 'lucide-react';
+import { findAndReplaceBlogImageAction } from '../../lib/blog-image-actions';
+
+export interface AutoSearchContext {
+  category?: string;
+  title?: string;
+  slug?: string;
+}
 
 interface EditableMediaProps {
   page: string;
@@ -14,6 +21,7 @@ interface EditableMediaProps {
   alt: string;
   className?: string;
   imgClassName?: string;
+  autoSearchContext?: AutoSearchContext;
 }
 
 export default function EditableMedia({
@@ -24,6 +32,7 @@ export default function EditableMedia({
   alt,
   className = '',
   imgClassName = '',
+  autoSearchContext,
 }: EditableMediaProps) {
   const { isAdmin, isEditing, setStatusMessage } = useAdminEditor();
   const { getContent, updateContent } = useSiteContent();
@@ -33,6 +42,8 @@ export default function EditableMedia({
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [urlInput, setUrlInput] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isSearchingStock, setIsSearchingStock] = useState<boolean>(false);
+  const [stockSuccessMsg, setStockSuccessMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -121,6 +132,36 @@ export default function EditableMedia({
     }
   };
 
+  const handleAutoStockImage = async () => {
+    setIsSearchingStock(true);
+    setError(null);
+    setStockSuccessMsg(null);
+    setStatusMessage('Buscando imagem no banco de imagens...');
+
+    const res = await findAndReplaceBlogImageAction({
+      page,
+      section,
+      fieldKey,
+      slug: autoSearchContext?.slug || (page === 'blog_detail' ? section : undefined),
+      category: autoSearchContext?.category,
+      title: autoSearchContext?.title || alt,
+      currentUrl: src,
+    });
+
+    setIsSearchingStock(false);
+
+    if (res.success && res.imageUrl) {
+      setSrc(res.imageUrl);
+      updateContent(page, section, fieldKey, res.imageUrl, undefined, 'image');
+      setStatusMessage('Imagem substituída com sucesso pelo banco de imagens!');
+      setTimeout(() => setStatusMessage(null), 3500);
+      setStockSuccessMsg('Imagem atualizada com sucesso no banco de dados!');
+      setTimeout(() => setStockSuccessMsg(null), 4000);
+    } else {
+      setError(res.error || 'Falha ao buscar imagem no banco de imagens.');
+    }
+  };
+
   return (
     <>
       <div className={`relative group ${wrapperClass} overflow-hidden`}>
@@ -142,7 +183,7 @@ export default function EditableMedia({
             <span>Trocar Imagem</span>
           </button>
           <span className="text-[10px] text-slate-300 font-sans tracking-wide">
-            Live Upload (Supabase Storage)
+            Live Upload & Banco de Imagens
           </span>
         </div>
       </div>
@@ -160,7 +201,7 @@ export default function EditableMedia({
 
             <h3 className="text-base font-semibold text-white mb-1 flex items-center gap-2">
               <Camera className="w-5 h-5 text-sky-400" />
-              Editar Imagem em Tempo Real
+              Trocar Imagem
             </h3>
             <p className="text-xs text-slate-400 mb-5">
               Seção: <strong className="text-slate-300">{section}</strong> • Campo: <strong className="text-slate-300">{fieldKey}</strong>
@@ -169,6 +210,50 @@ export default function EditableMedia({
             {error && (
               <div className="mb-4 p-3 bg-rose-950/60 border border-rose-800/80 rounded text-rose-200 text-xs">
                 {error}
+              </div>
+            )}
+
+            {/* Opção Inteligente: Banco de Imagens Automático */}
+            {(page === 'blog_detail' || autoSearchContext) && (
+              <div className="mb-5 p-4 rounded-xl bg-gradient-to-br from-slate-900 to-indigo-950/70 border border-indigo-500/40 shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    Substituição Automática
+                  </span>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">
+                    Banco de Imagens HD
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mb-3 leading-relaxed">
+                  Procura automaticamente uma foto profissional em alta resolução correspondente ao tema deste artigo e substitui na hora.
+                </p>
+
+                {stockSuccessMsg && (
+                  <div className="mb-3 p-2.5 bg-emerald-950/70 border border-emerald-500/60 rounded-lg text-emerald-200 text-xs flex items-center gap-2">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{stockSuccessMsg}</span>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleAutoStockImage}
+                  disabled={isUploading || isSearchingStock}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-sky-600 via-indigo-600 to-blue-600 hover:from-sky-500 hover:via-indigo-500 hover:to-blue-500 text-white rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-60 cursor-pointer active:scale-[0.98]"
+                >
+                  {isSearchingStock ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Procurando no banco de imagens...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4 text-amber-300" />
+                      <span>Procurar Imagem no Banco Automaticamente</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
 

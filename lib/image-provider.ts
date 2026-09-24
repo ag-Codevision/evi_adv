@@ -91,6 +91,31 @@ const SEARCH_QUERY_POOLS: Record<string, string[]> = {
     'healthcare compliance medical governance',
     'physicians consultation medical discussion clinic',
   ],
+  familia: [
+    'family planning estate consultation legal',
+    'family discussion home living room modern',
+    'father child inheritance legacy support',
+    'multigenerational family gathering living room',
+    'family assets estate lawyer discussion',
+  ],
+  trabalhista: [
+    'corporate employment human resources office',
+    'workers office discussion agreement contract',
+    'corporate meeting room team negotiation',
+    'workplace safety compliance company office',
+  ],
+  civel: [
+    'courtroom judge gavel legal balance law books',
+    'scales of justice lawyer office consultation',
+    'legal contract signing fountain pen documents',
+    'modern law firm library documents review',
+  ],
+  blindagem: [
+    'wealth management private banking skyscraper',
+    'corporate holding company finance assets',
+    'asset protection financial security safe vault',
+    'investment portfolio family office strategy',
+  ],
 };
 
 // Acervo Curado Expandido de Alta Resolução (Fallback sem repetição)
@@ -251,20 +276,76 @@ export const CURATED_IMAGES: Record<string, { url: string; caption: string }[]> 
       caption: 'Governança clínica e adequação de protocolos em clínicas de especialidades.',
     },
   ],
+  familia: [
+    {
+      url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Planejamento sucessório, gestão patrimonial e harmonia familiar.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Assessoria jurídica humanizada e estruturação de acordos familiares.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Preservação de bens, herança e consultoria sucessória de alto impacto.',
+    },
+  ],
+  trabalhista: [
+    {
+      url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Gestão de relações de trabalho, compliance trabalhista e mitigação de passivos.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Alinhamento corporativo preventivo e negociação com entidades coletivas.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Defesa técnica patronal perante a Justiça do Trabalho e Tribunais Regionais.',
+    },
+  ],
+  civel: [
+    {
+      url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Fundamentação técnica rigorosa e contencioso cível estratégico.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Análise minuciosa de contratos, cláusulas resolutivas e segurança de negócios.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Biblioteca forense e produção jurídica com embasamento doutrinário.',
+    },
+  ],
+  blindagem: [
+    {
+      url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Estruturação de holding familiar e blindagem jurídica do patrimônio.',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Preservação de liquidez, governança patrimonial e segurança sucessória.',
+    },
+  ],
 };
 
-function getCategoryKey(categorySlug: string = ''): string {
+export function getCategoryKey(categorySlug: string = ''): string {
   const cat = (categorySlug || '').toLowerCase();
   if (cat.includes('agro')) return 'agronegocio';
   if (cat.includes('recupera') || cat.includes('falencia')) return 'recuperacao';
   if (cat.includes('socie') || cat.includes('contrato') || cat.includes('societario')) return 'societario';
   if (cat.includes('tribut') || cat.includes('fiscal')) return 'tributario';
   if (cat.includes('imob')) return 'imobiliario';
-  if (cat.includes('medico') || cat.includes('saude')) return 'direito-medico';
-  return 'recuperacao';
+  if (cat.includes('medico') || cat.includes('saude') || cat.includes('hospital')) return 'direito-medico';
+  if (cat.includes('famili') || cat.includes('sucess') || cat.includes('heranc') || cat.includes('divorc') || cat.includes('inventari')) return 'familia';
+  if (cat.includes('trabalh') || cat.includes('empreg') || cat.includes('labor')) return 'trabalhista';
+  if (cat.includes('civel') || cat.includes('consum') || cat.includes('danos') || cat.includes('indeniz')) return 'civel';
+  if (cat.includes('blindag') || cat.includes('holding') || cat.includes('patrimon')) return 'blindagem';
+  return 'civel';
 }
 
-function extractPhotoId(url: string = ''): string {
+export function extractPhotoId(url: string = ''): string {
   if (!url) return '';
   const match = url.match(/photo-([a-zA-Z0-9_-]+)/);
   return match ? match[1] : url.split('?')[0];
