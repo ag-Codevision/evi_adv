@@ -39,10 +39,10 @@ export const metadata: Metadata = {
     'Advocacia Estratégica',
     'Advogados São Paulo',
   ],
-  authors: [{ name: 'Dr. Eduardo Veríssimo Inocente', url: 'https://evi.adv.br/eduardo-verissimo' }],
+  authors: [{ name: 'Dr. Eduardo Veríssimo Inocente', url: 'https://www.evi.adv.br/eduardo-verissimo' }],
   creator: 'EVI Sociedade de Advogados',
   publisher: 'EVI Sociedade de Advogados',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.evi.adv.br'),
   alternates: {
     canonical: '/',
   },
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: 'EVI Sociedade de Advogados | Advocacia Empresarial e Estratégica',
     description:
       'Desde 2001 · Excelência Jurídica e Atendimento Consultivo em Todo o Brasil.',
-    url: 'https://evi.adv.br',
+    url: 'https://www.evi.adv.br',
     siteName: 'EVI Sociedade de Advogados',
     images: [
       {
@@ -90,16 +90,16 @@ const legalServiceSchema = {
   '@type': 'LegalService',
   name: 'EVI Sociedade de Advogados',
   alternateName: 'Eduardo Veríssimo Inocente Sociedade de Advogados',
-  url: 'https://evi.adv.br',
-  logo: 'https://evi.adv.br/assets/logo.png',
-  image: 'https://evi.adv.br/assets/logo.png',
+  url: 'https://www.evi.adv.br',
+  logo: 'https://www.evi.adv.br/assets/logo.png',
+  image: 'https://www.evi.adv.br/assets/logo.png',
   description:
     'Sociedade de advogados fundada em 2001, especializada em Recuperação Judicial, Agronegócio, Direito Médico, Cível e Empresarial com atuação nacional.',
   founder: {
     '@type': 'Person',
     name: 'Dr. Eduardo Veríssimo Inocente',
     jobTitle: 'Advogado Sócio-Fundador',
-    url: 'https://evi.adv.br/eduardo-verissimo',
+    url: 'https://www.evi.adv.br/eduardo-verissimo',
   },
   areaServed: {
     '@type': 'Country',

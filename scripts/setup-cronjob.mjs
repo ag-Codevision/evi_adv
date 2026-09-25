@@ -24,7 +24,7 @@ async function main() {
   const env = loadEnv();
   const apiKey = env.CRONJOB_API_KEY || process.env.CRONJOB_API_KEY;
   const cronSecret = env.CRON_SECRET || 'c593749da9104553bbd4a708c03062c8d0710350ca4fac707f4e0ad9e653d4dc';
-  const targetUrl = `https://evi-adv.vercel.app/api/cron/auto-blog?key=${cronSecret}`;
+  const targetUrl = `https://www.evi.adv.br/api/cron/auto-blog?key=${cronSecret}`;
 
   if (!apiKey) {
     console.error('❌ ERRO: CRONJOB_API_KEY não encontrada no arquivo .env!');

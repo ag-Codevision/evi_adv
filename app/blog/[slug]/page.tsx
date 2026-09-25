@@ -26,7 +26,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.evi.adv.br';
   const canonicalUrl = `${baseUrl}/blog/${params.slug}`;
   const customCover = await fetchPostCoverOverride(params.slug);
 
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         type: 'article',
         publishedTime: dbPost.published_at,
         modifiedTime: dbPost.updated_at || dbPost.published_at,
-        authors: ['https://evi.adv.br/eduardo-verissimo'],
+        authors: [`${baseUrl}/eduardo-verissimo`],
         images: [{ url: coverUrl, width: 1200, height: 630, alt: dbPost.title }],
       },
       twitter: {
@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         url: canonicalUrl,
         type: 'article',
         publishedTime: localArticle.publishedAt || localArticle.date,
-        authors: ['https://evi.adv.br/eduardo-verissimo'],
+        authors: [`${baseUrl}/eduardo-verissimo`],
         images: [{ url: coverUrl, width: 1200, height: 630, alt: localArticle.title }],
       },
       twitter: {
@@ -146,7 +146,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     : localArticle!.featuredImage);
 
   const related = getRelatedBlogArticles(params.slug, 3);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.evi.adv.br';
   const postUrl = `${baseUrl}/blog/${params.slug}`;
 
   // Schema.org BlogPosting / Article

@@ -3,7 +3,7 @@ import { getDirectSupabase } from '@/lib/supabase/direct';
 import { getAllBlogArticles } from '@/lib/blog-data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://evi.adv.br';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.evi.adv.br';
 
   // Páginas institucionais estáticas prioritárias
   const staticRoutes: MetadataRoute.Sitemap = [

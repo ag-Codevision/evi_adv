@@ -37,9 +37,9 @@ jobs:
             PARAMS="?${KEY_QUERY}"
           fi
           
-          # URL oficial em produção na Vercel
-          TARGET_URL="https://evi-adv.vercel.app/api/cron/auto-blog${PARAMS}"
-          echo "Disparando robô editorial: https://evi-adv.vercel.app/api/cron/auto-blog"
+          # URL oficial em produção
+          TARGET_URL="https://www.evi.adv.br/api/cron/auto-blog${PARAMS}"
+          echo "Disparando robô editorial: https://www.evi.adv.br/api/cron/auto-blog"
           
           HTTP_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "$TARGET_URL" \
             -H "Authorization: Bearer ${SECRET_TOKEN}" \
