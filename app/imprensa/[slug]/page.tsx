@@ -189,7 +189,7 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
                   page="imprensa_detail"
                   section={params.slug}
                   fieldKey="featured_image"
-                  defaultSrc={article.featuredImage}
+                  defaultSrc={article.featuredImage || '/img/imprensa/nani-venancio.jpg'}
                   alt={article.title}
                   imgClassName="w-full h-full object-contain md:object-cover"
                 />
@@ -237,7 +237,14 @@ export default function PressDetailPage({ params }: PressDetailPageProps) {
                   <div className="grid grid-cols-1 gap-6">
                     {article.bodyImages.map((img, i) => (
                       <div key={i} className="rounded-2xl overflow-hidden border border-evi-border shadow-sm bg-slate-50">
-                        <img src={img} alt={`Registro ${i + 1} - ${article.title}`} className="w-full h-auto object-contain" />
+                        <img
+                          src={img}
+                          alt={`Registro ${i + 1} - ${article.title}`}
+                          className="w-full h-auto object-contain"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).parentElement?.remove();
+                          }}
+                        />
                       </div>
                     ))}
                   </div>

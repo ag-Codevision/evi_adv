@@ -20,7 +20,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Rede Brasil de Televisão",
     "category": "TV & Debates",
     "date": "outubro 10, 2023",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2023/10/WhatsApp-Image-2023-10-10-at-16.18.12-1200x480.jpeg",
+    "featuredImage": "/img/imprensa/nani-venancio.jpg",
     "youtubeId": "rPeCb88Rnrk",
     "paragraphs": [
       "No dia 13 de junho &#8211; terça-feira &#8211; a apresentadora Nani Venâncio, do programa &#8220;Tarde Top&#8221;, realizou uma entrevista com o Dr. Eduardo Veríssimo Inocente, sócio-diretor da empresa EVI Sociedade de Advogados.",
@@ -35,7 +35,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "International Business Magazine",
     "category": "Publicações Internacionais",
     "date": "setembro 21, 2022",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2022/09/Captura-de-tela-2022-09-21-141523-.-936x480.png",
+    "featuredImage": "/img/imprensa/ib-magazine.png",
     "youtubeId": null,
     "paragraphs": [
       "Assessoria Jurídica Moderna e Inovadora é a marca da E.V.I Sociedade de Advogados",
@@ -54,7 +54,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "International Business Institute (IBI)",
     "category": "Certificações Internacionais",
     "date": "agosto 2, 2021",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2021/08/certificado-1200x480.jpg",
+    "featuredImage": "/img/imprensa/certificado-ibi.jpg",
     "youtubeId": null,
     "paragraphs": [
       "A EVI Sociedade de Advogados, em 2021, passa a ser um MEMBERSHIP da IBI. Agradecemos a todos nossos clientes e parceiros."
@@ -68,7 +68,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Band News TV",
     "category": "TV & Entrevistas",
     "date": "novembro 19, 2019",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2019/11/Sem-título-1200x480.png",
+    "featuredImage": "/img/imprensa/band-news.png",
     "youtubeId": "j5Bt21r01vI",
     "paragraphs": [
       "Entrevista com o Dr. Eduardo no programa Empresários de Sucesso exibido na Band News."
@@ -82,7 +82,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Sociedade Brasileira de Educação e Integração",
     "category": "Premiações & Homenagens",
     "date": "janeiro 8, 2020",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2020/01/123-1200x480.jpg",
+    "featuredImage": "/img/imprensa/premio-quality.jpg",
     "youtubeId": null,
     "paragraphs": [
       "Em 2019, a E.V.I Sociedade de Advogados recebeu o prêmio QUALITY JUSTIÇA. Este prêmio é a comprovação da responsabilidade social com as comunidades onde o escritório atua, e do compromisso e respeito que tem para com seus clientes, fornecedores e colaboradores, buscando satisfazê-los sempre com os serviços de excelente qualidade."
@@ -96,7 +96,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "International Business Magazine",
     "category": "Publicações Internacionais",
     "date": "fevereiro 22, 2021",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2021/02/WhatsApp-Image-2021-02-22-at-10.15.10.jpeg",
+    "featuredImage": "/img/imprensa/ib-magazine.png",
     "youtubeId": null,
     "paragraphs": [
       "O reconhecimento ao trabalho de alguém ou de uma empresa, não vem necessariamente do tamanho dela ou do número de funcionários, você pode ser pequeno porém grande ao mesmo tempo, tratar as pessoas com respeito e humanidade, amar o que faz, ser gentil , pontual , atencioso e ético com a demanda que chega até você é o que faz de alguém ou de uma empresa o que ela representa aos olhos de quem vê. E assim, com todos estes elementos a E.V.I Sociedade de Advogados e seu sócio diretor Dr.Eduardo Veríssimo Inocente concorrem em 2021 ao prêmio &#8220;The Winner 2021&#8221; &#8220;Os vencedores de 2021&#8221; já fazendo parte do seleto grupo de escolhidos e representando seu trabalho na Revista International Business Magazine com o destaque que merece pelo trabalho desenvolvido em todos estes anos.E chegando aos 20 anos em 2021, estamos nos bastidores trabalhando para mostrar uma nova advocacia , mais moderna , inovadora e eficaz. Veja toda a matéria nas versões inglês e português acessando os links:",
@@ -113,7 +113,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "BCC International Television",
     "category": "TV Internacional",
     "date": "novembro 9, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/11/Entrevista-Programa-Conversa-Legal-Barriga-Solidária-1040x480.png",
+    "featuredImage": "/img/imprensa/conversa-legal.png",
     "youtubeId": null,
     "paragraphs": [
       "Repercussão da entrevista sobre &#8216;Os Aspectos Legais da Barriga Solidária no Brasil&#8217; no canal da BCC International Television no YouTube."
@@ -127,7 +127,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Rede Brasil de Televisão",
     "category": "TV & Debates",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/Entrevistas-03-720x480.jpg",
+    "featuredImage": "/img/imprensa/Entrevistas-03-720x480.jpg",
     "youtubeId": "CPWSq1-WtTw",
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
@@ -142,7 +142,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Gazeta do ABCD",
     "category": "Premiações & Homenagens",
     "date": "novembro 27, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/11/12274465_1000871533307603_6777255824960277290_n-1-960x480.jpg",
+    "featuredImage": "/img/imprensa/trofeu-abc.jpg",
     "youtubeId": null,
     "paragraphs": [
       "Foi publicado no Jornal Gazeta do ABCD as imagens da última edição do Troféu Personalidade ABC, o evento já faz parte do calendário anual do Grande ABC e é organizado pela colunista Ildema Santos. Nesta edição o Dr. Eduardo Veríssimo Inocente foi homenageado na categoria &#8211; Advogado e recebeu das mãos da própria Ildema o troféu representativo."
@@ -156,7 +156,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "SBT - Sistema Brasileiro de Televisão",
     "category": "TV & Reportagem",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/evi1-957x480.jpg",
+    "featuredImage": "/img/imprensa/sbt-entrevista.jpg",
     "youtubeId": "Xr3xRUsC_zs",
     "paragraphs": [
       "Em São Bernardo do Campo, os vizinhos da academia de ginástica, que explodiu em maio e matou duas pessoas, reclamam que a demolição do imóvel está afetando as casas. A repórter Kallyna Sabino foi ao local e encontrou rachaduras, azulejos caindo e buracos espalhados pelas residências."
@@ -170,7 +170,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Imprensa & Mídia",
     "category": "Notícias",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/depoimentos_evi.jpg",
+    "featuredImage": "/img/imprensa/depoimentos_evi.jpg",
     "youtubeId": "c56v07bwfDE",
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
@@ -185,7 +185,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Programa Estilo Empresarial",
     "category": "TV Corporativa",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/WhatsApp-Image-2018-06-06-at-11.44.36-1044x480.jpeg",
+    "featuredImage": "/img/imprensa/WhatsApp-Image-2018-06-06-at-11.44.36-1044x480.jpeg",
     "youtubeId": "_W1tg244xZw",
     "paragraphs": [
       "A adoção é o ato jurídico solene pelo qual, observados os requisitos legais, alguém estabelece, independentemente de qualquer relação de parentesco consanguíneo ou afim, um vínculo fictício de filiação, trazendo para sua família, na condição de filho, pessoa que lhe é estranha.",
@@ -200,15 +200,13 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Jornal Diário do Grande ABC",
     "category": "Jornais & Imprensa",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/reportagens-Tem-960x480.jpg",
+    "featuredImage": "/img/imprensa/reportagens-Tem-960x480.jpg",
     "youtubeId": null,
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
       "Com mais de duas décadas de tradição e foco exclusivo na entrega de soluções jurídicas de alta complexidade, a banca atua na defesa de famílias, patrimônios e corporações em disputas estratégicas em âmbito nacional."
     ],
-    "bodyImages": [
-      "https://evi2.hospedagemdesites.ws/wp-content/uploads/2018/05/reportagens-Tem.jpg"
-    ],
+    "bodyImages": ["/img/imprensa/reportagens-Tem.jpg"],
     "excerpt": "Confira todos os detalhes e registros oficiais desta matéria veiculada na imprensa sobre a EVI Sociedade de Advogados."
   },
   {
@@ -217,7 +215,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Imprensa & Mídia",
     "category": "Notícias",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/alimentos_gravidicos.jpg",
+    "featuredImage": "/img/imprensa/alimentos_gravidicos.jpg",
     "youtubeId": "QSDVHc6PC2c",
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
@@ -232,7 +230,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Imprensa & Mídia",
     "category": "Notícias",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/img01.jpg",
+    "featuredImage": "/img/imprensa/img01.jpg",
     "youtubeId": null,
     "paragraphs": [
       "Dia 17 de maio de 2014, 11h. Vazamento de gás provocado por fissuras nas tubulações que transportavam combustível causou explosão na academia Tem Esportes, no bairro Pauliceia, em São Bernardo. Ao todo, houve dois mortos, 12 feridos e casas interditadas. Um ano após a tragédia, os tormentos para os vizinhos continuam. O local ainda guarda retratos da ocorrência. Entulho permanece na área e, enquanto isso, famílias esperam justiça para recuperar os prejuízos.",
@@ -252,15 +250,13 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Revista Expressão",
     "category": "Revistas & Negócios",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/simposio_expressao.jpg",
+    "featuredImage": "/img/imprensa/simposio_expressao.jpg",
     "youtubeId": null,
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
       "Com mais de duas décadas de tradição e foco exclusivo na entrega de soluções jurídicas de alta complexidade, a banca atua na defesa de famílias, patrimônios e corporações em disputas estratégicas em âmbito nacional."
     ],
-    "bodyImages": [
-      "https://evi2.hospedagemdesites.ws/wp-content/uploads/2018/05/simposio_expressao.jpg"
-    ],
+    "bodyImages": ["/img/imprensa/simposio_expressao.jpg"],
     "excerpt": "Confira todos os detalhes e registros oficiais desta matéria veiculada na imprensa sobre a EVI Sociedade de Advogados."
   },
   {
@@ -269,7 +265,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Jornal Repórter Diário",
     "category": "Jornais & Investigação",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/post_evi.jpg",
+    "featuredImage": "/img/imprensa/post_evi.jpg",
     "youtubeId": null,
     "paragraphs": [
       "Seis meses após o acidente da explosão da Academia Tem, no bairro Pauliceia, em São Bernardo, o problema continua, pois os moradores de casas atingidas sofrem com medo de desabamentos dos imóveis. Em 17 de junho de 2014, a explosão matou duas pessoas e deixou outras 19 feridas. Agora, os vizinhos brigam na Justiça pela reconstrução de suas casas.",
@@ -291,7 +287,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Institucional EVI",
     "category": "Histórico & Celebrações",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/WhatsApp-Image-2018-06-06-at-12.11.04-1080x480.jpeg",
+    "featuredImage": "/img/imprensa/WhatsApp-Image-2018-06-06-at-12.11.04-1080x480.jpeg",
     "youtubeId": "PUJINb5GDAo",
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
@@ -306,7 +302,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Imprensa & Mídia",
     "category": "Notícias",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/img02.jpg",
+    "featuredImage": "/img/imprensa/img02.jpg",
     "youtubeId": null,
     "paragraphs": [
       "A explosão de uma academia de ginástica na Grande São Paulo, que resultou na morte de duas pessoas e muitos estragos em diversas casas completou um ano. E os moradores que tiveram suas casas atingidas ainda esperam que a Justiça resolva quem vai pagar pelos prejuízos materiais causados pela tragédia. Confira a reportagem completa",
@@ -321,7 +317,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Institucional EVI",
     "category": "Histórico & Celebrações",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/evi3-1130x480.jpg",
+    "featuredImage": "/img/imprensa/evi3-1130x480.jpg",
     "youtubeId": "Vs3zkYB2hnw",
     "paragraphs": [
       "A atuação da EVI Sociedade de Advogados e a liderança estratégica do Dr. Eduardo Veríssimo Inocente ganham constante projeção nos principais veículos de imprensa e canais de comunicação do país.",
@@ -336,7 +332,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Imprensa & Mídia",
     "category": "Notícias",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/evi_15anos_dabc.jpg",
+    "featuredImage": "/img/imprensa/evi_15anos_dabc.jpg",
     "youtubeId": null,
     "paragraphs": [
       "No dia 02 de julho de 2016, o escritório EVI – Sociedade de Advogados completou 15 anos de história. E para comemorar, uma grande festa foi realizada no restaurante Baby Beef Jardim, em Santo André, que contou com a presença dos colaboradores e clientes. O evento foi repercutido por diferentes mídias, como o Jornal Diário do Grande ABC. A colunista social, Juliana Bontorim, publicou uma matéria especial.",
@@ -352,7 +348,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Imprensa & Mídia",
     "category": "Notícias",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/201751983534-1.jpg",
+    "featuredImage": "/img/imprensa/201751983534-1.jpg",
     "youtubeId": null,
     "paragraphs": [
       "Três anos após explosão de academia no bairro Pauliceia em São Bernardo, as marcas permanecem nos envolvidos. A tragédia deixou dois mortos e dez feridos e casas danificadas. Apesar de acordo firmado em ao menos cinco processos por danos morais com a Tem Esportes, o caso permanece em aberto na esfera criminal.",
@@ -375,7 +371,7 @@ export const pressArticles: PressArticle[] = [
     "outlet": "Jornal Diário do Grande ABC",
     "category": "Jornais & Imprensa",
     "date": "maio 23, 2018",
-    "featuredImage": "https://evi.adv.br/wp-content/uploads/2018/05/unnamed-900x480.jpg",
+    "featuredImage": "/img/imprensa/unnamed-900x480.jpg",
     "youtubeId": null,
     "paragraphs": [
       "Agito: Diversão não faltara para os convidados que marcarem presença hoje no jantar que o advogado Eduardo Veríssimo Inocente, de São Bernardo, comandará em Santo André. O evento, que comemora seis anos de seu escritório na cidade, será para 110 pessoas. Para animar a sessão garfo e faca haverá apresentação de estátua viva."

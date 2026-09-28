@@ -547,10 +547,16 @@ export default function ImprensaPage() {
                   {/* Foto de Capa da Matéria */}
                   <Link href={`/imprensa/${item.slug}`} className="block relative aspect-[16/10] overflow-hidden bg-slate-900 border-b border-evi-border">
                     <img
-                      src={item.featuredImage}
+                      src={item.featuredImage || '/img/imprensa/nani-venancio.jpg'}
                       alt={item.title}
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.src.endsWith('/img/imprensa/nani-venancio.jpg')) {
+                          target.src = '/img/imprensa/nani-venancio.jpg';
+                        }
+                      }}
                     />
                     <div className="absolute top-3 left-3 bg-evi-deep/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       {item.outlet}
